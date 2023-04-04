@@ -509,6 +509,7 @@
 		2EFA40782756239400C9F002 /* FSActionSheetCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 2EFA406B2756239400C9F002 /* FSActionSheetCell.m */; };
 		2EFA40792756239400C9F002 /* FSActionSheetItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 2EFA406C2756239400C9F002 /* FSActionSheetItem.m */; };
 		41C83B6421CA9A573B632467 /* libPods-PowerDance.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F90D83B426425A0267E7E921 /* libPods-PowerDance.a */; };
+		4C25AD2229DC44F100E10609 /* ZCTrainActionBaseModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C25AD2129DC44F100E10609 /* ZCTrainActionBaseModel.m */; };
 		4C642A6A29DB0AC400B44CE0 /* ZCFollowTrainController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C642A6929DB0AC400B44CE0 /* ZCFollowTrainController.m */; };
 		4C74D0BB29C1AA88006286FA /* HeartLive.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C74D0B929C1AA87006286FA /* HeartLive.m */; };
 /* End PBXBuildFile section */
@@ -1514,6 +1515,8 @@
 		2EFA406D2756239400C9F002 /* FSActionSheetConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSActionSheetConfig.h; sourceTree = "<group>"; };
 		2EFA406E2756239400C9F002 /* FSActionSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSActionSheet.h; sourceTree = "<group>"; };
 		39870DA024300793A58C1E64 /* Pods-PowerDance.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PowerDance.release.xcconfig"; path = "Target Support Files/Pods-PowerDance/Pods-PowerDance.release.xcconfig"; sourceTree = "<group>"; };
+		4C25AD2029DC44F100E10609 /* ZCTrainActionBaseModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCTrainActionBaseModel.h; sourceTree = "<group>"; };
+		4C25AD2129DC44F100E10609 /* ZCTrainActionBaseModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCTrainActionBaseModel.m; sourceTree = "<group>"; };
 		4C642A6829DB0AC400B44CE0 /* ZCFollowTrainController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCFollowTrainController.h; sourceTree = "<group>"; };
 		4C642A6929DB0AC400B44CE0 /* ZCFollowTrainController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCFollowTrainController.m; sourceTree = "<group>"; };
 		4C74D0B929C1AA87006286FA /* HeartLive.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HeartLive.m; sourceTree = "<group>"; };
@@ -1547,7 +1550,6 @@
 				2EADC80B27E085AD004F628E /* TrainAction */,
 				2EADC80927E0858F004F628E /* TrainEquipment */,
 				2EADC7C727DF1A72004F628E /* ClassDetail */,
-				2E00BD4327DAE2FC00B44986 /* Model */,
 				2E00BD4227DAE2F700B44986 /* View */,
 				2E00BD4127DAE2EC00B44986 /* Controller */,
 			);
@@ -1619,13 +1621,6 @@
 			path = View;
 			sourceTree = "<group>";
 		};
-		2E00BD4327DAE2FC00B44986 /* Model */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Model;
-			sourceTree = "<group>";
-		};
 		2E08E7C527ED928500625BD1 /* PlayVideo */ = {
 			isa = PBXGroup;
 			children = (
@@ -1686,7 +1681,6 @@
 			isa = PBXGroup;
 			children = (
 				2EC323CD2761D9880022916F /* Tool */,
-				2E1133502761A751000820EE /* Model */,
 				2E11334F2761A74B000820EE /* View */,
 				2E11334E2761A745000820EE /* Controller */,
 			);
@@ -1737,17 +1731,9 @@
 			path = View;
 			sourceTree = "<group>";
 		};
-		2E1133502761A751000820EE /* Model */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Model;
-			sourceTree = "<group>";
-		};
 		2E16825E290FAD600000FC5D /* Course */ = {
 			isa = PBXGroup;
 			children = (
-				2E168261290FAD820000FC5D /* Model */,
 				2E168260290FAD7C0000FC5D /* View */,
 				2E16825F290FAD760000FC5D /* Controller */,
 			);
@@ -1788,13 +1774,6 @@
 				2EDB2382274B807400D0695E /* ZCTagsView.m */,
 			);
 			path = View;
-			sourceTree = "<group>";
-		};
-		2E168261290FAD820000FC5D /* Model */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Model;
 			sourceTree = "<group>";
 		};
 		2E28FC0628B8B17200F43A39 /* Tool */ = {
@@ -1926,7 +1905,6 @@
 			children = (
 				2E88F4A2273A24BB0018EAE8 /* Order */,
 				2E474603272936E4003B96EF /* View */,
-				2E474602272936DC003B96EF /* Model */,
 				2E4745EC272904A5003B96EF /* Controller */,
 			);
 			path = My;
@@ -2044,13 +2022,6 @@
 				2E4745CA27280A9C003B96EF /* InfoPlist.strings */,
 			);
 			path = Source;
-			sourceTree = "<group>";
-		};
-		2E474602272936DC003B96EF /* Model */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Model;
 			sourceTree = "<group>";
 		};
 		2E474603272936E4003B96EF /* View */ = {
@@ -2368,7 +2339,6 @@
 		2E47468D2730D776003B96EF /* TrainSport */ = {
 			isa = PBXGroup;
 			children = (
-				2E4746902730D78F003B96EF /* Model */,
 				2E47468F2730D78A003B96EF /* View */,
 				2E47468E2730D783003B96EF /* Controller */,
 			);
@@ -2401,13 +2371,6 @@
 				2E4D9B2F27570F31003D8EBF /* ZCTrainSportDownView.m */,
 			);
 			path = View;
-			sourceTree = "<group>";
-		};
-		2E4746902730D78F003B96EF /* Model */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Model;
 			sourceTree = "<group>";
 		};
 		2E4D9B2A2757052F003D8EBF /* PopUpView */ = {
@@ -3122,7 +3085,6 @@
 		2EADC80927E0858F004F628E /* TrainEquipment */ = {
 			isa = PBXGroup;
 			children = (
-				2EADC81927E08B61004F628E /* Model */,
 				2EADC81827E08B5C004F628E /* View */,
 				2EADC80C27E085CE004F628E /* Controller */,
 			);
@@ -3132,7 +3094,7 @@
 		2EADC80B27E085AD004F628E /* TrainAction */ = {
 			isa = PBXGroup;
 			children = (
-				2EADC82A27E174A5004F628E /* Model */,
+				4C25AD1F29DC44D800E10609 /* Model */,
 				2EADC82927E174A0004F628E /* View */,
 				2EADC80E27E085DD004F628E /* Controller */,
 			);
@@ -3174,13 +3136,6 @@
 			path = View;
 			sourceTree = "<group>";
 		};
-		2EADC81927E08B61004F628E /* Model */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Model;
-			sourceTree = "<group>";
-		};
 		2EADC82927E174A0004F628E /* View */ = {
 			isa = PBXGroup;
 			children = (
@@ -3196,13 +3151,6 @@
 				2E08E7F127F3137400625BD1 /* ZCTrainFilterClassCategoryView.m */,
 			);
 			path = View;
-			sourceTree = "<group>";
-		};
-		2EADC82A27E174A5004F628E /* Model */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Model;
 			sourceTree = "<group>";
 		};
 		2EADC8A727E324DA004F628E /* AutoTimer */ = {
@@ -3709,6 +3657,15 @@
 				2EFA40682756239400C9F002 /* FSActionSheet_cancel@2x.png */,
 			);
 			path = FSActionSheetResources;
+			sourceTree = "<group>";
+		};
+		4C25AD1F29DC44D800E10609 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				4C25AD2029DC44F100E10609 /* ZCTrainActionBaseModel.h */,
+				4C25AD2129DC44F100E10609 /* ZCTrainActionBaseModel.m */,
+			);
+			path = Model;
 			sourceTree = "<group>";
 		};
 		D968CBF178AF8356E73390E3 /* Frameworks */ = {
@@ -4234,6 +4191,7 @@
 				2E8A06BA2935A78E00FD1E0E /* ZCTrainPlanDetailHeaderView.m in Sources */,
 				2E8A06B72935A5CC00FD1E0E /* ZCTrainPlanDetailController.m in Sources */,
 				2E88F4A1273A20CA0018EAE8 /* ZCProcotolDetailController.m in Sources */,
+				4C25AD2229DC44F100E10609 /* ZCTrainActionBaseModel.m in Sources */,
 				2EF265B22939DF0100DAF21E /* ZCPersonalSportDataCell.m in Sources */,
 				2E88F38E273917060018EAE8 /* ZCMyTrainFuncView.m in Sources */,
 				2EF6C236282E467400662D37 /* ZCCustomCourseEditView.m in Sources */,
