@@ -1,0 +1,65 @@
+//
+//  PrefixHeader.pch
+//  PowerDance
+//
+//  Created by PC-N121 on 2021/10/27.
+//
+
+#ifndef PrefixHeader_pch
+#define PrefixHeader_pch
+
+//kit
+#import <UIKit/UIKit.h>
+#import <ReactiveObjC/ReactiveObjC.h>
+#import <SDWebImage/SDWebImage.h>
+#import <AFNetworking/AFNetworking.h>
+#import <MJExtension/MJExtension.h>
+#import <Masonry/Masonry.h>
+#import <JXCategoryView.h>
+#import <SDCycleScrollView.h>
+#import <MBProgressHUD.h>
+#import <IQKeyboardManager.h>
+#import "MJRefresh.h"
+#import <AlipaySDK/AlipaySDK.h>
+#import <WechatOpenSDK/WXApi.h>
+#import <SocketRocket/SocketRocket.h>
+
+//cons
+#import "ZCConstantMacro.h"
+#import "ZCAPIURLMacro.h"
+#import "ZCDevice.h"
+#import "ZCConfigColor.h"
+#import "ZCDataTool.h"
+#import "BRPickerView.h"
+#import "TZImagePickerController.h"
+#import "BRPickerView.h"
+#import "ZCBaseSlideController.h"
+#import "ZCBaseScrollController.h"
+#import "XLPhotoBrowser.h"
+#import "CFFHud.h"
+#import "ZCBaseTimerController.h"
+
+//category
+#import "UIView+Positon.h"
+#import "NSString+ZCHelper.h"
+#import "UIColor+Color.h"
+#import "UIButton+Extra.h"
+#import "UIImage+Exta.h"
+#import "UIView+Exta.h"
+#import "UIView+Positon.h"
+#import "UITextField+Exta.h"
+#import "UILabel+Exta.h"
+#import "ZCHud.h"
+#import "UIView+Toast.h"
+#import "NSDate+Extension.h"
+
+//common
+#import "HCRouter.h"
+#import "UIResponder+HBRouter.h"
+#import "ZCNetwork.h"
+#import "ZCUserInfo.h"
+#import "ZCProfileStore.h"
+#import "ZCProfileManage.h"
+#import "ZCBluthDataTool.h"
+
+#endif /* PrefixHeader_pch */
