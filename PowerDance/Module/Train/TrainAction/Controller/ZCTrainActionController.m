@@ -84,6 +84,7 @@
         }
     }
     self.collectionView.mj_footer.automaticallyChangeAlpha = YES;
+    
 }
 
 - (void)routerWithEventName:(NSString *)eventName userInfo:(NSDictionary *)userInfo {
