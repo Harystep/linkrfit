@@ -1,0 +1,81 @@
+PODS:
+  - AFNetworking (4.0.1):
+    - AFNetworking/NSURLSession (= 4.0.1)
+    - AFNetworking/Reachability (= 4.0.1)
+    - AFNetworking/Security (= 4.0.1)
+    - AFNetworking/Serialization (= 4.0.1)
+    - AFNetworking/UIKit (= 4.0.1)
+  - AFNetworking/NSURLSession (4.0.1):
+    - AFNetworking/Reachability
+    - AFNetworking/Security
+    - AFNetworking/Serialization
+  - AFNetworking/Reachability (4.0.1)
+  - AFNetworking/Security (4.0.1)
+  - AFNetworking/Serialization (4.0.1)
+  - AFNetworking/UIKit (4.0.1):
+    - AFNetworking/NSURLSession
+  - AlipaySDK-iOS (15.7.9)
+  - IQKeyboardManager (6.5.6)
+  - JXCategoryView (1.5.9)
+  - lottie-ios (2.5.3)
+  - Masonry (1.1.0)
+  - MBProgressHUD (1.2.0)
+  - MJExtension (3.3.0)
+  - ReactiveObjC (3.1.1)
+  - SDCycleScrollView (1.82):
+    - SDWebImage (>= 5.0.0)
+  - SDWebImage (5.12.0):
+    - SDWebImage/Core (= 5.12.0)
+  - SDWebImage/Core (5.12.0)
+  - SocketRocket (0.6.0)
+  - WechatOpenSDK (1.8.7.1)
+
+DEPENDENCIES:
+  - AFNetworking (~> 4.0.1)
+  - AlipaySDK-iOS
+  - IQKeyboardManager (~> 6.5.6)
+  - JXCategoryView
+  - lottie-ios (~> 2.5.0)
+  - Masonry (~> 1.1.0)
+  - MBProgressHUD
+  - MJExtension (~> 3.3.0)
+  - ReactiveObjC (~> 3.1.1)
+  - SDCycleScrollView
+  - SDWebImage (~> 5.12.0)
+  - SocketRocket
+  - WechatOpenSDK
+
+SPEC REPOS:
+  trunk:
+    - AFNetworking
+    - AlipaySDK-iOS
+    - IQKeyboardManager
+    - JXCategoryView
+    - lottie-ios
+    - Masonry
+    - MBProgressHUD
+    - MJExtension
+    - ReactiveObjC
+    - SDCycleScrollView
+    - SDWebImage
+    - SocketRocket
+    - WechatOpenSDK
+
+SPEC CHECKSUMS:
+  AFNetworking: 7864c38297c79aaca1500c33288e429c3451fdce
+  AlipaySDK-iOS: 94ff4c0e17c5e7d126b8207596d5033006534c25
+  IQKeyboardManager: 2a6e97afdafc7becf0cb17a9a8d795e3a980717f
+  JXCategoryView: 2ef9ecfd3735158d009ce02d1f29811aa822da65
+  lottie-ios: a50d5c0160425cd4b01b852bb9578963e6d92d31
+  Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
+  MBProgressHUD: 3ee5efcc380f6a79a7cc9b363dd669c5e1ae7406
+  MJExtension: 01704cca2b60a214c10761b6491eab74069d68a9
+  ReactiveObjC: 011caa393aa0383245f2dcf9bf02e86b80b36040
+  SDCycleScrollView: a0d74c3384caa72bdfc81470bdbc8c14b3e1fbcf
+  SDWebImage: 4ea20cca2986adc5aacde07aa686742fd4c67a37
+  SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
+  WechatOpenSDK: 6a4d1436c15b3b5fe2a0bd383f3046010186da44
+
+PODFILE CHECKSUM: 20804e75a26a563603d961afb8327a1fde34b268
+
+COCOAPODS: 1.10.1
