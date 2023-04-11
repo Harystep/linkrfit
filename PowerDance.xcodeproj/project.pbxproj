@@ -512,6 +512,13 @@
 		4C25AD2229DC44F100E10609 /* ZCTrainActionBaseModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C25AD2129DC44F100E10609 /* ZCTrainActionBaseModel.m */; };
 		4C3F9AFA29E53C2200B7DC2E /* ZCPowerPlatformController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C3F9AF929E53C2200B7DC2E /* ZCPowerPlatformController.m */; };
 		4C3F9AFD29E53CA600B7DC2E /* ZCPowerPlatformTypeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C3F9AFC29E53CA600B7DC2E /* ZCPowerPlatformTypeView.m */; };
+		4C3F9B0E29E5751900B7DC2E /* LNLineChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C3F9AFF29E5751900B7DC2E /* LNLineChartView.m */; };
+		4C3F9B0F29E5751900B7DC2E /* LNLineChartModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C3F9B0229E5751900B7DC2E /* LNLineChartModel.m */; };
+		4C3F9B1029E5751A00B7DC2E /* BEMLine.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C3F9B0429E5751900B7DC2E /* BEMLine.m */; };
+		4C3F9B1129E5751A00B7DC2E /* BEMAverageLine.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C3F9B0829E5751900B7DC2E /* BEMAverageLine.m */; };
+		4C3F9B1229E5751A00B7DC2E /* BEMPermanentPopupView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C3F9B0A29E5751900B7DC2E /* BEMPermanentPopupView.m */; };
+		4C3F9B1329E5751A00B7DC2E /* BEMCircle.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C3F9B0B29E5751900B7DC2E /* BEMCircle.m */; };
+		4C3F9B1429E5751A00B7DC2E /* BEMSimpleLineGraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C3F9B0C29E5751900B7DC2E /* BEMSimpleLineGraphView.m */; };
 		4C642A6A29DB0AC400B44CE0 /* ZCFollowTrainController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C642A6929DB0AC400B44CE0 /* ZCFollowTrainController.m */; };
 		4C74D0BB29C1AA88006286FA /* HeartLive.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C74D0B929C1AA87006286FA /* HeartLive.m */; };
 /* End PBXBuildFile section */
@@ -1523,6 +1530,20 @@
 		4C3F9AF929E53C2200B7DC2E /* ZCPowerPlatformController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCPowerPlatformController.m; sourceTree = "<group>"; };
 		4C3F9AFB29E53CA600B7DC2E /* ZCPowerPlatformTypeView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCPowerPlatformTypeView.h; sourceTree = "<group>"; };
 		4C3F9AFC29E53CA600B7DC2E /* ZCPowerPlatformTypeView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCPowerPlatformTypeView.m; sourceTree = "<group>"; };
+		4C3F9AFF29E5751900B7DC2E /* LNLineChartView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LNLineChartView.m; sourceTree = "<group>"; };
+		4C3F9B0029E5751900B7DC2E /* LNLineChartModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LNLineChartModel.h; sourceTree = "<group>"; };
+		4C3F9B0129E5751900B7DC2E /* LNLineChartView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LNLineChartView.h; sourceTree = "<group>"; };
+		4C3F9B0229E5751900B7DC2E /* LNLineChartModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LNLineChartModel.m; sourceTree = "<group>"; };
+		4C3F9B0429E5751900B7DC2E /* BEMLine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BEMLine.m; sourceTree = "<group>"; };
+		4C3F9B0529E5751900B7DC2E /* BEMCircle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BEMCircle.h; sourceTree = "<group>"; };
+		4C3F9B0629E5751900B7DC2E /* BEMSimpleLineGraphView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BEMSimpleLineGraphView.h; sourceTree = "<group>"; };
+		4C3F9B0729E5751900B7DC2E /* BEMPermanentPopupView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BEMPermanentPopupView.h; sourceTree = "<group>"; };
+		4C3F9B0829E5751900B7DC2E /* BEMAverageLine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BEMAverageLine.m; sourceTree = "<group>"; };
+		4C3F9B0929E5751900B7DC2E /* BEMLine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BEMLine.h; sourceTree = "<group>"; };
+		4C3F9B0A29E5751900B7DC2E /* BEMPermanentPopupView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BEMPermanentPopupView.m; sourceTree = "<group>"; };
+		4C3F9B0B29E5751900B7DC2E /* BEMCircle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BEMCircle.m; sourceTree = "<group>"; };
+		4C3F9B0C29E5751900B7DC2E /* BEMSimpleLineGraphView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BEMSimpleLineGraphView.m; sourceTree = "<group>"; };
+		4C3F9B0D29E5751900B7DC2E /* BEMAverageLine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BEMAverageLine.h; sourceTree = "<group>"; };
 		4C642A6829DB0AC400B44CE0 /* ZCFollowTrainController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCFollowTrainController.h; sourceTree = "<group>"; };
 		4C642A6929DB0AC400B44CE0 /* ZCFollowTrainController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCFollowTrainController.m; sourceTree = "<group>"; };
 		4C74D0B929C1AA87006286FA /* HeartLive.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HeartLive.m; sourceTree = "<group>"; };
@@ -1991,6 +2012,7 @@
 		2E4745FF272935F4003B96EF /* Libs */ = {
 			isa = PBXGroup;
 			children = (
+				4C3F9AFE29E5751900B7DC2E /* LNChart */,
 				2E7C63E6288FC48900AA48D2 /* ICDeviceManager.framework */,
 				2E08E7C527ED928500625BD1 /* PlayVideo */,
 				2EFA40552756239400C9F002 /* XLPhotoBrowser */,
@@ -3702,6 +3724,35 @@
 			path = Controller;
 			sourceTree = "<group>";
 		};
+		4C3F9AFE29E5751900B7DC2E /* LNChart */ = {
+			isa = PBXGroup;
+			children = (
+				4C3F9AFF29E5751900B7DC2E /* LNLineChartView.m */,
+				4C3F9B0029E5751900B7DC2E /* LNLineChartModel.h */,
+				4C3F9B0129E5751900B7DC2E /* LNLineChartView.h */,
+				4C3F9B0229E5751900B7DC2E /* LNLineChartModel.m */,
+				4C3F9B0329E5751900B7DC2E /* BEChart */,
+			);
+			path = LNChart;
+			sourceTree = "<group>";
+		};
+		4C3F9B0329E5751900B7DC2E /* BEChart */ = {
+			isa = PBXGroup;
+			children = (
+				4C3F9B0429E5751900B7DC2E /* BEMLine.m */,
+				4C3F9B0529E5751900B7DC2E /* BEMCircle.h */,
+				4C3F9B0629E5751900B7DC2E /* BEMSimpleLineGraphView.h */,
+				4C3F9B0729E5751900B7DC2E /* BEMPermanentPopupView.h */,
+				4C3F9B0829E5751900B7DC2E /* BEMAverageLine.m */,
+				4C3F9B0929E5751900B7DC2E /* BEMLine.h */,
+				4C3F9B0A29E5751900B7DC2E /* BEMPermanentPopupView.m */,
+				4C3F9B0B29E5751900B7DC2E /* BEMCircle.m */,
+				4C3F9B0C29E5751900B7DC2E /* BEMSimpleLineGraphView.m */,
+				4C3F9B0D29E5751900B7DC2E /* BEMAverageLine.h */,
+			);
+			path = BEChart;
+			sourceTree = "<group>";
+		};
 		D968CBF178AF8356E73390E3 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -3976,6 +4027,7 @@
 				2E474699273106B6003B96EF /* ZCTrainSportTopView.m in Sources */,
 				2E08E79627EC3B0600625BD1 /* ZCAutoTimerSWOperateView.m in Sources */,
 				2E474669272BCF94003B96EF /* ZCSelectSportEquipmentCell.m in Sources */,
+				4C3F9B1329E5751A00B7DC2E /* BEMCircle.m in Sources */,
 				2E00BD5827DAF68600B44986 /* ZCTrainClassCardItemCell.m in Sources */,
 				2EADC7E527E01E3E004F628E /* ZCActionBodyCell.m in Sources */,
 				2E47469C27310E55003B96EF /* PGCircleProgressView.m in Sources */,
@@ -4004,6 +4056,7 @@
 				2EDB23DC274F5B8200D0695E /* ZCSportActionCell.m in Sources */,
 				2EDB23A7274C999900D0695E /* ZCShopManage.m in Sources */,
 				2E2E383527E478A000F9E923 /* ZCAutoProgressView.m in Sources */,
+				4C3F9B0E29E5751900B7DC2E /* LNLineChartView.m in Sources */,
 				2E88F3ED27392BBB0018EAE8 /* NSBundle+TZImagePicker.m in Sources */,
 				2E88F3F427392BBB0018EAE8 /* TZPhotoPreviewCell.m in Sources */,
 				2E6B2934282BC28500FD40EF /* TTScrollRulerView.m in Sources */,
@@ -4121,6 +4174,7 @@
 				2EFA40722756239400C9F002 /* XLZoomingScrollView.m in Sources */,
 				2E08E79027EC098300625BD1 /* ZCAutoTimerOperateTimeView.m in Sources */,
 				2E7C64D72897658500AA48D2 /* ZCSuitTrainResultCell.m in Sources */,
+				4C3F9B1229E5751A00B7DC2E /* BEMPermanentPopupView.m in Sources */,
 				2E340F932747762A001E7F01 /* ZCBuyGoodsInfoView.m in Sources */,
 				2E5C70422818ED8500F25397 /* ZCCustomActionTrainController.m in Sources */,
 				2EDB241E275073F800D0695E /* UIScrollView+MJRefresh.m in Sources */,
@@ -4208,6 +4262,8 @@
 				2EE38D4E27425EDE005F5A52 /* ZCShopCommentCell.m in Sources */,
 				2E88F3612737FEDC0018EAE8 /* ZCShopCategorySimpleCell.m in Sources */,
 				2E7C64CB2892944200AA48D2 /* ZCSuitFollowTestCell.m in Sources */,
+				4C3F9B1429E5751A00B7DC2E /* BEMSimpleLineGraphView.m in Sources */,
+				4C3F9B0F29E5751900B7DC2E /* LNLineChartModel.m in Sources */,
 				2E474616272938D9003B96EF /* UIColor+Color.m in Sources */,
 				2E1133592761A9B5000820EE /* ZCTimerOtherFuncView.m in Sources */,
 				2EE38D42274239EE005F5A52 /* ZCComfireOrderPayView.m in Sources */,
@@ -4279,6 +4335,7 @@
 				2E9B3C43273BDD5500E38900 /* ZCContactTypeView.m in Sources */,
 				2E7C644F288FE13D00AA48D2 /* CFFSmartCloudController.m in Sources */,
 				2EADC81727E08610004F628E /* ZCTrainEquipmentController.m in Sources */,
+				4C3F9B1029E5751A00B7DC2E /* BEMLine.m in Sources */,
 				2E7C63F7288FC51500AA48D2 /* CFFSmartRulerRecordController.m in Sources */,
 				2E00BD5B27DB1A6900B44986 /* ZCRecommendClassCell.m in Sources */,
 				2E8A06AE2934601500FD1E0E /* ZCHomePlanFinishHeaderView.m in Sources */,
@@ -4321,6 +4378,7 @@
 				2E47468C2730D6A6003B96EF /* ZCTrainSportController.m in Sources */,
 				2E8A06D8293608BC00FD1E0E /* ZCHomeTrainPlanAgeGuideView.m in Sources */,
 				2E8A06C32935F14900FD1E0E /* ZCHomeTrainSelectEquipmentGuideView.m in Sources */,
+				4C3F9B1129E5751A00B7DC2E /* BEMAverageLine.m in Sources */,
 				2EADC8AD27E32598004F628E /* ZCCircleDialView.m in Sources */,
 				2E5C7069281BE86C00F25397 /* ZCTimerAutoSetView.m in Sources */,
 				2EFA40412754D14900C9F002 /* ZCGoodsTypeModel.m in Sources */,

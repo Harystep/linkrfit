@@ -18,6 +18,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, assign) CGFloat   width;
 
+@property (nonatomic, assign) CGFloat centerX;
+@property (nonatomic, assign) CGFloat centerY;
+@property (nonatomic, assign) CGFloat bottom;
+@property (nonatomic, assign) CGFloat right;
 /** View's height */
 @property (nonatomic, assign) CGFloat   height;
 

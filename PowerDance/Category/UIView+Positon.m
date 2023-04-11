@@ -49,6 +49,42 @@
     self.frame = rect;
 }
 
+- (void)setCenterX:(CGFloat)centerX
+{
+    CGPoint center = self.center;
+    center.x = centerX;
+    self.center = center;
+}
+
+- (CGFloat)centerX
+{
+    return self.center.x;
+}
+
+- (void)setCenterY:(CGFloat)centerY
+{
+    CGPoint center = self.center;
+    center.y = centerY;
+    self.center = center;
+}
+
+- (CGFloat)centerY
+{
+    return self.center.y;
+}
+
+- (CGFloat) bottom
+{
+    return self.frame.origin.y + self.frame.size.height;
+}
+
+- (void) setBottom: (CGFloat) newbottom
+{
+    CGRect newframe = self.frame;
+    newframe.origin.y = newbottom - self.frame.size.height;
+    self.frame = newframe;
+}
+
 - (CGPoint)origin  {
     return self.frame.origin;
 }
@@ -178,5 +214,17 @@
     self.frame   = frame;
 }
 
+- (CGFloat) right
+{
+    return self.frame.origin.x + self.frame.size.width;
+}
+
+- (void) setRight: (CGFloat) newright
+{
+    CGFloat delta = newright - (self.frame.origin.x + self.frame.size.width);
+    CGRect newframe = self.frame;
+    newframe.origin.x += delta ;
+    self.frame = newframe;
+}
 
 @end

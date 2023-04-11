@@ -99,4 +99,11 @@
 //单像素线条宽度
 #define kCFF_SINGLE_LINE_WIDTH                    (1/[UIScreen mainScreen].scale)
 
+#define MLPercent (([UIScreen mainScreen].bounds.size.width)<([UIScreen mainScreen].bounds.size.height)?([UIScreen mainScreen].bounds.size.width/768):([UIScreen mainScreen].bounds.size.height/768))
+#define DefaultOneH (1*MLPercent<=0.5 ?0.5:1*MLPercent)
+
+#define MLARGBColor(r, g, b, a) [UIColor colorWithRed:(r)/255.0 green:(g)/255.0 blue:(b)/255.0 alpha:(a)]
+#define MLColor(r, g, b) MLARGBColor((r), (g), (b), 1)
+#define MLGrayColor(v) MLColor((v), (v), (v))
+
 #endif /* ZCConstantMacro_h */

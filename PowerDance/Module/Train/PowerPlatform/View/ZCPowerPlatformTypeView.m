@@ -142,8 +142,7 @@
         make.centerX.mas_equalTo(self.mas_centerX);
         make.top.mas_equalTo(dataView.mas_bottom).offset(30);
         make.width.mas_equalTo(185);
-        make.height.mas_equalTo(40);
-        make.bottom.mas_equalTo(self.mas_bottom).inset(30);
+        make.height.mas_equalTo(40);        
     }];
     [self.startBtn layoutIfNeeded];
     [self configureLeftToRightViewColorGradient:self.startBtn width:185 height:40 one:rgba(158, 168, 194, 1) two:rgba(138, 205, 215, 1) cornerRadius:20];
@@ -155,7 +154,7 @@
         make.centerX.mas_equalTo(self.mas_centerX);
         make.top.mas_equalTo(dataView.mas_bottom).offset(30);
         make.width.mas_equalTo(185);
-        make.height.mas_equalTo(40);
+        make.height.mas_equalTo(40);        
     }];
     [self.stopBtn setViewBorderWithColor:1 color:rgba(138, 205, 215, 1)];
     [self.stopBtn setViewCornerRadiu:20];
