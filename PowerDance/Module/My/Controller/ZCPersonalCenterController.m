@@ -56,6 +56,7 @@
     }];
     
 }
+
 #pragma -- mark 查询个人信息
 - (void)queryUserBaseInfo {
     [ZCProfileManage getUserBaseInfo:@{} completeHandler:^(id  _Nonnull responseObj) {

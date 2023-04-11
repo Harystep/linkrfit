@@ -209,7 +209,8 @@
 
 #pragma -- mark 查看个人数据
 - (void)checkDataOperate {
-    [HCRouter router:@"PersonalHealthyData" params:self.dataDic viewController:self.superViewController animated:YES];
+//    [HCRouter router:@"PersonalHealthyData" params:self.dataDic viewController:self.superViewController animated:YES];
+    [HCRouter router:@"PowerPlatform" params:@{} viewController:self.superViewController];
 }
 
 - (void)infoBtnClick:(UIButton *)sender {

@@ -510,6 +510,8 @@
 		2EFA40792756239400C9F002 /* FSActionSheetItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 2EFA406C2756239400C9F002 /* FSActionSheetItem.m */; };
 		41C83B6421CA9A573B632467 /* libPods-PowerDance.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F90D83B426425A0267E7E921 /* libPods-PowerDance.a */; };
 		4C25AD2229DC44F100E10609 /* ZCTrainActionBaseModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C25AD2129DC44F100E10609 /* ZCTrainActionBaseModel.m */; };
+		4C3F9AFA29E53C2200B7DC2E /* ZCPowerPlatformController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C3F9AF929E53C2200B7DC2E /* ZCPowerPlatformController.m */; };
+		4C3F9AFD29E53CA600B7DC2E /* ZCPowerPlatformTypeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C3F9AFC29E53CA600B7DC2E /* ZCPowerPlatformTypeView.m */; };
 		4C642A6A29DB0AC400B44CE0 /* ZCFollowTrainController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C642A6929DB0AC400B44CE0 /* ZCFollowTrainController.m */; };
 		4C74D0BB29C1AA88006286FA /* HeartLive.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C74D0B929C1AA87006286FA /* HeartLive.m */; };
 /* End PBXBuildFile section */
@@ -1517,6 +1519,10 @@
 		39870DA024300793A58C1E64 /* Pods-PowerDance.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PowerDance.release.xcconfig"; path = "Target Support Files/Pods-PowerDance/Pods-PowerDance.release.xcconfig"; sourceTree = "<group>"; };
 		4C25AD2029DC44F100E10609 /* ZCTrainActionBaseModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCTrainActionBaseModel.h; sourceTree = "<group>"; };
 		4C25AD2129DC44F100E10609 /* ZCTrainActionBaseModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCTrainActionBaseModel.m; sourceTree = "<group>"; };
+		4C3F9AF829E53C2200B7DC2E /* ZCPowerPlatformController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCPowerPlatformController.h; sourceTree = "<group>"; };
+		4C3F9AF929E53C2200B7DC2E /* ZCPowerPlatformController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCPowerPlatformController.m; sourceTree = "<group>"; };
+		4C3F9AFB29E53CA600B7DC2E /* ZCPowerPlatformTypeView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCPowerPlatformTypeView.h; sourceTree = "<group>"; };
+		4C3F9AFC29E53CA600B7DC2E /* ZCPowerPlatformTypeView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCPowerPlatformTypeView.m; sourceTree = "<group>"; };
 		4C642A6829DB0AC400B44CE0 /* ZCFollowTrainController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCFollowTrainController.h; sourceTree = "<group>"; };
 		4C642A6929DB0AC400B44CE0 /* ZCFollowTrainController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCFollowTrainController.m; sourceTree = "<group>"; };
 		4C74D0B929C1AA87006286FA /* HeartLive.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HeartLive.m; sourceTree = "<group>"; };
@@ -1543,6 +1549,7 @@
 		2E00BD4027DAE2D000B44986 /* Train */ = {
 			isa = PBXGroup;
 			children = (
+				4C3F9AF529E53BDC00B7DC2E /* PowerPlatform */,
 				2E7C64B328922E4000AA48D2 /* FamilySuit */,
 				2E7C643A288FE09200AA48D2 /* SmartCloud */,
 				2E7C63E2288FC36F00AA48D2 /* SmartRuler */,
@@ -3668,6 +3675,33 @@
 			path = Model;
 			sourceTree = "<group>";
 		};
+		4C3F9AF529E53BDC00B7DC2E /* PowerPlatform */ = {
+			isa = PBXGroup;
+			children = (
+				4C3F9AF729E53C0200B7DC2E /* Controller */,
+				4C3F9AF629E53BFA00B7DC2E /* View */,
+			);
+			path = PowerPlatform;
+			sourceTree = "<group>";
+		};
+		4C3F9AF629E53BFA00B7DC2E /* View */ = {
+			isa = PBXGroup;
+			children = (
+				4C3F9AFB29E53CA600B7DC2E /* ZCPowerPlatformTypeView.h */,
+				4C3F9AFC29E53CA600B7DC2E /* ZCPowerPlatformTypeView.m */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		4C3F9AF729E53C0200B7DC2E /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				4C3F9AF829E53C2200B7DC2E /* ZCPowerPlatformController.h */,
+				4C3F9AF929E53C2200B7DC2E /* ZCPowerPlatformController.m */,
+			);
+			path = Controller;
+			sourceTree = "<group>";
+		};
 		D968CBF178AF8356E73390E3 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -4072,6 +4106,7 @@
 				2E7C647D288FEB2F00AA48D2 /* CFFCloudDataDiffView.m in Sources */,
 				2E6B292A282BA7EA00FD40EF /* ZCUserWeightGuideCell.m in Sources */,
 				2E8A06BD2935DF3B00FD1E0E /* ZCHomeTrainPlanGuideView.m in Sources */,
+				4C3F9AFA29E53C2200B7DC2E /* ZCPowerPlatformController.m in Sources */,
 				2EDB242A275073F800D0695E /* MJRefreshAutoNormalFooter.m in Sources */,
 				2EDB23D9274F218500D0695E /* ZCAlertTimePickView.m in Sources */,
 				2E08E87427F59B7600625BD1 /* MCProgressView.m in Sources */,
@@ -4192,6 +4227,7 @@
 				2E8A06B72935A5CC00FD1E0E /* ZCTrainPlanDetailController.m in Sources */,
 				2E88F4A1273A20CA0018EAE8 /* ZCProcotolDetailController.m in Sources */,
 				4C25AD2229DC44F100E10609 /* ZCTrainActionBaseModel.m in Sources */,
+				4C3F9AFD29E53CA600B7DC2E /* ZCPowerPlatformTypeView.m in Sources */,
 				2EF265B22939DF0100DAF21E /* ZCPersonalSportDataCell.m in Sources */,
 				2E88F38E273917060018EAE8 /* ZCMyTrainFuncView.m in Sources */,
 				2EF6C236282E467400662D37 /* ZCCustomCourseEditView.m in Sources */,

@@ -156,5 +156,7 @@
 	<string>ZCPersonalHealthyDataController</string>
 	<key>FollowTrain</key>
 	<string>ZCFollowTrainController</string>
+	<key>PowerPlatform</key>
+	<string>ZCPowerPlatformController</string>
 </dict>
 </plist>
