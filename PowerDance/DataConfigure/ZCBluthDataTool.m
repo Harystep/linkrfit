@@ -492,4 +492,15 @@
     return content;
 }
 
++ (NSData *)convertSkipDataWithContent:(NSString *)content {
+    NSData *data;
+    Byte bytes[] = {0x1F, 0x30, 0x41, 0x45, 0x09};
+    data = [self convertDataWithBytes:bytes];
+    return data;
+}
+
++ (NSData *)convertDataWithBytes:(Byte *)bytes {
+    return [[NSData alloc] initWithBytes:bytes length:sizeof(bytes)];
+}
+
 @end

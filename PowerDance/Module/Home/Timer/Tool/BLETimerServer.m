@@ -81,7 +81,7 @@ static BLETimerServer* _defaultBTServer = nil;
     
 //    self.myCenter = [[CBCentralManager alloc] initWithDelegate:self queue:dispatch_queue_create("rejoin.BLEQueue1",NULL ) options:dict];
     //第二个参数：nil默认为主线程
-    self.myCenter = [[CBCentralManager alloc] initWithDelegate:self queue:nil];
+    self.myCenter = [[CBCentralManager alloc] initWithDelegate:self queue:nil options:nil];
     
     NSLog(@"myCenter初始化 ........");
     
@@ -177,8 +177,7 @@ static BLETimerServer* _defaultBTServer = nil;
     NSLog(@"要连接的外设:%@",peripheralInfo.peripheral.name);
     if ([ZCBluthDataTool judgeTimerBluthNameWithContent:peripheralInfo.peripheral.name]) {
         //连接外设
-        [self.myCenter connectPeripheral:peripheralInfo.peripheral options:@{ CBConnectPeripheralOptionNotifyOnDisconnectionKey: @YES, CBConnectPeripheralOptionNotifyOnNotificationKey: @YES,
-                                                                              CBConnectPeripheralOptionNotifyOnConnectionKey:@YES}];
+        [self.myCenter connectPeripheral:peripheralInfo.peripheral options:nil];
         
         self.selectPeripheral = peripheralInfo.peripheral;
         connectState = KING;

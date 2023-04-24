@@ -85,9 +85,11 @@ static BLESuitServer *_defaultBTServer = nil;
     connectState = KNOT;
     connectBlock = nil;
     
-    NSDictionary * dict=[NSDictionary dictionaryWithObjectsAndKeys:CBCentralManagerOptionRestoreIdentifierKey,CBCentralManagerOptionShowPowerAlertKey, nil];
+//    NSDictionary *dict=[NSDictionary dictionaryWithObjectsAndKeys:CBCentralManagerOptionRestoreIdentifierKey,CBCentralManagerOptionShowPowerAlertKey, nil];
     
-    self.myCenter = [[CBCentralManager alloc] initWithDelegate:self queue:dispatch_queue_create("rejoin.BLEQueue",NULL ) options:dict];
+//    self.myCenter = [[CBCentralManager alloc] initWithDelegate:self queue:dispatch_queue_create("rejoin.BLEQueue",NULL ) options:dict];
+    
+    self.myCenter = [[CBCentralManager alloc] initWithDelegate:self queue:nil options:nil];
     
     NSLog(@"myCenter初始化 ........");
     
@@ -208,8 +210,10 @@ static BLESuitServer *_defaultBTServer = nil;
     if ([peripheralInfo.peripheral.name containsString:kName]) {
         NSLog(@"要连接的外设:%@",peripheralInfo.peripheral.name);
         //连接外设
-        [self.myCenter connectPeripheral:peripheralInfo.peripheral options:@{ CBConnectPeripheralOptionNotifyOnDisconnectionKey: @YES, CBConnectPeripheralOptionNotifyOnNotificationKey: @YES,
-                                                                              CBConnectPeripheralOptionNotifyOnConnectionKey:@YES}];
+//        NSDictionary *options = @{CBConnectPeripheralOptionNotifyOnDisconnectionKey:@YES,
+//                                  CBConnectPeripheralOptionNotifyOnNotificationKey:@YES,
+//                                CBConnectPeripheralOptionNotifyOnConnectionKey:@YES};
+        [self.myCenter connectPeripheral:peripheralInfo.peripheral options:nil];
         
         self.selectPeripheral = peripheralInfo.peripheral;
         connectState = KING;

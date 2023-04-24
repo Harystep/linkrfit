@@ -510,6 +510,7 @@
 		2EFA40792756239400C9F002 /* FSActionSheetItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 2EFA406C2756239400C9F002 /* FSActionSheetItem.m */; };
 		41C83B6421CA9A573B632467 /* libPods-PowerDance.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F90D83B426425A0267E7E921 /* libPods-PowerDance.a */; };
 		4C25AD2229DC44F100E10609 /* ZCTrainActionBaseModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C25AD2129DC44F100E10609 /* ZCTrainActionBaseModel.m */; };
+		4C355E2A29E8E7180040349F /* power_update.gif in Resources */ = {isa = PBXBuildFile; fileRef = 4C355E2929E8E7170040349F /* power_update.gif */; };
 		4C3F9AFA29E53C2200B7DC2E /* ZCPowerPlatformController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C3F9AF929E53C2200B7DC2E /* ZCPowerPlatformController.m */; };
 		4C3F9AFD29E53CA600B7DC2E /* ZCPowerPlatformTypeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C3F9AFC29E53CA600B7DC2E /* ZCPowerPlatformTypeView.m */; };
 		4C3F9B0E29E5751900B7DC2E /* LNLineChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C3F9AFF29E5751900B7DC2E /* LNLineChartView.m */; };
@@ -1526,6 +1527,7 @@
 		39870DA024300793A58C1E64 /* Pods-PowerDance.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PowerDance.release.xcconfig"; path = "Target Support Files/Pods-PowerDance/Pods-PowerDance.release.xcconfig"; sourceTree = "<group>"; };
 		4C25AD2029DC44F100E10609 /* ZCTrainActionBaseModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCTrainActionBaseModel.h; sourceTree = "<group>"; };
 		4C25AD2129DC44F100E10609 /* ZCTrainActionBaseModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCTrainActionBaseModel.m; sourceTree = "<group>"; };
+		4C355E2929E8E7170040349F /* power_update.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = power_update.gif; sourceTree = "<group>"; };
 		4C3F9AF829E53C2200B7DC2E /* ZCPowerPlatformController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCPowerPlatformController.h; sourceTree = "<group>"; };
 		4C3F9AF929E53C2200B7DC2E /* ZCPowerPlatformController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCPowerPlatformController.m; sourceTree = "<group>"; };
 		4C3F9AFB29E53CA600B7DC2E /* ZCPowerPlatformTypeView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCPowerPlatformTypeView.h; sourceTree = "<group>"; };
@@ -2039,6 +2041,7 @@
 		2E47460127293644003B96EF /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				4C355E2929E8E7170040349F /* power_update.gif */,
 				2E9AE85928ACD59300332D17 /* train_rest.mp4 */,
 				2E9AE85A28ACD59300332D17 /* train_sport.mp4 */,
 				2E08E77927E9554E00625BD1 /* train_rest.gif */,
@@ -3835,6 +3838,7 @@
 				2E88F41927392D0B0018EAE8 /* BRPickerView.bundle in Resources */,
 				2EFA40742756239400C9F002 /* FSActionSheet_cancel@3x.png in Resources */,
 				2EDB2421275073F800D0695E /* MJRefresh.bundle in Resources */,
+				4C355E2A29E8E7180040349F /* power_update.gif in Resources */,
 				2E9AE85B28ACD59400332D17 /* train_rest.mp4 in Resources */,
 				2EE38D8027433A6F005F5A52 /* HZPhotoBrowser.bundle in Resources */,
 				2E9AE85C28ACD59400332D17 /* train_sport.mp4 in Resources */,
