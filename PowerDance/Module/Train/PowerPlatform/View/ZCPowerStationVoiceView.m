@@ -17,6 +17,8 @@
 
 @property (nonatomic,strong) UIButton *deleteBtn;
 
+@property (nonatomic,strong) UISlider *sliderView;
+
 
 @end
 
@@ -58,18 +60,41 @@
         make.edges.mas_equalTo(contentView);
     }];
     
-    UIButton *sure = [self createSimpleButtonWithTitle:NSLocalizedString(@"确定", nil) font:14 color:[ZCConfigColor whiteColor]];
+    self.titleL = [self createSimpleLabelWithTitle:NSLocalizedString(@"设置", nil) font:14 bold:YES color:[ZCConfigColor txtColor]];
+    [self.contentView addSubview:self.titleL];
+    [self.titleL mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.mas_equalTo(self.contentView.mas_top).offset(25);
+        make.centerX.mas_equalTo(self.contentView.mas_centerX);
+    }];
+    
+    [self createSliderView];
+    
+    UIImageView *openIv = [[UIImageView alloc] initWithImage:kIMAGE(@"power_station_voice_open")];
+    [self.contentView addSubview:openIv];
+    [openIv mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.mas_equalTo(self.titleL.mas_centerX);
+        make.bottom.mas_equalTo(self.titleL.mas_bottom).offset(40);
+    }];
+    
+    UIImageView *closeIv = [[UIImageView alloc] initWithImage:kIMAGE(@"power_station_voice_close")];
+    [self.contentView addSubview:closeIv];
+    [closeIv mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.mas_equalTo(self.titleL.mas_centerX);
+        make.bottom.mas_equalTo(self.contentView.mas_bottom).inset(56);
+    }];
+    
+    UIButton *sure = [self createSimpleButtonWithTitle:NSLocalizedString(@"保存", nil) font:14 color:[ZCConfigColor whiteColor]];
     [self.contentView  addSubview:sure];
     [sure mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.mas_equalTo(self.contentView);
-        make.bottom.mas_equalTo(self.contentView.mas_bottom).inset(40);
-        make.width.mas_equalTo(182);
-        make.height.mas_equalTo(42);
+        make.bottom.mas_equalTo(self.contentView.mas_bottom).inset(15);
+        make.width.mas_equalTo(80);
+        make.height.mas_equalTo(32);
     }];
     [sure addTarget:self action:@selector(sureOperate) forControlEvents:UIControlEventTouchUpInside];
     [sure layoutIfNeeded];
     
-    [sure configureLeftToRightViewColorGradient:sure width:182 height:42 one:rgba(158, 168, 194, 1) two:rgba(138, 205, 215, 1) cornerRadius:21];
+    [sure configureLeftToRightViewColorGradient:sure width:80 height:32 one:rgba(158, 168, 194, 1) two:rgba(138, 205, 215, 1) cornerRadius:16];
     
     self.deleteBtn = [[UIButton alloc] init];
     [self.deleteBtn setImage:kIMAGE(@"power_station_delete") forState:UIControlStateNormal];
@@ -81,6 +106,40 @@
     [self.deleteBtn addTarget:self action:@selector(hideAlertView) forControlEvents:UIControlEventTouchUpInside];
 }
 
+- (void)createSliderView {
+    //定义uislider
+    self.sliderView = [[UISlider alloc] initWithFrame:CGRectMake(-10, 180, 214, 30)];
+    //设置未滑动位置背景图片
+//    [self.sliderView setMinimumTrackImage:[UIImage imageNamed:@"main_slider_bg_1.png"] forState:UIControlStateNormal];
+    self.sliderView.minimumTrackTintColor = rgba(247, 135, 0, 1);
+    //设置已滑动位置背景图
+//    [self.sliderView setMaximumTrackImage:[UIImage imageNamed:@"main_slider_bg_1.png"] forState:UIControlStateNormal];
+    self.sliderView.maximumTrackTintColor = UIColor.whiteColor;
+    //设置滑块图标图片
+    [self.sliderView setThumbImage:[UIImage imageNamed:@"power_staion_slider_icon"] forState:UIControlStateNormal];
+    //设置点击滑块状态图标
+//    [self.sliderView setThumbImage:[UIImage imageNamed:@"main_slider_btn.png"] forState:UIControlStateHighlighted];
+    //设置旋转90度
+    self.sliderView.transform = CGAffineTransformMakeRotation(-1.57079633);
+
+    //设置起始位置
+    self.sliderView.value = 0;
+    //设置最小数
+    self.sliderView.minimumValue = 1;
+    //设置最大数
+    self.sliderView.maximumValue = 100;
+    //设置背景颜色
+    self.sliderView.backgroundColor = UIColor.clearColor;
+    //设置委托事件
+    [self.sliderView addTarget:self action:@selector(sliderOperate) forControlEvents:UIControlEventValueChanged];
+    //添加到VIEW
+    [self.contentView addSubview:self.sliderView];
+}
+
+- (void)sliderOperate {
+    float num = self.sliderView.value;
+    NSLog(@"%f", num);
+}
 
 - (void)showAlertView {
     self.frame = UIScreen.mainScreen.bounds;

@@ -578,4 +578,7 @@
 "简体中文" = "CN";
 "繁体中文" = "TN";
 "英文" = "EN";
-
+"关于本机" = "About";
+"系统版本" = "System version";
+"驱动器版本" = "Drive version";
+"序列号" = "Serial number";

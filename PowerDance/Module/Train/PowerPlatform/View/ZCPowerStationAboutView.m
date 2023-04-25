@@ -31,6 +31,11 @@
 
 @property (nonatomic,strong) UIView *updateSuccessView;
 
+@property (nonatomic,strong) UILabel *systemL;//系统版本
+@property (nonatomic,strong) UILabel *driveL;//序列号
+@property (nonatomic,strong) UILabel *numL;//序列号
+@property (nonatomic,strong) UILabel *descL;
+
 @end
 
 @implementation ZCPowerStationAboutView
@@ -71,26 +76,54 @@
         make.edges.mas_equalTo(contentView);
     }];
     
-    self.titleL = [self createSimpleLabelWithTitle:NSLocalizedString(@"设置", nil) font:14 bold:YES color:[ZCConfigColor txtColor]];
+    self.titleL = [self createSimpleLabelWithTitle:NSLocalizedString(@"关于本机", nil) font:14 bold:YES color:[ZCConfigColor txtColor]];
     [self.contentView addSubview:self.titleL];
     [self.titleL mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.mas_equalTo(self.contentView.mas_top).offset(28);
         make.centerX.mas_equalTo(self.contentView.mas_centerX);
     }];
+    NSArray *titleArr = @[NSLocalizedString(@"系统版本", nil), NSLocalizedString(@"驱动器版本", nil), NSLocalizedString(@"序列号", nil)];
+    CGFloat height = 22;
+    for (int i = 0; i < titleArr.count; i ++) {
+        UIView *itemView = [[UIView alloc] init];
+        [self.contentView addSubview:itemView];
+        [itemView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.leading.trailing.mas_equalTo(self.contentView).inset(55);
+            make.top.mas_equalTo(self.titleL.mas_bottom).offset(32+height*i);
+            make.height.mas_equalTo(height);
+        }];
+        UILabel *titleL = [self createSimpleLabelWithTitle:titleArr[i] font:14 bold:YES color:[ZCConfigColor txtColor]];
+        [itemView addSubview:titleL];
+        [titleL mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.leading.mas_equalTo(itemView.mas_leading);
+            make.centerY.mas_equalTo(itemView.mas_centerY);
+        }];
+        
+        UILabel *contentL = [self createSimpleLabelWithTitle:@"XXX" font:14 bold:YES color:[ZCConfigColor txtColor]];
+        [itemView addSubview:contentL];
+        [contentL mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.trailing.mas_equalTo(itemView.mas_trailing);
+            make.centerY.mas_equalTo(itemView.mas_centerY);
+        }];
+        if (i == 0) {
+            self.systemL = contentL;
+        } else if (i == 1) {
+            self.driveL = contentL;
+        } else {
+            self.numL = contentL;
+        }
+    }
     
-    UIButton *sure = [self createSimpleButtonWithTitle:NSLocalizedString(@"确定", nil) font:14 color:[ZCConfigColor whiteColor]];
-    [self.contentView  addSubview:sure];
-    [sure mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.mas_equalTo(self.contentView);
-        make.bottom.mas_equalTo(self.contentView.mas_bottom).inset(40);
-        make.width.mas_equalTo(182);
-        make.height.mas_equalTo(42);
+    UILabel *contentL = [self createSimpleLabelWithTitle:@"XXX" font:14 bold:YES color:[ZCConfigColor txtColor]];
+    [self.contentView addSubview:contentL];
+    [contentL mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.leading.trailing.mas_equalTo(self.contentView).inset(30);
+        make.centerX.mas_equalTo(self.contentView.mas_centerX);
+        make.top.mas_equalTo(self.titleL.mas_bottom).offset(118);
     }];
-    [sure addTarget:self action:@selector(sureOperate) forControlEvents:UIControlEventTouchUpInside];
-    [sure layoutIfNeeded];
-    
-    [sure configureLeftToRightViewColorGradient:sure width:182 height:42 one:rgba(158, 168, 194, 1) two:rgba(138, 205, 215, 1) cornerRadius:21];
-    self.operateBtn = sure;
+    NSString *contentDesc = @"此处是介绍的内容此处是介绍的内容此处是介绍的内容，此处是介绍的内此处是介绍的内容此处是介绍的内容容，此处是介绍的内容。此处是介绍的内容此处是介绍的内容";
+    [contentL setAttributeStringContent:contentDesc space:5 font:FONT_BOLD(13) alignment:NSTextAlignmentCenter];
+    [contentL setContentLineFeedStyle];
     
     self.deleteBtn = [[UIButton alloc] init];
     [self.deleteBtn setImage:kIMAGE(@"power_station_delete") forState:UIControlStateNormal];
