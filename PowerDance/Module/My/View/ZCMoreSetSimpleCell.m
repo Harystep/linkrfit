@@ -41,7 +41,7 @@
     bgView.backgroundColor = [ZCConfigColor whiteColor];
     [self.contentView addSubview:bgView];
     [bgView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.leading.trailing.mas_equalTo(self.contentView).inset(AUTO_MARGIN(20));
+        make.leading.trailing.mas_equalTo(self.contentView);
         make.top.bottom.mas_equalTo(self.contentView);
         make.height.mas_equalTo(AUTO_MARGIN(50));
     }];

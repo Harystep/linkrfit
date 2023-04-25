@@ -158,5 +158,7 @@
 	<string>ZCFollowTrainController</string>
 	<key>PowerPlatform</key>
 	<string>ZCPowerPlatformController</string>
+	<key>PowerPlatformSet</key>
+	<string>ZCPowerPlatformSetController</string>
 </dict>
 </plist>

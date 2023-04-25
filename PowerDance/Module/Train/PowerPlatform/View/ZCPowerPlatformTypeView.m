@@ -52,7 +52,7 @@
     for (int i = 0; i < titleArr.count; i ++) {
         int row = i/3;
         int col = i%3;
-        UILabel *itemL = [self createSimpleLabelWithTitle:titleArr[i] font:13 bold:NO color:[ZCConfigColor txtColor]];
+        UILabel *itemL = [self createSimpleLabelWithTitle:titleArr[i] font:12 bold:NO color:[ZCConfigColor txtColor]];
         [typeView addSubview:itemL];
         [itemL mas_makeConstraints:^(MASConstraintMaker *make) {
             make.leading.mas_equalTo(typeView.mas_leading).offset((width+10)*col);

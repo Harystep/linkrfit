@@ -29,11 +29,11 @@
     
     [self.view addSubview:self.tableView];
     [self.tableView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.leading.trailing.mas_equalTo(self.view);
+        make.bottom.leading.trailing.mas_equalTo(self.view).inset(15);
         make.top.mas_equalTo(self.naviView.mas_bottom).offset(AUTO_MARGIN(20));
     }];
     
-    UIView *footerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_W, AUTO_MARGIN(60))];
+    UIView *footerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_W, 60)];
     self.tableView.tableFooterView = footerView;
     footerView.backgroundColor = rgba(246, 246, 246, 1);
     [self setupFooterSubViews:footerView];
@@ -41,7 +41,7 @@
     UIButton *exitBtn = [self.view createSimpleButtonWithTitle:NSLocalizedString(@"退出登录", nil) font:AUTO_MARGIN(14) color:[UIColor redColor]];
     [self.view addSubview:exitBtn];
     [exitBtn mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.leading.trailing.bottom.mas_equalTo(self.view).inset(AUTO_MARGIN(20));
+        make.leading.trailing.bottom.mas_equalTo(self.view).inset(15);
         make.height.mas_equalTo(AUTO_MARGIN(44));
     }];
     [exitBtn setViewCornerRadiu:AUTO_MARGIN(22)];
@@ -78,9 +78,9 @@
     view.backgroundColor = [ZCConfigColor whiteColor];
     [footerView addSubview:view];
     [view mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.leading.trailing.mas_equalTo(footerView).inset(AUTO_MARGIN(20));
+        make.leading.trailing.mas_equalTo(footerView);
         make.bottom.mas_equalTo(footerView);
-        make.top.mas_equalTo(footerView.mas_top).offset(AUTO_MARGIN(10));
+        make.top.mas_equalTo(footerView.mas_top).offset(10);
     }];
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(logout)];
     [view addGestureRecognizer:tap];

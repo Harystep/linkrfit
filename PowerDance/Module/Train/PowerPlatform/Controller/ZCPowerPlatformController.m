@@ -25,11 +25,8 @@
     [super viewDidLoad];
     
     self.view.backgroundColor = rgba(246, 246, 246, 1);
-    self.showNavStatus = YES;
-    self.navBgIcon.hidden = NO;
-    self.titleStr = NSLocalizedString(@"力量台", nil);
-    self.titlePostionStyle = UINavTitlePostionStyleCenter;
-    self.backStyle = UINavBackButtonColorStyleBack;
+    
+    [self configureNavi];
     
     self.topView = [[ZCPowerPlatformTypeView alloc] init];
     [self.view addSubview:self.topView];
@@ -63,6 +60,29 @@
         [chartDataArr addObject:dict];
     }
     self.chartView.starInfoArr = chartDataArr;
+}
+
+- (void)configureOperate {
+    [HCRouter router:@"PowerPlatformSet" params:@{} viewController:self animated:YES];
+}
+
+- (void)configureNavi {
+    
+    self.showNavStatus = YES;
+    self.navBgIcon.hidden = NO;
+    self.titleStr = NSLocalizedString(@"力量台", nil);
+    self.titlePostionStyle = UINavTitlePostionStyleCenter;
+    self.backStyle = UINavBackButtonColorStyleBack;
+    
+    UIButton *setBtn = [[UIButton alloc] init];
+    [self.naviView addSubview:setBtn];
+    [setBtn addTarget:self action:@selector(configureOperate) forControlEvents:UIControlEventTouchUpInside];
+    [setBtn setImage:kIMAGE(@"power_station_set") forState:UIControlStateNormal];
+    [setBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.height.width.mas_equalTo(30);
+        make.trailing.mas_equalTo(self.naviView.mas_trailing).inset(5);
+        make.bottom.mas_equalTo(self.naviView.mas_bottom).inset(8);
+    }];
 }
 
 //- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {

@@ -552,3 +552,30 @@
 "age_月" = "M";
 "age_日" = "D";
 "绑定设备" = "Bind device";
+
+"力量台" = "Power Station";
+"开始运动" = "Start";
+"暂停运动" = "Stop";
+"实际拉力(kg)" = "Actual tensile force (kg)";
+"燃烧卡路里(千卡)" = "Calories burned (kcal)";
+"爆发力(kg)" = "Explosive force (kg)";
+"常规模式" = "Normal Mode";
+"向心模式" = "Centripetal model";
+"离心模式" = "Centrifugal mode";
+"等速模式" = "Isokinetic mode";
+"弹力绳模式" = "Elastic rope mode";
+"划船模式" = "Rowing mode";
+"固件升级" = "Upgrade";
+"设置音量" = "Set volume";
+"设置语言" = "Set Language";
+"设置单位" = "Set Unit";
+"关于本机" = "About";
+
+"你有新固件可升级" = "You have firmware to upgrade";
+"立即升级" = "Upgrade";
+"返回设置" = "Back";
+"重新更新" = "Update again";
+"简体中文" = "CN";
+"繁体中文" = "TN";
+"英文" = "EN";
+
