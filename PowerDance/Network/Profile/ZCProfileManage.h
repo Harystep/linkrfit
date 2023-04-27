@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic,assign) NSInteger refreshBindDevice;//标记绑定设备
 
-@property (nonatomic,strong) NSData *tokenBytes;
+@property (nonatomic,copy) NSString *tokenBytes;
 
 + (instancetype)shareInstance;
 

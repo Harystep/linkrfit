@@ -503,9 +503,9 @@
 }
 
 + (NSData *)sendStartStationOperate {
-    NSData *byteData = kUserStore.tokenBytes;
+    NSData *byteData = [self convertHexStrToData:kUserStore.tokenBytes];
     Byte *byteToken = (Byte *)[byteData bytes];
-    Byte bytes[] = {02, 01, 02, 01, 01, byteToken[3], byteToken[4], byteToken[5], byteToken[6]};
+    Byte bytes[] = {0x02, 0x01, 0x02, 0x01, 0x01, byteToken[3], byteToken[4], byteToken[5], byteToken[6]};
     NSData *data = [self convertDataWithBytes:bytes];
     return data;
 }
@@ -513,90 +513,172 @@
 
 
 + (NSData *)sendStopStationOperate {
-    NSData *byteData = kUserStore.tokenBytes;
+    NSData *byteData = [self convertHexStrToData:kUserStore.tokenBytes];
     Byte *byteToken = (Byte *)[byteData bytes];
-    Byte bytes[] = {02, 01, 02, 01, 02, byteToken[3], byteToken[4], byteToken[5], byteToken[6]};
+    Byte bytes[] = {0x02, 0x01, 0x02, 0x01, 0x02, byteToken[3], byteToken[4], byteToken[5], byteToken[6]};
     NSData *data = [self convertDataWithBytes:bytes];
     return data;
 }
 
 + (NSData *)sendBackRopeStationOperate {
-    NSData *byteData = kUserStore.tokenBytes;
+    NSData *byteData = [self convertHexStrToData:kUserStore.tokenBytes];
     Byte *byteToken = (Byte *)[byteData bytes];
-    Byte bytes[] = {02, 01, 02, 01, 03, byteToken[3], byteToken[4], byteToken[5], byteToken[6]};
+    Byte bytes[] = {0x02, 0x01, 0x02, 0x01, 0x03, byteToken[3], byteToken[4], byteToken[5], byteToken[6]};
     NSData *data = [self convertDataWithBytes:bytes];
     return data;
 }
 
-+ (NSData *)sendSportModeStationOperate {
-    NSData *byteData = kUserStore.tokenBytes;
++ (NSData *)sendSportMode1StationOperate {
+    NSData *byteData = [self convertHexStrToData:kUserStore.tokenBytes];
     Byte *byteToken = (Byte *)[byteData bytes];
-    Byte bytes[] = {03, 01, 02, 11, 03, byteToken[3], byteToken[4], byteToken[5], byteToken[6]};
+    Byte bytes[] = {0x03, 0x01, 0x02, 0x11, 0x01, byteToken[3], byteToken[4], byteToken[5], byteToken[6]};
+    NSData *data = [self convertDataWithBytes:bytes];
+    return data;
+}
++ (NSData *)sendSportMode2StationOperate {
+    NSData *byteData = [self convertHexStrToData:kUserStore.tokenBytes];
+    Byte *byteToken = (Byte *)[byteData bytes];
+    Byte bytes[] = {0x03, 0x01, 0x02, 0x11, 0x02, byteToken[3], byteToken[4], byteToken[5], byteToken[6]};
+    NSData *data = [self convertDataWithBytes:bytes];
+    return data;
+}
++ (NSData *)sendSportMode3StationOperate {
+    NSData *byteData = [self convertHexStrToData:kUserStore.tokenBytes];
+    Byte *byteToken = (Byte *)[byteData bytes];
+    Byte bytes[] = {0x03, 0x01, 0x02, 0x11, 0x03, byteToken[3], byteToken[4], byteToken[5], byteToken[6]};
+    NSData *data = [self convertDataWithBytes:bytes];
+    return data;
+}
++ (NSData *)sendSportMode4StationOperate {
+    NSData *byteData = [self convertHexStrToData:kUserStore.tokenBytes];
+    Byte *byteToken = (Byte *)[byteData bytes];
+    Byte bytes[] = {0x03, 0x01, 0x02, 0x11, 0x04, byteToken[3], byteToken[4], byteToken[5], byteToken[6]};
+    NSData *data = [self convertDataWithBytes:bytes];
+    return data;
+}
++ (NSData *)sendSportMode5StationOperate {
+    NSData *byteData = [self convertHexStrToData:kUserStore.tokenBytes];
+    Byte *byteToken = (Byte *)[byteData bytes];
+    Byte bytes[] = {0x03, 0x01, 0x02, 0x11, 0x05, byteToken[3], byteToken[4], byteToken[5], byteToken[6]};
+    NSData *data = [self convertDataWithBytes:bytes];
+    return data;
+}
++ (NSData *)sendSportMode6StationOperate {
+    NSData *byteData = [self convertHexStrToData:kUserStore.tokenBytes];
+    Byte *byteToken = (Byte *)[byteData bytes];
+    Byte bytes[] = {0x03, 0x01, 0x02, 0x11, 0x06, byteToken[3], byteToken[4], byteToken[5], byteToken[6]};
     NSData *data = [self convertDataWithBytes:bytes];
     return data;
 }
 
-//从字符串中取字节数组,然后再用base64进行转换
-+(NSString *)stringToByte:(NSString*)string {
-    NSString *hexString=[[string uppercaseString] stringByReplacingOccurrencesOfString:@" " withString:@""];
-    if ([hexString length]%2!=0) {
+//將16進制的字符串轉換成NSData
++ (NSMutableData *)convertHexStrToData:(NSString *)str {
+    if (!str || [str length] == 0) {
         return nil;
     }
-    Byte bytes[16] = {0};
-    int j=0;
-    for(int i=0;i<[hexString length];i++) {
-        int int_ch;
-        unichar hex_char1 = [hexString characterAtIndex:i]; ////两位16进制数中的第一位(高位*16)
-        int int_ch1;
-        if(hex_char1 >= '0' && hex_char1 <='9')
-            int_ch1 = (hex_char1-48)*16;   //// 0 的Ascll - 48
-        else if(hex_char1 >= 'A' && hex_char1 <='F')
-            int_ch1 = (hex_char1-55)*16; //// A 的Ascll - 65
-        else
-            return nil;
-        i++;
-
-        unichar hex_char2 = [hexString characterAtIndex:i]; ///两位16进制数中的第二位(低位)
-        int int_ch2;
-        if(hex_char2 >= '0' && hex_char2 <='9')
-            int_ch2 = (hex_char2-48); //// 0 的Ascll - 48
-        else if(hex_char2 >= 'A' && hex_char2 <='F')
-            int_ch2 = hex_char2-55; //// A 的Ascll - 65
-        else
-            return nil;
-
-        int_ch = int_ch1+int_ch2;  ///将转化后的数放入Byte数组里
-        NSLog(@"int_ch=%d",int_ch);
-        bytes[j] = int_ch;  ///将转化后的数放入Byte数组里
-        j++;
-
+    
+    NSMutableData *hexData = [[NSMutableData alloc] initWithCapacity:8];
+    NSRange range;
+    if ([str length] %2 == 0) {
+        range = NSMakeRange(0,2);
+    } else {
+        range = NSMakeRange(0,1);
     }
-//进行base64加密
-    NSData *byteData = [[NSData alloc] initWithBytes:bytes length:16];
-
-    NSData *base64Data = [byteData base64EncodedDataWithOptions:0];
-
-    NSString *baseString = [[NSString alloc]initWithData:base64Data encoding:NSUTF8StringEncoding];
-
-    NSLog(@"++++++++++++base64+++++%@",baseString);
-    //base64去除多余的字符
-
-    return [self takeOutBaseCode:baseString];
+    for (NSInteger i = range.location; i < [str length]; i += 2) {
+        unsigned int anInt;
+        NSString *hexCharStr = [str substringWithRange:range];
+        NSScanner *scanner = [[NSScanner alloc] initWithString:hexCharStr];
+        
+        [scanner scanHexInt:&anInt];
+        NSData *entity = [[NSData alloc] initWithBytes:&anInt length:1];
+        [hexData appendData:entity];
+        
+        range.location += range.length;
+        range.length = 2;
+    }
+  
+    return hexData;
 }
 
-//base64编码中的+改为-，/改为_,==去掉
+/// 获取设备基本信息
++ (NSData *)sendGetDeviceInfoOrder {
+    NSData *byteData = [self convertHexStrToData:kUserStore.tokenBytes];
+    Byte *byteToken = (Byte *)[byteData bytes];
+    Byte bytes[] = {0x04, 0x01, 0x01, 0x01, byteToken[3], byteToken[4], byteToken[5], byteToken[6]};
+    NSData *data = [self convertDataWithBytes:bytes];
+    return data;
+}
 
-+ (NSString *)takeOutBaseCode:(NSString *)baseString {
-    // + 号改为-号
-    NSString *firstString = [baseString stringByReplacingOccurrencesOfString:@"+" withString:@"-"];
-    //  /改为下划线
-    NSString *secondString = [firstString stringByReplacingOccurrencesOfString:@"/" withString:@"_"];
-    //去掉==
-    NSCharacterSet *set = [NSCharacterSet characterSetWithCharactersInString:@"="];
-    NSString *trimmedString = [secondString stringByTrimmingCharactersInSet:set];
+/// 获取当前设备运动模式
++ (NSData *)sendGetSportCurrentModeInfo {
+    NSData *byteData = [self convertHexStrToData:kUserStore.tokenBytes];
+    Byte *byteToken = (Byte *)[byteData bytes];
+    Byte bytes[] = {0x04, 0x01, 0x01, 0x11, byteToken[3], byteToken[4], byteToken[5], byteToken[6]};
+    NSData *data = [self convertDataWithBytes:bytes];
+    return data;
+}
 
-    NSLog(@"+++移除特殊字符之后%@",trimmedString);
-    return trimmedString;
+/// 获取当前运动速度
++ (NSData *)sendGetSportSpeedOrder {
+    NSData *byteData = [self convertHexStrToData:kUserStore.tokenBytes];
+    Byte *byteToken = (Byte *)[byteData bytes];
+    Byte bytes[] = {0x04, 0x01, 0x01, 0x15, byteToken[3], byteToken[4], byteToken[5], byteToken[6]};
+    NSData *data = [self convertDataWithBytes:bytes];
+    return data;
+}
+
+/// 获取当前拉力
++ (NSData *)sendGetDevicePullForceOrder {
+    NSData *byteData = [self convertHexStrToData:kUserStore.tokenBytes];
+    Byte *byteToken = (Byte *)[byteData bytes];
+    Byte bytes[] = {0x04, 0x01, 0x01, 0x16, byteToken[3], byteToken[4], byteToken[5], byteToken[6]};
+    NSData *data = [self convertDataWithBytes:bytes];
+    return data;
+}
+
+//获取消耗卡路里
++ (NSData *)sendGetConsumeKcalOrder {
+    NSData *byteData = [self convertHexStrToData:kUserStore.tokenBytes];
+    Byte *byteToken = (Byte *)[byteData bytes];
+    Byte bytes[] = {0x04, 0x01, 0x01, 0x17, byteToken[3], byteToken[4], byteToken[5], byteToken[6]};
+    NSData *data = [self convertDataWithBytes:bytes];
+    return data;
+}
+
+//获取训练次数
++ (NSData *)sendGetTrainTimesOrder {
+    NSData *byteData = [self convertHexStrToData:kUserStore.tokenBytes];
+    Byte *byteToken = (Byte *)[byteData bytes];
+    Byte bytes[] = {0x04, 0x01, 0x01, 0x18, byteToken[3], byteToken[4], byteToken[5], byteToken[6]};
+    NSData *data = [self convertDataWithBytes:bytes];
+    return data;
+}
+
+//语言设置
++ (NSData *)sendSetDeviceLanguageOrder:(Byte *)byte {
+    NSData *byteData = [self convertHexStrToData:kUserStore.tokenBytes];
+    Byte *byteToken = (Byte *)[byteData bytes];
+    Byte bytes[] = {0x03, 0x01, 0x02, 0x01, byte[0], byteToken[3], byteToken[4], byteToken[5], byteToken[6]};
+    NSData *data = [self convertDataWithBytes:bytes];
+    return data;
+}
+
+//音量设置
++ (NSData *)sendSetDeviceVoiceOrder:(Byte *)byte {
+    NSData *byteData = [self convertHexStrToData:kUserStore.tokenBytes];
+    Byte *byteToken = (Byte *)[byteData bytes];
+    Byte bytes[] = {0x03, 0x01, 0x02, 0x02, byte[0], byteToken[3], byteToken[4], byteToken[5], byteToken[6]};
+    NSData *data = [self convertDataWithBytes:bytes];
+    return data;
+}
+
+//重量单位设置
++ (NSData *)sendSetDeviceUnitOrder:(Byte *)byte {
+    NSData *byteData = [self convertHexStrToData:kUserStore.tokenBytes];
+    Byte *byteToken = (Byte *)[byteData bytes];
+    Byte bytes[] = {0x03, 0x01, 0x02, 0x03, byte[0], byteToken[3], byteToken[4], byteToken[5], byteToken[6]};
+    NSData *data = [self convertDataWithBytes:bytes];
+    return data;
 }
 
 @end

@@ -19,6 +19,7 @@
 
 @property (nonatomic,strong) UISlider *sliderView;
 
+@property (nonatomic, copy) NSString *voice;
 
 @end
 
@@ -137,8 +138,37 @@
 }
 
 - (void)sliderOperate {
-    float num = self.sliderView.value;
-    NSLog(@"%f", num);
+    NSString *numStr = [NSString stringWithFormat:@"%.f", self.sliderView.value];
+    NSString *hexStr = [NSString stringWithFormat:@"%@", [[NSString alloc] initWithFormat:@"%02lx", (long)[numStr integerValue]]];
+    self.voice = hexStr;
+    NSLog(@"%@", hexStr);
+    NSData *temData = [ZCBluthDataTool convertHexStrToData:hexStr];
+    NSLog(@"temData:%@", temData);
+    Byte *temBytes = (Byte *)[temData bytes];
+}
+
+//将NSString转换成十六进制的字符串则可使用如下方式:
+- (NSString *)convertStringToHexStr:(NSString *)str {
+    if (!str || [str length] == 0) {
+        return @"";
+    }
+    NSData *data = [str dataUsingEncoding:NSUTF8StringEncoding];
+    
+    NSMutableString *string = [[NSMutableString alloc] initWithCapacity:[data length]];
+    
+    [data enumerateByteRangesUsingBlock:^(const void *bytes, NSRange byteRange, BOOL *stop) {
+        unsigned char *dataBytes = (unsigned char*)bytes;
+        for (NSInteger i = 0; i < byteRange.length; i++) {
+            NSString *hexStr = [NSString stringWithFormat:@"%x", (dataBytes[i]) & 0xff];
+            if ([hexStr length] == 2) {
+                [string appendString:hexStr];
+            } else {
+                [string appendFormat:@"0%@", hexStr];
+            }
+        }
+    }];
+
+    return string;
 }
 
 - (void)showAlertView {
@@ -158,8 +188,13 @@
 }
 
 - (void)sureOperate {
-    
     [self hideAlertView];
+    if (self.setDeviceVoiceBlock) {        
+        self.setDeviceVoiceBlock(self.voice);
+    }
+    NSData *temData = [ZCBluthDataTool convertHexStrToData:self.voice];
+    Byte *temBytes = (Byte *)[temData bytes];
+    NSData *data = [ZCBluthDataTool sendSetDeviceVoiceOrder:temBytes];
 }
 
 @end

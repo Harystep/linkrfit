@@ -11,6 +11,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ZCPowerStationSetUnitView : UIView
 
+@property (nonatomic, copy) void (^setDeviceUnitBlock)(NSString *type);
+
 - (void)showAlertView;
 
 @end

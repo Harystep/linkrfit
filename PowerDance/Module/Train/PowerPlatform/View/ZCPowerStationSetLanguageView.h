@@ -11,6 +11,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ZCPowerStationSetLanguageView : UIView
 
+@property (nonatomic, copy) void (^setDeviceLanguageBlock)(NSString *type);
+
 - (void)showAlertView;
 
 @end

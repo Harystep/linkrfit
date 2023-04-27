@@ -128,13 +128,49 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)saveBytesData:(Byte *)bytes;
 
+/// 开始
 + (NSData *)sendStartStationOperate;
-    
+/// 暂停
 + (NSData *)sendStopStationOperate;
-
+/// 收绳
 + (NSData *)sendBackRopeStationOperate;
 
-+ (NSData *)sendSportModeStationOperate;
++ (NSData *)sendSportMode1StationOperate;
++ (NSData *)sendSportMode2StationOperate;
++ (NSData *)sendSportMode3StationOperate;
++ (NSData *)sendSportMode4StationOperate;
++ (NSData *)sendSportMode5StationOperate;
++ (NSData *)sendSportMode6StationOperate;
+
+/// 获取设备基本信息
++ (NSData *)sendGetDeviceInfoOrder;
+
+/// 获取当前设备运动模式
++ (NSData *)sendGetSportCurrentModeInfo;
+
+/// 获取当前运动速度
++ (NSData *)sendGetSportSpeedOrder;
+
+/// 获取当前拉力
++ (NSData *)sendGetDevicePullForceOrder;
+
+//获取消耗卡路里
++ (NSData *)sendGetConsumeKcalOrder;
+
+//获取训练次数
++ (NSData *)sendGetTrainTimesOrder;
+
+//语言设置
++ (NSData *)sendSetDeviceLanguageOrder:(Byte *)byte;
+
+//音量设置
++ (NSData *)sendSetDeviceVoiceOrder:(Byte *)byte;
+
+//重量单位设置
++ (NSData *)sendSetDeviceUnitOrder:(Byte *)byte;
+
+//將16進制的字符串轉換成NSData
++ (NSMutableData *)convertHexStrToData:(NSString *)str;
 
 @end
 

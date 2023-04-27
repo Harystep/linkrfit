@@ -101,6 +101,20 @@
     self.selectBtn.selected = NO;
     sender.selected = YES;
     self.selectBtn = sender;
+    if (self.setDeviceLanguageBlock) {
+        self.setDeviceLanguageBlock([NSString stringWithFormat:@"%tu", sender.tag]);
+    }
+    NSData *data;
+    if(sender.tag == 1) {
+        Byte bytes[] = {0x02};
+        data = [ZCBluthDataTool sendSetDeviceUnitOrder:bytes];
+    } else if (sender.tag == 2) {
+        Byte bytes[] = {0x03};
+        data = [ZCBluthDataTool sendSetDeviceUnitOrder:bytes];
+    } else {
+        Byte bytes[] = {0x01};
+        data = [ZCBluthDataTool sendSetDeviceUnitOrder:bytes];
+    }
 }
 
 - (void)showAlertView {

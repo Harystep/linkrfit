@@ -469,10 +469,38 @@ static ZCPowerServer *_defaultBTServer = nil;
         if ([content hasPrefix:@"010204"]) {//保存token
             NSString *token = [content substringFromIndex:6];
             NSLog(@"token:%@", token);
-            kUserStore.tokenBytes = data;
-        } else if ([content hasPrefix:@"02020301"]) {//返回模式
+            kUserStore.tokenBytes = content;
+        }else if ([content hasPrefix:@"0302031101"]) {//常规模式
             NSLog(@"mode:%@", content);
-        }
+        } else if ([content hasPrefix:@"0302031102"]) {//离心模式
+            NSLog(@"mode:%@", content);
+        } else if ([content hasPrefix:@"0302031103"]) {//向心模式
+            NSLog(@"mode:%@", content);
+        } else if ([content hasPrefix:@"0302031104"]) {//等速模式
+            NSLog(@"mode:%@", content);
+        } else if ([content hasPrefix:@"0302031105"]) {//拉力绳模式
+            NSLog(@"mode:%@", content);
+        } else if ([content hasPrefix:@"0302031106"]) {//划船机模式
+            NSLog(@"mode:%@", content);
+        } else if ([content hasPrefix:@"04020211"]) {//获取当前运动模式
+            
+        } else if ([content hasPrefix:@"04020515"]) {//获取实际速度
+            
+        } else if ([content hasPrefix:@"04020516"]) {//获取实际拉力或收力
+            
+        } else if ([content hasPrefix:@"04020517"]) {//获取消耗卡路里
+            
+        } else if ([content hasPrefix:@"04020518"]) {//获取训练次数
+            
+        } else if ([content hasPrefix:@"04020501"]) {//获取设备参数
+            
+        } else if ([content hasPrefix:@"0302033"]) {//重量单位设置
+            
+        } else if ([content hasPrefix:@"0302032"]) {//音量设置
+            
+        } else if ([content hasPrefix:@"0302031"]) {//语言设置
+            
+        }//
     }
     //00002
     if (error){

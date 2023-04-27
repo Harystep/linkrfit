@@ -118,13 +118,36 @@
         }
     } else if ([eventName isEqualToString:@"mode"]) {
         if(self.defaultBLEServer.selectPeripheral) {
-            [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool sendSportModeStationOperate] forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
+            NSData *data;
+            switch ([userInfo[@"index"] integerValue]) {
+                case 0://常规模式
+                    data = [ZCBluthDataTool sendSportMode1StationOperate];
+                    break;
+                case 1://离心模式
+                    data = [ZCBluthDataTool sendSportMode3StationOperate];
+                    break;
+                case 2://向心模式
+                    data = [ZCBluthDataTool sendSportMode2StationOperate];
+                    break;
+                case 3://等速模式
+                    data = [ZCBluthDataTool sendSportMode4StationOperate];
+                    break;
+                case 4://弹力绳模式
+                    data = [ZCBluthDataTool sendSportMode5StationOperate];
+                    break;
+                case 5://划船模式
+                    data = [ZCBluthDataTool sendSportMode6StationOperate];
+                    break;
+                                        
+                default:
+                    break;
+            }
+            [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
         }
     }
 }
 
 - (void)downloadFileOperate {
-    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     NSURL *url = [NSURL URLWithString:@"https://zc-tk.oss-cn-beijing.aliyuncs.com/bootloader.bin"];
     // 创建request对象
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
@@ -140,14 +163,27 @@
             // 将下载的数据传出去，进行UI更新
             NSLog(@"%@", data);
             Byte *bytes = (Byte *)[data bytes];
-            NSMutableString *str = [NSMutableString stringWithCapacity:data.length];
-            for (int i = 0; i < data.length; i ++) {
+//            NSMutableString *str = [NSMutableString stringWithCapacity:data.length];
+//            for (int i = 0; i < data.length; i ++) {
+//                [str appendFormat:@"%02x", bytes[i]];
+//            }
+//            NSLog(@"str:%@", str);
+//            self.remainLength = data.length % 128;
+//            self.totalIndex = ceil(data.length/128.0);
+//            NSLog(@"%tu-%tu", self.remainLength, self.totalIndex);
+            NSMutableString *str = [NSMutableString string];
+            for (int i = 0; i < 20; i ++) {
                 [str appendFormat:@"%02x", bytes[i]];
             }
             NSLog(@"str:%@", str);
-            self.remainLength = data.length % 128;
-            self.totalIndex = ceil(data.length/128.0);
-            NSLog(@"%tu-%tu", self.remainLength, self.totalIndex);
+            NSData *temData = [ZCBluthDataTool convertHexStrToData:str];
+            NSLog(@"temData:%@", temData);
+            Byte *temBytes = (Byte *)[temData bytes];
+            NSMutableString *temStr = [NSMutableString string];
+            for (int i = 0; i < 20; i ++) {
+                [temStr appendFormat:@"%02x", temBytes[i]];
+            }
+            NSLog(@"temStr:%@", temStr);
         }
     }];    
     // 创建的task都是挂起状态，需要resume才能执行
