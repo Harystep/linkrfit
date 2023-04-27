@@ -132,6 +132,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)saveUserShowCenterDataStatus:(BOOL)status;
 + (BOOL)getUserShowCenterDataStatus;
 
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -62,7 +62,7 @@ static ZCPowerServer *_defaultBTServer = nil;
 
 
 #pragma mark 初始化
-+(ZCPowerServer*)defaultBLEServer
++(ZCPowerServer *)defaultBLEServer
 {
     if (nil == _defaultBTServer) {
         _defaultBTServer = [[ZCPowerServer alloc] init];
@@ -281,9 +281,6 @@ static ZCPowerServer *_defaultBTServer = nil;
             [self.delegate didFoundPeripheral];
             [self connect:peripheralInfo withFinishCB:^(CBPeripheral *peripheral, BOOL status, NSError *error) {
                 NSLog(@"连接成功");
-                if([(id)self.delegate respondsToSelector:@selector(didConnect:)]){
-                    [self.delegate didConnect:peripheralInfo];
-                }
             }];
         }
     }
@@ -424,17 +421,21 @@ static ZCPowerServer *_defaultBTServer = nil;
     if (nil == error) {
         for (CBCharacteristic *ch in service.characteristics) {
             NSLog(@"UUID--->%@", [ch.UUID UUIDString]);
-            //0x2A37 心率数据         0x2B3B 运动计数
-            if ([[ch.UUID UUIDString] containsString:@"2A37"] || [[ch.UUID UUIDString] containsString:@"2B3B"]) {
-                [peripheral setNotifyValue:YES forCharacteristic:ch];
-                [peripheral readValueForCharacteristic:ch];
-            } else if ([[ch.UUID UUIDString] containsString:@"2B3E"]) {//写入数据
-                NSLog(@"读写设备");
+            
+            if ([[ch.UUID UUIDString] containsString:@"FED1"]) {
                 [peripheral setNotifyValue:YES forCharacteristic:ch];
                 [peripheral readValueForCharacteristic:ch];
                 self.selectCharacteristic = ch;
                 characteristicState = KSUCCESS;
                 self.discoveredSevice = service;
+                if([(id)self.delegate respondsToSelector:@selector(didConnect:)]){
+                    [self.delegate didConnect:nil];
+                }
+            } else if ([[ch.UUID UUIDString] containsString:@"2902"]) {//写入数据
+                NSLog(@"读写设备");
+                [peripheral setNotifyValue:YES forCharacteristic:ch];
+                [peripheral readValueForCharacteristic:ch];
+               
             }
         }
         
@@ -460,26 +461,17 @@ static ZCPowerServer *_defaultBTServer = nil;
 #pragma mark 当设备有数据返回时会调用如下方法：
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
 {
-    NSData *data = characteristic.value;
-    if ([[characteristic.UUID UUIDString] containsString:@"2A37"]) {//心率
-        NSString *numCount = [self transformCharateristicValueFromData:data];
-        if (numCount.length == 4) {
-            NSString *ratio = [numCount substringFromIndex:2];
-            long num = [ZCBluthDataTool convertHexToDecimal:ratio];
-            NSLog(@"心率:%ld ", num);
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"kSuitSportModeHeartRateKey" object:[NSString stringWithFormat:@"%ld", num]];
-        }
-    } else if ([[characteristic.UUID UUIDString] containsString:@"2B3B"]) {//个数
-        NSString *content = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-        NSLog(@"计数:%@ ", content);
-        NSArray *numArr = [checkSafeContent(content) componentsSeparatedByString:@","];
-        if (numArr.count > 0) {
-            NSString *percentStr = numArr.lastObject;
-            if ([percentStr containsString:@"100"]) {
-                [[NSNotificationCenter defaultCenter] postNotificationName:@"kSuitSportModeFinishKey" object:nil];
-            }
-            NSString *preStr = numArr.firstObject;
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"kSuitSportModeNumberKey" object:[NSString stringWithFormat:@"%tu", [preStr integerValue]]];
+    if ([[characteristic.UUID UUIDString] containsString:@"FED1"]) {//
+        NSData *data = characteristic.value;
+        Byte *bytes = (Byte *)[data bytes];
+        NSString *content = [self transformCharateristicValueFromData:characteristic.value];
+        NSLog(@"%@", content);
+        if ([content hasPrefix:@"010204"]) {//保存token
+            NSString *token = [content substringFromIndex:6];
+            NSLog(@"token:%@", token);
+            kUserStore.tokenBytes = data;
+        } else if ([content hasPrefix:@"02020301"]) {//返回模式
+            NSLog(@"mode:%@", content);
         }
     }
     //00002

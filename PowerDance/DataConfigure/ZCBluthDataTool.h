@@ -21,6 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ZCBluthDataTool : NSObject
 
+@property (nonatomic, assign) Byte *bytes;
+
 + (NSData *)getClockMode;
 + (NSData *)getMIITMode;
 + (NSData *)getHIITMode;
@@ -121,6 +123,18 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSData *)setSuitSportMode:(NSString *)mode;
 
 + (NSString *)convertSuitNameWithMode:(NSString *)mode;
+
++ (NSData *)sendGetTokenContent;
+
++ (void)saveBytesData:(Byte *)bytes;
+
++ (NSData *)sendStartStationOperate;
+    
++ (NSData *)sendStopStationOperate;
+
++ (NSData *)sendBackRopeStationOperate;
+
++ (NSData *)sendSportModeStationOperate;
 
 @end
 

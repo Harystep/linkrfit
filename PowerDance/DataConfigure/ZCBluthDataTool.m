@@ -9,7 +9,6 @@
 
 @interface ZCBluthDataTool ()
 
-
 @end
 
 @implementation ZCBluthDataTool
@@ -492,15 +491,112 @@
     return content;
 }
 
-+ (NSData *)convertSkipDataWithContent:(NSString *)content {
++ (NSData *)sendGetTokenContent {
     NSData *data;
-    Byte bytes[] = {0x1F, 0x30, 0x41, 0x45, 0x09};
+    Byte bytes[] = {01, 01, 01, 00};
     data = [self convertDataWithBytes:bytes];
     return data;
 }
 
 + (NSData *)convertDataWithBytes:(Byte *)bytes {
     return [[NSData alloc] initWithBytes:bytes length:sizeof(bytes)];
+}
+
++ (NSData *)sendStartStationOperate {
+    NSData *byteData = kUserStore.tokenBytes;
+    Byte *byteToken = (Byte *)[byteData bytes];
+    Byte bytes[] = {02, 01, 02, 01, 01, byteToken[3], byteToken[4], byteToken[5], byteToken[6]};
+    NSData *data = [self convertDataWithBytes:bytes];
+    return data;
+}
+  
+
+
++ (NSData *)sendStopStationOperate {
+    NSData *byteData = kUserStore.tokenBytes;
+    Byte *byteToken = (Byte *)[byteData bytes];
+    Byte bytes[] = {02, 01, 02, 01, 02, byteToken[3], byteToken[4], byteToken[5], byteToken[6]};
+    NSData *data = [self convertDataWithBytes:bytes];
+    return data;
+}
+
++ (NSData *)sendBackRopeStationOperate {
+    NSData *byteData = kUserStore.tokenBytes;
+    Byte *byteToken = (Byte *)[byteData bytes];
+    Byte bytes[] = {02, 01, 02, 01, 03, byteToken[3], byteToken[4], byteToken[5], byteToken[6]};
+    NSData *data = [self convertDataWithBytes:bytes];
+    return data;
+}
+
++ (NSData *)sendSportModeStationOperate {
+    NSData *byteData = kUserStore.tokenBytes;
+    Byte *byteToken = (Byte *)[byteData bytes];
+    Byte bytes[] = {03, 01, 02, 11, 03, byteToken[3], byteToken[4], byteToken[5], byteToken[6]};
+    NSData *data = [self convertDataWithBytes:bytes];
+    return data;
+}
+
+//从字符串中取字节数组,然后再用base64进行转换
++(NSString *)stringToByte:(NSString*)string {
+    NSString *hexString=[[string uppercaseString] stringByReplacingOccurrencesOfString:@" " withString:@""];
+    if ([hexString length]%2!=0) {
+        return nil;
+    }
+    Byte bytes[16] = {0};
+    int j=0;
+    for(int i=0;i<[hexString length];i++) {
+        int int_ch;
+        unichar hex_char1 = [hexString characterAtIndex:i]; ////两位16进制数中的第一位(高位*16)
+        int int_ch1;
+        if(hex_char1 >= '0' && hex_char1 <='9')
+            int_ch1 = (hex_char1-48)*16;   //// 0 的Ascll - 48
+        else if(hex_char1 >= 'A' && hex_char1 <='F')
+            int_ch1 = (hex_char1-55)*16; //// A 的Ascll - 65
+        else
+            return nil;
+        i++;
+
+        unichar hex_char2 = [hexString characterAtIndex:i]; ///两位16进制数中的第二位(低位)
+        int int_ch2;
+        if(hex_char2 >= '0' && hex_char2 <='9')
+            int_ch2 = (hex_char2-48); //// 0 的Ascll - 48
+        else if(hex_char2 >= 'A' && hex_char2 <='F')
+            int_ch2 = hex_char2-55; //// A 的Ascll - 65
+        else
+            return nil;
+
+        int_ch = int_ch1+int_ch2;  ///将转化后的数放入Byte数组里
+        NSLog(@"int_ch=%d",int_ch);
+        bytes[j] = int_ch;  ///将转化后的数放入Byte数组里
+        j++;
+
+    }
+//进行base64加密
+    NSData *byteData = [[NSData alloc] initWithBytes:bytes length:16];
+
+    NSData *base64Data = [byteData base64EncodedDataWithOptions:0];
+
+    NSString *baseString = [[NSString alloc]initWithData:base64Data encoding:NSUTF8StringEncoding];
+
+    NSLog(@"++++++++++++base64+++++%@",baseString);
+    //base64去除多余的字符
+
+    return [self takeOutBaseCode:baseString];
+}
+
+//base64编码中的+改为-，/改为_,==去掉
+
++ (NSString *)takeOutBaseCode:(NSString *)baseString {
+    // + 号改为-号
+    NSString *firstString = [baseString stringByReplacingOccurrencesOfString:@"+" withString:@"-"];
+    //  /改为下划线
+    NSString *secondString = [firstString stringByReplacingOccurrencesOfString:@"/" withString:@"_"];
+    //去掉==
+    NSCharacterSet *set = [NSCharacterSet characterSetWithCharactersInString:@"="];
+    NSString *trimmedString = [secondString stringByTrimmingCharactersInSet:set];
+
+    NSLog(@"+++移除特殊字符之后%@",trimmedString);
+    return trimmedString;
 }
 
 @end

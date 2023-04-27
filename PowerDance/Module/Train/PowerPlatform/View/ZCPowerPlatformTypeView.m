@@ -165,10 +165,12 @@
 - (void)stopBtnClick {
     self.startBtn.hidden = NO;
     self.stopBtn.hidden = YES;
+    [self routerWithEventName:@"stop" userInfo:@{}];
 }
 - (void)startBtnClick {
     self.startBtn.hidden = YES;
     self.stopBtn.hidden = NO;
+    [self routerWithEventName:@"start" userInfo:@{}];
 }
 
 - (void)itemTypeClick:(UITapGestureRecognizer *)tap {
@@ -177,6 +179,7 @@
     [self setupAttributeStatus:self.selectView status:NO];
     [self setupAttributeStatus:lb status:YES];
     self.selectView = lb;
+    [self routerWithEventName:@"mode" userInfo:@{@"index":[NSString stringWithFormat:@"%tu", lb.tag]}];
 }
 
 - (void)setupAttributeStatus:(UILabel *)targetView status:(BOOL)status {
