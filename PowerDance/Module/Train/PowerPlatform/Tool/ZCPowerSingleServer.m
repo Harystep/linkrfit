@@ -1,17 +1,17 @@
 //
-//  ZCPowerServer.m
+//  ZCPowerSingleServer.m
 //  PowerDance
 //
-//  Created by oneStep on 2023/4/25.
+//  Created by oneStep on 2023/4/28.
 //
 
-#import "ZCPowerServer.h"
+#import "ZCPowerSingleServer.h"
 #import <UIKit/UIKit.h>
 #import "CFFUpdateVersionView.h"
 
-#define kName @"powerStation"
+#define kName @"ai-Thinker"
 
-@interface ZCPowerServer ()
+@interface ZCPowerSingleServer ()
 
 {
     BOOL inited;
@@ -31,9 +31,9 @@
 
 @end
 
-@implementation ZCPowerServer
+@implementation ZCPowerSingleServer
 
-static ZCPowerServer *_defaultBTServer = nil;
+static ZCPowerSingleServer *_defaultBTServer = nil;
 
 -(NSInteger)getScanState
 {
@@ -62,10 +62,10 @@ static ZCPowerServer *_defaultBTServer = nil;
 
 
 #pragma mark 初始化
-+(ZCPowerServer *)defaultBLEServer
++(ZCPowerSingleServer *)defaultBLEServer
 {
     if (nil == _defaultBTServer) {
-        _defaultBTServer = [[ZCPowerServer alloc] init];
+        _defaultBTServer = [[ZCPowerSingleServer alloc] init];
         
         [_defaultBTServer initBLE];
     }
@@ -207,23 +207,16 @@ static ZCPowerServer *_defaultBTServer = nil;
 #pragma mark 连接外设
 -(void)connect:(PeriperalInfo *)peripheralInfo
 {
-    if ([peripheralInfo.peripheral.name containsString:kName]) {
-        NSLog(@"要连接的外设:%@",peripheralInfo.peripheral.name);
-        //连接外设
-//        NSDictionary *options = @{CBConnectPeripheralOptionNotifyOnDisconnectionKey:@YES,
-//                                  CBConnectPeripheralOptionNotifyOnNotificationKey:@YES,
-//                                CBConnectPeripheralOptionNotifyOnConnectionKey:@YES};
-        [self.myCenter connectPeripheral:peripheralInfo.peripheral options:nil];
-        
-        self.selectPeripheral = peripheralInfo.peripheral;
-        connectState = KING;
-        double delayInSeconds = 120.0;
-        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-            //延迟操作@selector的方法
-            [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(cancelConnect) object:nil];
-        });
-    }
+    [self.myCenter connectPeripheral:peripheralInfo.peripheral options:nil];
+    
+    self.selectPeripheral = peripheralInfo.peripheral;
+    connectState = KING;
+    double delayInSeconds = 120.0;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        //延迟操作@selector的方法
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(cancelConnect) object:nil];
+    });
 }
 
 #pragma mark block回调
@@ -342,8 +335,7 @@ static ZCPowerServer *_defaultBTServer = nil;
 }
 
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI
-{
-    
+{    
     NSString *name = checkSafeContent(advertisementData[@"kCBAdvDataLocalName"]);
     if ([peripheral.name containsString:kName] || [name containsString:kName]) {
         NSLog(@"发现外设:%@;RSSI:%@", peripheral.name, RSSI);
@@ -422,8 +414,7 @@ static ZCPowerServer *_defaultBTServer = nil;
     if (nil == error) {
         for (CBCharacteristic *ch in service.characteristics) {
             NSLog(@"UUID--->%@", [ch.UUID UUIDString]);
-            
-            if ([[ch.UUID UUIDString] containsString:@"FED1"]) {
+            if ([[ch.UUID UUIDString] containsString:@"ECBE34729BB3"]) {
                 [peripheral setNotifyValue:YES forCharacteristic:ch];
                 [peripheral readValueForCharacteristic:ch];
                 self.selectCharacteristic = ch;
@@ -436,7 +427,10 @@ static ZCPowerServer *_defaultBTServer = nil;
                 NSLog(@"读写设备");
                 [peripheral setNotifyValue:YES forCharacteristic:ch];
                 [peripheral readValueForCharacteristic:ch];
-               
+            } else if ([[ch.UUID UUIDString] containsString:@"9616"]) {//写入数据
+                NSLog(@"读写设备");
+                [peripheral setNotifyValue:YES forCharacteristic:ch];
+                [peripheral readValueForCharacteristic:ch];
             }
         }
         
@@ -462,45 +456,12 @@ static ZCPowerServer *_defaultBTServer = nil;
 #pragma mark 当设备有数据返回时会调用如下方法：
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
 {
-    if ([[characteristic.UUID UUIDString] containsString:@"FED1"]) {//
-        NSData *data = characteristic.value;
-        NSString *content = [self transformCharateristicValueFromData:data];
-        NSLog(@"%@", content);
-        if ([content hasPrefix:@"010204"]) {//保存token
-            NSString *token = [content substringFromIndex:6];
-            NSLog(@"token:%@", token);
-            kUserStore.tokenBytes = token;
-        }else if ([content hasPrefix:@"0302031101"]) {//常规模式
-            NSLog(@"mode:%@", content);
-        } else if ([content hasPrefix:@"0302031102"]) {//离心模式
-            NSLog(@"mode:%@", content);
-        } else if ([content hasPrefix:@"0302031103"]) {//向心模式
-            NSLog(@"mode:%@", content);
-        } else if ([content hasPrefix:@"0302031104"]) {//等速模式
-            NSLog(@"mode:%@", content);
-        } else if ([content hasPrefix:@"0302031105"]) {//拉力绳模式
-            NSLog(@"mode:%@", content);
-        } else if ([content hasPrefix:@"0302031106"]) {//划船机模式
-            NSLog(@"mode:%@", content);
-        } else if ([content hasPrefix:@"04020211"]) {//获取当前运动模式
-            
-        } else if ([content hasPrefix:@"04020515"]) {//获取实际速度
-            
-        } else if ([content hasPrefix:@"04020516"]) {//获取实际拉力或收力
-            
-        } else if ([content hasPrefix:@"04020517"]) {//获取消耗卡路里
-            
-        } else if ([content hasPrefix:@"04020518"]) {//获取训练次数
-            
-        } else if ([content hasPrefix:@"04020501"]) {//获取设备参数
-            
-        } else if ([content hasPrefix:@"0302033"]) {//重量单位设置
-            
-        } else if ([content hasPrefix:@"0302032"]) {//音量设置
-            
-        } else if ([content hasPrefix:@"0302031"]) {//语言设置
-            
-        }//
+    NSData *data = characteristic.value;
+    NSLog(@"data:%@", data);
+    if ([[characteristic.UUID UUIDString] containsString:@"ECBE34729BB3"]) {//
+        Byte *bytes = (Byte *)[data bytes];
+        NSString *content = [self transformCharateristicValueFromData:characteristic.value];
+        NSLog(@"content:%@", content);
     }
     //00002
     if (error){

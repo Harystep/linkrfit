@@ -172,6 +172,8 @@ NS_ASSUME_NONNULL_BEGIN
 //將16進制的字符串轉換成NSData
 + (NSMutableData *)convertHexStrToData:(NSString *)str;
 
++ (NSData *)setPullPowerData;
+
 @end
 
 NS_ASSUME_NONNULL_END

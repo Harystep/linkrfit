@@ -64,6 +64,8 @@
 	<string>"练氪" 需要您的同意，才能访问蓝牙！您可以通过蓝牙来连接计时器设备，</string>
 	<key>NSCameraUsageDescription</key>
 	<string>"练氪" 需要您的同意，才能访问相机，您可以通过相机来拍摄照片用来设置您的头像信息。</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>开启定位服务</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>"练氪" 需要您的同意，才能访问相册，您可以使用相册里的图片来设置您的头像信息！</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>

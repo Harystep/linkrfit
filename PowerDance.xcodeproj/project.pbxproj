@@ -529,6 +529,8 @@
 		4CAEC17D29F789DD00DA2104 /* ZCPowerStationSetLanguageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CAEC17C29F789DD00DA2104 /* ZCPowerStationSetLanguageView.m */; };
 		4CAEC18029F789FE00DA2104 /* ZCPowerStationSetUnitView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CAEC17F29F789FE00DA2104 /* ZCPowerStationSetUnitView.m */; };
 		4CAEC18329F7917A00DA2104 /* ZCPowerStationAboutView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CAEC18229F7917A00DA2104 /* ZCPowerStationAboutView.m */; };
+		4CF410D229FB9EE60012607A /* ZCPowerSingleServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CF410D129FB9EE60012607A /* ZCPowerSingleServer.m */; };
+		4CF410D529FB9FAE0012607A /* ZCPowerSingleTypeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CF410D429FB9FAE0012607A /* ZCPowerSingleTypeController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -1571,6 +1573,10 @@
 		4CAEC17F29F789FE00DA2104 /* ZCPowerStationSetUnitView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCPowerStationSetUnitView.m; sourceTree = "<group>"; };
 		4CAEC18129F7917A00DA2104 /* ZCPowerStationAboutView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCPowerStationAboutView.h; sourceTree = "<group>"; };
 		4CAEC18229F7917A00DA2104 /* ZCPowerStationAboutView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCPowerStationAboutView.m; sourceTree = "<group>"; };
+		4CF410D029FB9EE60012607A /* ZCPowerSingleServer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCPowerSingleServer.h; sourceTree = "<group>"; };
+		4CF410D129FB9EE60012607A /* ZCPowerSingleServer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCPowerSingleServer.m; sourceTree = "<group>"; };
+		4CF410D329FB9FAE0012607A /* ZCPowerSingleTypeController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCPowerSingleTypeController.h; sourceTree = "<group>"; };
+		4CF410D429FB9FAE0012607A /* ZCPowerSingleTypeController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCPowerSingleTypeController.m; sourceTree = "<group>"; };
 		53B63FE2CA3F61EF114EB7B3 /* Pods-PowerDance.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PowerDance.debug.xcconfig"; path = "Target Support Files/Pods-PowerDance/Pods-PowerDance.debug.xcconfig"; sourceTree = "<group>"; };
 		F90D83B426425A0267E7E921 /* libPods-PowerDance.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-PowerDance.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -3757,6 +3763,8 @@
 				4C3F9AF929E53C2200B7DC2E /* ZCPowerPlatformController.m */,
 				4CAEC17229F76A0800DA2104 /* ZCPowerPlatformSetController.h */,
 				4CAEC17329F76A0800DA2104 /* ZCPowerPlatformSetController.m */,
+				4CF410D329FB9FAE0012607A /* ZCPowerSingleTypeController.h */,
+				4CF410D429FB9FAE0012607A /* ZCPowerSingleTypeController.m */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -3795,6 +3803,8 @@
 			children = (
 				4CAEC16F29F763A800DA2104 /* ZCPowerServer.h */,
 				4CAEC17029F763A800DA2104 /* ZCPowerServer.m */,
+				4CF410D029FB9EE60012607A /* ZCPowerSingleServer.h */,
+				4CF410D129FB9EE60012607A /* ZCPowerSingleServer.m */,
 			);
 			path = Tool;
 			sourceTree = "<group>";
@@ -4166,6 +4176,7 @@
 				2EADC83627E18BCB004F628E /* ZCTrainFilterCategoryHeaderView.m in Sources */,
 				2EF265B52939DF4E00DAF21E /* ZCPensonalBottomView.m in Sources */,
 				2ECF0263280FD3B9003F51A6 /* ZCTrainClassItemCell.m in Sources */,
+				4CF410D529FB9FAE0012607A /* ZCPowerSingleTypeController.m in Sources */,
 				2E00BD8F27DB438900B44986 /* ZCSizingCollectCell.m in Sources */,
 				2E474678272F8CF4003B96EF /* ZCTrainPlanController.m in Sources */,
 				2E5C705A281A37A400F25397 /* ZCCustomActionDetailController.m in Sources */,
@@ -4366,6 +4377,7 @@
 				2E6B2921282B605400FD40EF /* ZCRecommendGuideCell.m in Sources */,
 				2E08E89127FD9AB300625BD1 /* ZCTrainInstrumentUsedCell.m in Sources */,
 				2E4746932730D7C3003B96EF /* ZCTrainFinishController.m in Sources */,
+				4CF410D229FB9EE60012607A /* ZCPowerSingleServer.m in Sources */,
 				2EC323D62761E68F0022916F /* ZCTimerAutoModeController.m in Sources */,
 				2E7C64B928922E8400AA48D2 /* ZCFamilySuitController.m in Sources */,
 				2EC323E52762074C0022916F /* ZCTimerDownController.m in Sources */,

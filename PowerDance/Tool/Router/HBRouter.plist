@@ -160,5 +160,7 @@
 	<string>ZCPowerPlatformController</string>
 	<key>PowerPlatformSet</key>
 	<string>ZCPowerPlatformSetController</string>
+	<key>PowerSingleType</key>
+	<string>ZCPowerSingleTypeController</string>
 </dict>
 </plist>
