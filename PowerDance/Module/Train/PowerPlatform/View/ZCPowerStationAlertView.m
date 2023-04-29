@@ -243,12 +243,15 @@
     self.baseView.hidden = YES;
     self.faiView.hidden = YES;
     self.operateBtn.hidden = YES;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [self createFailViewSubviews];
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [self createSuccessViewSubviews];
-        });
-    });
+//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//        [self createFailViewSubviews];
+//        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//            [self createSuccessViewSubviews];
+//        });
+//    });
+    if(self.updateBlock) {
+        self.updateBlock();
+    }
 }
 
 - (void)deleteOperate {

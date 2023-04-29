@@ -19,6 +19,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, assign) NSInteger successFlag;
 
+@property (nonatomic, copy) void (^updateBlock)(void);
+
 - (void)showAlertView;
 
 @end

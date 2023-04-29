@@ -190,9 +190,6 @@
     [task resume];
 }
 
-- (void)sendSubpackage:(Byte *)bytes index:(NSInteger)index length:(NSInteger)length {
-    
-}
 
 - (void)didDisconnect {
     

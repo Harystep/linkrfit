@@ -17,7 +17,7 @@
 #import "ZCHomeBindDeviceView.h"
 #import "CFFChangeNickView.h"
 
-@interface ZCHomeController ()<UITableViewDelegate, UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource>
+@interface ZCHomeController ()<UITableViewDelegate, UITableViewDataSource>
 
 @property (nonatomic,strong) UITableView *tableView;
 
@@ -78,6 +78,10 @@
     [RACObserve(kUserStore, refreshTrainClass) subscribeNext:^(id  _Nullable x) {
         [weakself queryTrainPlanListInfo];
     }];
+    NSString *name = @"11";
+    name = [ZCBluthDataTool convertStringToHexStr:name];
+    NSLog(@"nameStr:%@", name);
+    NSLog(@"name:%@", [ZCBluthDataTool convertHexStrToData:name]);
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {

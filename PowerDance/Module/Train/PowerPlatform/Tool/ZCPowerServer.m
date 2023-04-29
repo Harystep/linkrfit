@@ -494,13 +494,20 @@ static ZCPowerServer *_defaultBTServer = nil;
             
         } else if ([content hasPrefix:@"04020501"]) {//获取设备参数
             
-        } else if ([content hasPrefix:@"0302033"]) {//重量单位设置
+        } else if ([content hasPrefix:@"03020303"]) {//重量单位设置
             
-        } else if ([content hasPrefix:@"0302032"]) {//音量设置
+        } else if ([content hasPrefix:@"03020302"]) {//音量设置
             
-        } else if ([content hasPrefix:@"0302031"]) {//语言设置
+        } else if ([content hasPrefix:@"03020301"]) {//语言设置
             
-        }//
+        } else if ([content hasPrefix:@"05021301"]) {//上传文件返回结果
+            NSString *type = [content substringWithRange:NSMakeRange(8, 1)];
+            if([type isEqualToString:@"00"] || [type isEqualToString:@"0"]) {//成功
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"kUpdataBackNoticeKey" object:nil];
+            } else {//失败
+                
+            }
+        }
     }
     //00002
     if (error){

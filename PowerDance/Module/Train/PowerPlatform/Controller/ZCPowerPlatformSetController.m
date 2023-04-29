@@ -19,6 +19,13 @@
 @property (nonatomic,strong) UITableView *tableView;
 
 @property (nonatomic,strong) NSMutableArray *dataArr;
+@property (nonatomic, copy) NSString *subpackage;//包内容
+@property (nonatomic, assign) NSInteger index;//分包索引
+@property (nonatomic, assign) NSInteger totalIndex;//分包数
+@property (nonatomic, assign) NSInteger remainLength;//剩余长度
+@property (nonatomic, copy) NSString *filename;
+
+@property (nonatomic, assign) Byte *bytes;
 
 @end
 
@@ -40,6 +47,9 @@
     footerView.backgroundColor = rgba(246, 246, 246, 1);
     [self setupFooterSubViews:footerView];
      
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updataBackNotice:) name:@"kUpdataBackNoticeKey" object:nil];
+    
+    [self downloadFileOperate];
 }
 
 - (void)configureAlertView:(NSString *)title {
@@ -84,6 +94,58 @@
     }];
 }
 
+- (void)updataBackNotice:(NSNotification *)noti {
+    self.index ++;
+    [self sendSubpackageWithindex:self.index];
+}
+
+- (void)downloadFileOperate {
+    NSURL *url = [NSURL URLWithString:@"https://zc-tk.oss-cn-beijing.aliyuncs.com/bootloader.bin"];
+    // 创建request对象
+    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    
+    // 使用URLSession来进行网络请求
+    // 创建会话配置对象
+    NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    // 创建会话对象
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
+    // 创建会话任务对象
+    NSURLSessionTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        if (data) {
+            // 将下载的数据传出去，进行UI更新
+            NSLog(@"%@", data);
+            Byte *bytes = (Byte *)[data bytes];
+            NSMutableString *str = [NSMutableString stringWithCapacity:data.length];
+            for (int i = 0; i < data.length; i ++) {
+                [str appendFormat:@"%02x", bytes[i]];
+            }
+            NSLog(@"str:%@", str);
+            self.subpackage = str;
+            self.remainLength = data.length % 128;
+            self.totalIndex = ceil(data.length/128.0);
+            NSLog(@"%tu-%tu", self.remainLength, self.totalIndex);
+            self.bytes = bytes;
+            self.filename = @"";
+            [ZCBluthDataTool sendFilePackage:self.subpackage content:[self.subpackage substringWithRange:NSMakeRange(0, 256)] filename:[ZCBluthDataTool convertStringToHexStr:@"test.bin"] total:self.totalIndex currentIndex:0 bytes:self.bytes];
+        }
+    }];
+    // 创建的task都是挂起状态，需要resume才能执行
+    [task resume];
+}
+
+- (void)sendSubpackageWithindex:(NSInteger)index {
+    NSString *package;
+    if(self.index < self.totalIndex) {
+        NSInteger length = 128;
+        if(self.index == self.totalIndex-1) {
+            length = self.remainLength;
+        }
+        package = [self.subpackage substringWithRange:NSMakeRange(128*index, length)];
+        NSString *filename = [ZCBluthDataTool convertStringToHexStr:self.filename];
+        [ZCBluthDataTool sendFilePackage:self.subpackage content:package filename:filename total:self.totalIndex currentIndex:self.index bytes:self.bytes];
+    }
+}
+
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     return self.dataArr.count;
 }
@@ -120,6 +182,10 @@
 - (void)updateOperate {
     ZCPowerStationAlertView *alertView = [[ZCPowerStationAlertView alloc] init];
     [alertView showAlertView];
+    kweakself(self);
+    alertView.updateBlock = ^{
+        [weakself sendSubpackageWithindex:0];
+    };
 }
 
 - (void)unitOperate {

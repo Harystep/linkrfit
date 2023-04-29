@@ -126,8 +126,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSData *)sendGetTokenContent;
 
-+ (void)saveBytesData:(Byte *)bytes;
-
 /// 开始
 + (NSData *)sendStartStationOperate;
 /// 暂停
@@ -172,7 +170,18 @@ NS_ASSUME_NONNULL_BEGIN
 //將16進制的字符串轉換成NSData
 + (NSMutableData *)convertHexStrToData:(NSString *)str;
 
+/// 将字符串转为十六进制字符串
+/// - Parameter str: <#str description#>
++ (NSString *)convertStringToHexStr:(NSString *)str;
+
 + (NSData *)setPullPowerData;
+
+/// 发送文件
+/// - Parameters:
+///   - package: <#package description#>
+///   - content: <#content description#>
+///   - filename: <#filename description#>
++ (NSData *)sendFilePackage:(NSString *)package content:(NSString *)content filename:(NSString *)filename total:(NSInteger)totalIndex currentIndex:(NSInteger)currentIndex bytes:(Byte *)bytes ;
 
 @end
 
