@@ -924,4 +924,64 @@ unsigned short GetCRC16(unsigned char *puchMsg, unsigned short usDataLen, unsign
     return str;
 }
 
+/// 设置常规模式 离心力 向心力
+/// @param content 设置数据
++ (NSData *)sendSportModePowerData:(NSString *)content {
+    NSData *data;
+    int powerNum = [content intValue] * 10;
+    NSString *powerHex = [self ToHex:powerNum];
+    NSString *hexStr = [NSString stringWithFormat:@"%@%@", @"015270F700000000", powerHex];
+    int num = 0;
+    for (int i = 0; i < hexStr.length / 2; i ++) {
+        NSString *hex = [hexStr substringWithRange:NSMakeRange(i*2, 2)];
+//        NSLog(@"%@", hex);
+        num += (int)strtoul([hex UTF8String], 0, 16);
+    }
+    NSString *transHex = [self ToHex:num];
+    NSString *lowHex = [transHex substringFromIndex:transHex.length-2];
+    NSString *dataStr = [NSString stringWithFormat:@"%@%@", hexStr, lowHex];
+    NSLog(@"dataStr:%@", dataStr);
+    return [self convertHexStrToData:dataStr];
+}
+
+/// 设置等速模式 0x7107  cm/s
+/// @param content <#content description#>
++ (NSData *)sendSportModeSpeedData:(NSString *)content {
+    NSData *data;
+    int powerNum = [content intValue] * 10;
+    NSString *powerHex = [self ToHex:powerNum];
+    NSString *hexStr = [NSString stringWithFormat:@"%@%@", @"0152077100000000", powerHex];
+    int num = 0;
+    for (int i = 0; i < hexStr.length / 2; i ++) {
+        NSString *hex = [hexStr substringWithRange:NSMakeRange(i*2, 2)];
+//        NSLog(@"%@", hex);
+        num += (int)strtoul([hex UTF8String], 0, 16);
+    }
+    NSString *transHex = [self ToHex:num];
+    NSString *lowHex = [transHex substringFromIndex:transHex.length-2];
+    NSString *dataStr = [NSString stringWithFormat:@"%@%@", hexStr, lowHex];
+    NSLog(@"dataStr:%@", dataStr);
+    return [self convertHexStrToData:dataStr];
+}
+
+/// 设置弹力绳 0x7109  g/cm
+/// @param content <#content description#>
++ (NSData *)sendSportModeRopeData:(NSString *)content {
+    NSData *data;
+    int powerNum = [content intValue] * 10;
+    NSString *powerHex = [self ToHex:powerNum];
+    NSString *hexStr = [NSString stringWithFormat:@"%@%@", @"0152097100000000", powerHex];
+    int num = 0;
+    for (int i = 0; i < hexStr.length / 2; i ++) {
+        NSString *hex = [hexStr substringWithRange:NSMakeRange(i*2, 2)];
+//        NSLog(@"%@", hex);
+        num += (int)strtoul([hex UTF8String], 0, 16);
+    }
+    NSString *transHex = [self ToHex:num];
+    NSString *lowHex = [transHex substringFromIndex:transHex.length-2];
+    NSString *dataStr = [NSString stringWithFormat:@"%@%@", hexStr, lowHex];
+    NSLog(@"dataStr:%@", dataStr);
+    return [self convertHexStrToData:dataStr];
+}
+
 @end

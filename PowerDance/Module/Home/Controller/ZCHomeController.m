@@ -78,10 +78,7 @@
     [RACObserve(kUserStore, refreshTrainClass) subscribeNext:^(id  _Nullable x) {
         [weakself queryTrainPlanListInfo];
     }];
-    NSString *name = @"11";
-    name = [ZCBluthDataTool convertStringToHexStr:name];
-    NSLog(@"nameStr:%@", name);
-    NSLog(@"name:%@", [ZCBluthDataTool convertHexStrToData:name]);
+    [ZCBluthDataTool sendSportModePowerData:@"20"];
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {

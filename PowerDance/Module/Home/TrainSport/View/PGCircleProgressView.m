@@ -81,7 +81,7 @@
                                       startAngle:-M_PI_2
                                         endAngle:-M_PI_2 + M_PI *2
                                        clockwise:YES];
-
+    
     _progressLayer.path = path.CGPath;
 }
 

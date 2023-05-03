@@ -44,7 +44,7 @@
     
     ZCCourseController   *classVc  = [[ZCCourseController alloc] init];
     ZCBaseNavController *classNav = [[ZCBaseNavController alloc] initWithRootViewController:classVc];
-    [self setupChildViewController:classNav title:NSLocalizedString(@"课程", nil) imageName:@"tabbar_class_nor" seleceImageName:@"tabbar_class_sel"];
+    [self setupChildViewController:classVc title:NSLocalizedString(@"课程", nil) imageName:@"tabbar_class_nor" seleceImageName:@"tabbar_class_sel"];
     
     ZCShopController   *shopVc  = [[ZCShopController alloc] init];
     ZCBaseNavController *shopNav = [[ZCBaseNavController alloc] initWithRootViewController:shopVc];

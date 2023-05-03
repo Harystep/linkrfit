@@ -183,6 +183,21 @@ NS_ASSUME_NONNULL_BEGIN
 ///   - filename: <#filename description#>
 + (NSData *)sendFilePackage:(NSString *)package content:(NSString *)content filename:(NSString *)filename total:(NSInteger)totalIndex currentIndex:(NSInteger)currentIndex bytes:(Byte *)bytes ;
 
+/// 设置常规模式 离心力 向心力
+/// @param content 设置数据
++ (NSData *)sendSportModePowerData:(NSString *)content;
+
+/// 设置等速模式 0x7107  cm/s
+/// @param content <#content description#>
++ (NSData *)sendSportModeSpeedData:(NSString *)content;
+
+/// 设置弹力绳 0x7109  g/cm
+/// @param content <#content description#>
++ (NSData *)sendSportModeRopeData:(NSString *)content;
+
+
+
+
 @end
 
 NS_ASSUME_NONNULL_END
