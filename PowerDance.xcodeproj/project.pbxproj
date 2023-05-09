@@ -529,6 +529,7 @@
 		4CAEC17D29F789DD00DA2104 /* ZCPowerStationSetLanguageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CAEC17C29F789DD00DA2104 /* ZCPowerStationSetLanguageView.m */; };
 		4CAEC18029F789FE00DA2104 /* ZCPowerStationSetUnitView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CAEC17F29F789FE00DA2104 /* ZCPowerStationSetUnitView.m */; };
 		4CAEC18329F7917A00DA2104 /* ZCPowerStationAboutView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CAEC18229F7917A00DA2104 /* ZCPowerStationAboutView.m */; };
+		4CBE7F112A0A67CE0005F19F /* ZCPowerStationSetView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CBE7F102A0A67CE0005F19F /* ZCPowerStationSetView.m */; };
 		4CF410D229FB9EE60012607A /* ZCPowerSingleServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CF410D129FB9EE60012607A /* ZCPowerSingleServer.m */; };
 		4CF410D529FB9FAE0012607A /* ZCPowerSingleTypeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CF410D429FB9FAE0012607A /* ZCPowerSingleTypeController.m */; };
 /* End PBXBuildFile section */
@@ -1573,6 +1574,8 @@
 		4CAEC17F29F789FE00DA2104 /* ZCPowerStationSetUnitView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCPowerStationSetUnitView.m; sourceTree = "<group>"; };
 		4CAEC18129F7917A00DA2104 /* ZCPowerStationAboutView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCPowerStationAboutView.h; sourceTree = "<group>"; };
 		4CAEC18229F7917A00DA2104 /* ZCPowerStationAboutView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCPowerStationAboutView.m; sourceTree = "<group>"; };
+		4CBE7F0F2A0A67CE0005F19F /* ZCPowerStationSetView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCPowerStationSetView.h; sourceTree = "<group>"; };
+		4CBE7F102A0A67CE0005F19F /* ZCPowerStationSetView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCPowerStationSetView.m; sourceTree = "<group>"; };
 		4CF410D029FB9EE60012607A /* ZCPowerSingleServer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCPowerSingleServer.h; sourceTree = "<group>"; };
 		4CF410D129FB9EE60012607A /* ZCPowerSingleServer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZCPowerSingleServer.m; sourceTree = "<group>"; };
 		4CF410D329FB9FAE0012607A /* ZCPowerSingleTypeController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCPowerSingleTypeController.h; sourceTree = "<group>"; };
@@ -3752,6 +3755,8 @@
 				4CAEC17F29F789FE00DA2104 /* ZCPowerStationSetUnitView.m */,
 				4CAEC18129F7917A00DA2104 /* ZCPowerStationAboutView.h */,
 				4CAEC18229F7917A00DA2104 /* ZCPowerStationAboutView.m */,
+				4CBE7F0F2A0A67CE0005F19F /* ZCPowerStationSetView.h */,
+				4CBE7F102A0A67CE0005F19F /* ZCPowerStationSetView.m */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -3964,6 +3969,7 @@
 				2EADC7EE27E04368004F628E /* ZCEquipmentDescCell.m in Sources */,
 				2E88F4AB273A25850018EAE8 /* ZCBaseSlideController.m in Sources */,
 				2E7C63DE288F813800AA48D2 /* ZCEfficientDeviceItemCell.m in Sources */,
+				4CBE7F112A0A67CE0005F19F /* ZCPowerStationSetView.m in Sources */,
 				2EFA404B2756077300C9F002 /* ZCTextFromMeCell.m in Sources */,
 				2E88F39D273927A90018EAE8 /* ZCChangeNickView.m in Sources */,
 				2EDB242C275073F800D0695E /* MJRefreshNormalTrailer.m in Sources */,

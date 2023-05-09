@@ -9,7 +9,7 @@
 #import "ZCPowerPlatformTypeView.h"
 #import "LNLineChartView.h"
 #import "ZCPowerSingleServer.h"
-//#import "ZCPowerServer.h"
+#import "ZCPowerStationSetView.h"
 
 @interface ZCPowerSingleTypeController ()<LNLineChartViewDelegate, ZCPowerSingleServerDelegate>
 
@@ -26,6 +26,8 @@
 @property (nonatomic, assign) NSInteger index;//分包索引
 @property (nonatomic, assign) NSInteger totalIndex;//分包数
 @property (nonatomic, assign) NSInteger remainLength;//剩余长度
+
+@property (nonatomic,assign) NSInteger mode;
 
 @end
 
@@ -105,7 +107,7 @@
    
 }
 
-- (void)routerWithEventName:(NSString *)eventName userInfo:(NSDictionary *)userInfo {
+- (void)routerWithEventName:(NSString *)eventName userInfo:(NSDictionary *)userInfo block:(nonnull void (^)(id _Nonnull))block {
     NSData *data;
     if([eventName isEqualToString:@"start"]) {
         data = [ZCBluthDataTool sendStartStationOperate];
@@ -145,7 +147,19 @@
             }
             data = [ZCBluthDataTool setPullPowerData];
             [[ZCPowerSingleServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerSingleServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
+            self.topView.unitL.text = [ZCBluthDataTool convertUnitTitleWithMode:self.mode];
+            
+            block(@"");
         }
+    } else if ([eventName isEqualToString:@"set"]) {
+        ZCPowerStationSetView *setView = [[ZCPowerStationSetView alloc] init];
+        [self.view addSubview:setView];
+        setView.titleL.text = NSLocalizedString(@"设置", nil);
+        setView.configureArr = [ZCBluthDataTool convertDataWithMode:self.mode];
+        [setView showAlertView];
+        setView.sureRepeatOperate = ^(NSString * _Nonnull content) {
+            
+        };
     }
 }
 

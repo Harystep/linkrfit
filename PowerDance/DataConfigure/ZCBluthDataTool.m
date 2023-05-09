@@ -967,7 +967,7 @@ unsigned short GetCRC16(unsigned char *puchMsg, unsigned short usDataLen, unsign
 /// 设置弹力绳 0x7109  g/cm
 /// @param content <#content description#>
 + (NSData *)sendSportModeRopeData:(NSString *)content {
-    NSData *data;
+    
     int powerNum = [content intValue] * 10;
     NSString *powerHex = [self ToHex:powerNum];
     NSString *hexStr = [NSString stringWithFormat:@"%@%@", @"0152097100000000", powerHex];
@@ -982,6 +982,107 @@ unsigned short GetCRC16(unsigned char *puchMsg, unsigned short usDataLen, unsign
     NSString *dataStr = [NSString stringWithFormat:@"%@%@", hexStr, lowHex];
     NSLog(@"dataStr:%@", dataStr);
     return [self convertHexStrToData:dataStr];
+}
+
+/// 拉力设置 kg
++ (NSArray *)getPowerPullConfigureData {
+    NSMutableArray *temArr = [NSMutableArray array];
+    for (int i = 5; i < 51; i ++) {
+        [temArr addObject:[NSString stringWithFormat:@"%d", i]];
+    }
+    return temArr;
+}
+
+/// 收力设置 kg
++ (NSArray *)getPowerPutConfigureData {
+    NSMutableArray *temArr = [NSMutableArray array];
+    for (int i = 5; i < 51; i ++) {
+        [temArr addObject:[NSString stringWithFormat:@"%d", i]];
+    }
+    return temArr;
+}
+
+/// 速度设置 cm/s
++ (NSArray *)getPowerSpeedConfigureData {
+    NSMutableArray *temArr = [NSMutableArray array];
+    for (int i = 10; i < 401; i ++) {
+        [temArr addObject:[NSString stringWithFormat:@"%d", i]];
+    }
+    return temArr;
+}
+
+/// 拉力系数设置 g/cm
++ (NSArray *)getPowerPullCoefficientConfigureData {
+    NSMutableArray *temArr = [NSMutableArray array];
+    for (int i = 50; i < 1001; i ++) {
+        [temArr addObject:[NSString stringWithFormat:@"%d", i]];
+    }
+    return temArr;
+}
+
+/// 划船阻力设置 g/cm
++ (NSArray *)getPowerBoatResistanceConfigureData {
+    NSMutableArray *temArr = [NSMutableArray array];
+    for (int i = 1; i < 11; i ++) {
+        [temArr addObject:[NSString stringWithFormat:@"%d", i]];
+    }
+    return temArr;
+}
+
++ (NSArray *)convertDataWithMode:(NSInteger)mode {
+    NSArray *dataArr;
+    switch (mode) {
+        case 0:
+            dataArr = [self getPowerPullConfigureData];
+            break;
+        case 1://离心
+            dataArr = [self getPowerPullConfigureData];
+            break;
+        case 2://向心
+            dataArr = [self getPowerPutConfigureData];
+            break;
+        case 3://等速
+            dataArr = [self getPowerSpeedConfigureData];
+            break;
+        case 4://弹力绳
+            dataArr = [self getPowerPullCoefficientConfigureData];
+            break;
+        case 5://划船
+            dataArr = [self getPowerBoatResistanceConfigureData];
+            break;
+            
+        default:
+            break;
+    }
+    return dataArr;
+}
+
++ (NSString *)convertUnitTitleWithMode:(NSInteger)mode {
+    NSString *title;
+    switch (mode) {
+        case 0:
+            title = @"kg";
+            break;
+        case 1://离心
+            title = @"kg";
+            break;
+        case 2://向心
+            title = @"kg";
+            break;
+        case 3://等速
+            title = @"cm/s";
+            break;
+        case 4://弹力绳
+            title = @"g/cm";
+            break;
+        case 5://划船
+            title = @"g/cm";
+            break;
+            
+        default:
+            break;
+    }
+    return title;
 }
 
 @end

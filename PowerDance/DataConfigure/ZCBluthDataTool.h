@@ -195,9 +195,28 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param content <#content description#>
 + (NSData *)sendSportModeRopeData:(NSString *)content;
 
+/// 拉力设置 kg
++ (NSArray *)getPowerPullConfigureData;
 
+/// 收力设置 kg
++ (NSArray *)getPowerPutConfigureData;
 
+/// 速度设置 cm/s
++ (NSArray *)getPowerSpeedConfigureData;
 
+/// 拉力系数设置 g/cm
++ (NSArray *)getPowerPullCoefficientConfigureData;
+
+/// 划船阻力设置 g/cm
++ (NSArray *)getPowerBoatResistanceConfigureData;
+
+/// 模式数据设置
+/// - Parameter mode: <#mode description#>
++ (NSArray *)convertDataWithMode:(NSInteger)mode;
+
+/// 模式单位转换
+/// - Parameter mode: <#mode description#>
++ (NSString *)convertUnitTitleWithMode:(NSInteger)mode;
 @end
 
 NS_ASSUME_NONNULL_END

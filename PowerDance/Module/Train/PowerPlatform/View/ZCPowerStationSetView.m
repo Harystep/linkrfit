@@ -1,14 +1,14 @@
 //
-//  ZCAlertPickerView.m
+//  ZCPowerStationSetView.m
 //  PowerDance
 //
-//  Created by PC-N121 on 2021/11/1.
+//  Created by oneStep on 2023/5/9.
 //
 
-#import "ZCAlertPickerView.h"
+#import "ZCPowerStationSetView.h"
 #import "ZGPickerView.h"
 
-@interface ZCAlertPickerView ()<ZGPickerViewDelegate>
+@interface ZCPowerStationSetView ()<ZGPickerViewDelegate>
 
 @property (nonatomic,strong) UIView *contentView;
 
@@ -24,7 +24,7 @@
 
 @end
 
-@implementation ZCAlertPickerView
+@implementation ZCPowerStationSetView
 
 - (UIButton *)maskBtn {
     if (!_maskBtn) {
@@ -54,7 +54,7 @@
     [self addSubview:self.contentView];
     [contentView setViewCornerRadiu:AUTO_MARGIN(10)];
     
-    self.titleL = [self createSimpleLabelWithTitle:NSLocalizedString(@"该动作组需要重复训练吗？", nil) font:14 bold:YES color:[ZCConfigColor txtColor]];
+    self.titleL = [self createSimpleLabelWithTitle:NSLocalizedString(@"", nil) font:14 bold:YES color:[ZCConfigColor txtColor]];
     [contentView addSubview:self.titleL];
     [self.titleL mas_makeConstraints:^(MASConstraintMaker *make) {
         make.leading.top.mas_equalTo(contentView).offset(AUTO_MARGIN(20));
@@ -137,27 +137,17 @@
 - (void)setConfigureArr:(NSArray *)configureArr {
     _configureArr = configureArr;
     self.dataArr = [NSMutableArray arrayWithArray:configureArr];
+    _picker.dataArr = self.dataArr;
+    _picker.defaultSelectedRow = @[@"0"];
 }
 
 - (ZGPickerView *)picker {
     if (!_picker) {
         _picker = [[ZGPickerView alloc] initWithFrame:CGRectMake(AUTO_MARGIN(231)/2.0, 0, AUTO_MARGIN(60), AUTO_MARGIN(100))];
         _picker.pvDelegate = self;
-        _picker.dataArr = self.dataArr;
-        _picker.defaultSelectedRow = @[@"0"];
                 
     }
     return _picker;
-}
-
-- (NSMutableArray *)dataArr {
-    if (!_dataArr) {
-        _dataArr = [NSMutableArray array];
-        for (int i = 1; i < 100; i ++) {
-            [_dataArr addObject:[NSString stringWithFormat:@"%d", i]];
-        }
-    }
-    return _dataArr;
 }
 
 @end

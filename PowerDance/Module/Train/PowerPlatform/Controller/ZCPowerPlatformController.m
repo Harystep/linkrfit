@@ -9,6 +9,7 @@
 #import "ZCPowerPlatformTypeView.h"
 #import "LNLineChartView.h"
 #import "ZCPowerServer.h"
+#import "ZCPowerStationSetView.h"
 
 @interface ZCPowerPlatformController ()<LNLineChartViewDelegate, BLEPowerServerDelegate>
 
@@ -25,6 +26,8 @@
 @property (nonatomic, assign) NSInteger index;//分包索引
 @property (nonatomic, assign) NSInteger totalIndex;//分包数
 @property (nonatomic, assign) NSInteger remainLength;//剩余长度
+
+@property (nonatomic,assign) NSInteger mode;//当前模式 0 常规模式
 
 @end
 
@@ -104,12 +107,13 @@
    
 }
 
-- (void)routerWithEventName:(NSString *)eventName userInfo:(NSDictionary *)userInfo {
+- (void)routerWithEventName:(NSString *)eventName userInfo:(NSDictionary *)userInfo block:(nonnull void (^)(id _Nonnull))block {
     NSData *data;
     if([eventName isEqualToString:@"start"]) {
         data = [ZCBluthDataTool sendStartStationOperate];
         if(self.defaultBLEServer.selectPeripheral) {
             [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
+            
         }
     } else if ([eventName isEqualToString:@"stop"]) {
         data = [ZCBluthDataTool sendStopStationOperate];
@@ -119,6 +123,7 @@
     } else if ([eventName isEqualToString:@"mode"]) {
         if(self.defaultBLEServer.selectPeripheral) {
             NSData *data;
+            self.mode = [userInfo[@"index"] integerValue];
             switch ([userInfo[@"index"] integerValue]) {
                 case 0://常规模式
                     data = [ZCBluthDataTool sendSportMode1StationOperate];
@@ -143,7 +148,20 @@
                     break;
             }
             [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
+            
+            self.topView.unitL.text = [ZCBluthDataTool convertUnitTitleWithMode:self.mode];
+            
+            block(@"");
         }
+    } else if ([eventName isEqualToString:@"set"]) {
+        ZCPowerStationSetView *setView = [[ZCPowerStationSetView alloc] init];
+        [self.view addSubview:setView];
+        setView.titleL.text = NSLocalizedString(@"设置", nil);
+        setView.configureArr = [ZCBluthDataTool convertDataWithMode:self.mode];
+        [setView showAlertView];
+        setView.sureRepeatOperate = ^(NSString * _Nonnull content) {
+            
+        };
     }
 }
 

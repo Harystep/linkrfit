@@ -11,10 +11,6 @@
 
 @property (nonatomic,strong) UILabel *selectView;
 
-@property (nonatomic,strong) UIButton *targetSetBtn;//目标设置
-
-@property (nonatomic,strong) UILabel *unitL;
-
 @property (nonatomic,strong) UILabel *consumeL;//消耗
 
 @property (nonatomic,strong) UILabel *totalL;//实际拉力
@@ -91,6 +87,16 @@
         make.leading.mas_equalTo(self.targetSetBtn.mas_trailing).offset(10);
     }];
     
+    UIButton *setBtn = [[UIButton alloc] init];
+    [self addSubview:setBtn];
+    [setBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.mas_equalTo(self.targetSetBtn.mas_top);
+        make.trailing.mas_equalTo(self.mas_trailing).inset(20);
+        make.height.width.mas_offset(30);
+    }];
+    [setBtn setImage:kIMAGE(@"address_edit") forState:UIControlStateNormal];
+    [setBtn addTarget:self action:@selector(setPowerOperate) forControlEvents:UIControlEventTouchUpInside];    
+    
     UIView *lineView = [[UIView alloc] init];
     [self addSubview:lineView];
     [lineView mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -161,16 +167,27 @@
     self.stopBtn.hidden = YES;
     [self.stopBtn addTarget:self action:@selector(stopBtnClick) forControlEvents:UIControlEventTouchUpInside];
 }
+#pragma mark - 设置参数
+- (void)setPowerOperate {
+    [self routerWithEventName:@"set" userInfo:@{} block:^(id  _Nonnull result) {
+        
+    }];
+}
 
 - (void)stopBtnClick {
-    self.startBtn.hidden = NO;
-    self.stopBtn.hidden = YES;
-    [self routerWithEventName:@"stop" userInfo:@{}];
+    kweakself(self);
+    [self routerWithEventName:@"stop" userInfo:@{} block:^(id  _Nonnull result) {
+        weakself.startBtn.hidden = NO;
+        weakself.stopBtn.hidden = YES;
+    }];
 }
 - (void)startBtnClick {
-    self.startBtn.hidden = YES;
-    self.stopBtn.hidden = NO;
-    [self routerWithEventName:@"start" userInfo:@{}];
+    kweakself(self);
+    [self routerWithEventName:@"start" userInfo:@{} block:^(id  _Nonnull result) {
+        weakself.startBtn.hidden = YES;
+        weakself.stopBtn.hidden = NO;
+        
+    }];
 }
 
 - (void)itemTypeClick:(UITapGestureRecognizer *)tap {

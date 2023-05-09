@@ -11,6 +11,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ZCPowerPlatformTypeView : UIView
 
+@property (nonatomic,strong) UILabel *unitL;
+
+@property (nonatomic,strong) UIButton *targetSetBtn;//目标设置
+
 @end
 
 NS_ASSUME_NONNULL_END
