@@ -10,12 +10,17 @@
 #import "LNLineChartView.h"
 #import "ZCPowerServer.h"
 #import "ZCPowerStationSetView.h"
+#import "ECGView.h"
 
-@interface ZCPowerPlatformController ()<LNLineChartViewDelegate, BLEPowerServerDelegate>
+@interface ZCPowerPlatformController ()<BLEPowerServerDelegate>
 
 @property (nonatomic,strong) ZCPowerPlatformTypeView *topView;
 
-@property (nonatomic,strong) LNLineChartView *chartView;
+//@property (nonatomic,strong) LNLineChartView *chartView;
+
+@property (nonatomic,strong) ECGView *chartView;
+
+@property (nonatomic,strong) ECGView *chartRightView;
 
 @property (nonatomic, assign) int count;
 
@@ -64,9 +69,7 @@
         make.height.mas_equalTo(375);
     }];
     
-    self.chartView = [[LNLineChartView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(self.topView.frame)+5, SCREEN_W, 200)];
-    self.chartView.delegate = self;
-    self.chartView.backgroundColor = [ZCConfigColor whiteColor];
+    self.chartView = [[ECGView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(self.topView.frame)+5, SCREEN_W, 200)];
     [self.view addSubview:self.chartView];
     [self.chartView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.leading.trailing.mas_equalTo(self.view);
@@ -74,20 +77,13 @@
         make.height.mas_equalTo(200);
     }];
     
-    _count = 7;
-    NSMutableArray *chartDataArr = [[NSMutableArray alloc] init];
-    for (int i = 0; i<_count; i++) {
-        NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-        if (i<1) {
-            dict[@"star"] = [NSNumber numberWithInt:i%4];
-            dict[@"playDate"] = [NSString stringWithFormat:@"%dmin", i+1];
-        }else{
-            dict[@"star"] = [NSNumber numberWithInt:i%4];
-            dict[@"playDate"] = [NSString stringWithFormat:@"%dmin", i+1];
-        }
-        [chartDataArr addObject:dict];
-    }
-    self.chartView.starInfoArr = chartDataArr;
+    self.chartRightView = [[ECGView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(self.topView.frame)+5, SCREEN_W, 200)];
+    [self.view addSubview:self.chartRightView];
+    [self.chartRightView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.leading.trailing.mas_equalTo(self.view);
+        make.top.mas_equalTo(self.topView.mas_bottom).offset(5);
+        make.height.mas_equalTo(200);
+    }];    
 
     self.defaultBLEServer = [ZCPowerServer defaultBLEServer];
     self.defaultBLEServer.delegate = self;
@@ -96,6 +92,12 @@
     });
     
     [self downloadFileOperate];
+}
+
+- (void)reaviceDataBack:(NSNotification *)noti {
+    
+    [self.chartView drawCurve:@""];
+    [self.chartRightView drawCurve:@""];
 }
 
 - (void)didConnect:(PeriperalInfo *)info {
