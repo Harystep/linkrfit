@@ -465,48 +465,70 @@ static ZCPowerServer *_defaultBTServer = nil;
     if ([[characteristic.UUID UUIDString] containsString:@"FED1"]) {//
         NSData *data = characteristic.value;
         NSString *content = [self transformCharateristicValueFromData:data];
-        NSLog(@"%@", content);
+//        NSLog(@"%@", content);
         if ([content hasPrefix:@"010204"]) {//保存token
             NSString *token = [content substringFromIndex:6];
             NSLog(@"token:%@", token);
             kUserStore.tokenBytes = token;
-        }else if ([content hasPrefix:@"0302031101"]) {//常规模式
-            NSLog(@"mode:%@", content);
-        } else if ([content hasPrefix:@"0302031102"]) {//离心模式
-            NSLog(@"mode:%@", content);
-        } else if ([content hasPrefix:@"0302031103"]) {//向心模式
-            NSLog(@"mode:%@", content);
-        } else if ([content hasPrefix:@"0302031104"]) {//等速模式
-            NSLog(@"mode:%@", content);
-        } else if ([content hasPrefix:@"0302031105"]) {//拉力绳模式
-            NSLog(@"mode:%@", content);
-        } else if ([content hasPrefix:@"0302031106"]) {//划船机模式
-            NSLog(@"mode:%@", content);
+        } else if ([content hasPrefix:@"03020320"]) {//常规模式
+            NSLog(@"常规模式:%@", content);
+        } else if ([content hasPrefix:@"03020321"]) {//离心模式
+            NSLog(@"离心模式:%@", content);
+        } else if ([content hasPrefix:@"03020321"]) {//向心模式
+            NSLog(@"向心模式:%@", content);
+        } else if ([content hasPrefix:@"03020322"]) {//等速模式
+            NSLog(@"等速模式:%@", content);
+        } else if ([content hasPrefix:@"03020323"]) {//拉力绳模式
+            NSLog(@"拉力绳模式:%@", content);
+        } else if ([content hasPrefix:@"03020324"]) {//划船机模式
+            NSLog(@"划船机模式:%@", content);
         } else if ([content hasPrefix:@"04020211"]) {//获取当前运动模式
-            
+            NSLog(@"当前运动模式:%@", content);
         } else if ([content hasPrefix:@"04020515"]) {//获取实际速度
-            
+            NSLog(@"实际速度:%@", content);
         } else if ([content hasPrefix:@"04020516"]) {//获取实际拉力或收力
-            
+            NSLog(@"获取实际拉力或收力:%@", content);
+            NSString *value = [content substringWithRange:NSMakeRange(8, 4)];
+            NSString *lowEnd = [value substringWithRange:NSMakeRange(0, 2)];
+            NSString *highEnd = [value substringWithRange:NSMakeRange(2, 2)];
+            NSString *lowPre = [value substringWithRange:NSMakeRange(4, 2)];
+            NSString *highPre = [value substringWithRange:NSMakeRange(6, 2)];
+            value = [NSString stringWithFormat:@"%@%@%@%@", highPre, lowPre, highEnd, lowEnd];
+            long power = [ZCBluthDataTool convertHexToDecimal:value];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataCurrentPullValueKey object:[NSString stringWithFormat:@"%.2f", power/1000.0]];
         } else if ([content hasPrefix:@"04020517"]) {//获取消耗卡路里
-            
+            NSLog(@"消耗卡路里:%@", content);
+            NSString *value = [content substringWithRange:NSMakeRange(8, 4)];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataKcalValueKey object:value];
         } else if ([content hasPrefix:@"04020518"]) {//获取训练次数
-            
+            NSLog(@"训练次数:%@", content);
         } else if ([content hasPrefix:@"04020501"]) {//获取设备参数
-            
+            NSLog(@"设备参数:%@", content);
         } else if ([content hasPrefix:@"03020303"]) {//重量单位设置
-            
+            NSLog(@"单位设置:%@", content);
         } else if ([content hasPrefix:@"03020302"]) {//音量设置
-            
+            NSLog(@"音量设置:%@", content);
         } else if ([content hasPrefix:@"03020301"]) {//语言设置
-            
+            NSLog(@"语言设置:%@", content);
         } else if ([content hasPrefix:@"05021301"]) {//上传文件返回结果
             NSString *type = [content substringWithRange:NSMakeRange(8, 1)];
             if([type isEqualToString:@"00"] || [type isEqualToString:@"0"]) {//成功
-                [[NSNotificationCenter defaultCenter] postNotificationName:@"kUpdataBackNoticeKey" object:nil];
+                [[NSNotificationCenter defaultCenter] postNotificationName:kUpdateFileBackNoticeKey object:nil];
             } else {//失败
                 
             }
+        } else if ([content hasPrefix:@"0402071b"]) {
+            NSLog(@"爆发力:%@", content);
+            NSString *value = [content substringWithRange:NSMakeRange(8, 6)];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataPowerValueKey object:value];
+        } else if ([content hasPrefix:@"04020612"]){//当前模式设置值
+            NSLog(@"当前模式设置值:%@", content);
+            NSString *value = [content substringWithRange:NSMakeRange(10, 4)];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataCurrentModeValueKey object:value];
+        } else if ([content hasPrefix:@"04020b1a"]) {
+            NSLog(@"实际位置:%@", content);
+            NSString *value = [content substringWithRange:NSMakeRange(8, 10)];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataLocalValueKey object:value];
         }
     }
     //00002

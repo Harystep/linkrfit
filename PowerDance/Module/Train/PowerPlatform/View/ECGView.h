@@ -11,7 +11,7 @@
 //6+设计的屏幕根理想情况下是不一样的
 #define k6pmm (60.400/2)
 
-static int addNumber = 7;
+static int addNumber = 1;
 
 
 @interface ECGView : UIView {

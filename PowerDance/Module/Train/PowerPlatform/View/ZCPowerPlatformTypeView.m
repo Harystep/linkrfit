@@ -63,12 +63,12 @@
         itemL.tag = i;
         UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(itemTypeClick:)];
         [itemL addGestureRecognizer:tap];
-        if (i == 0) {
-            self.selectView = itemL;
-            [self setupAttributeStatus:itemL status:YES];
-        } else {
-            [self setupAttributeStatus:itemL status:NO];
-        }
+//        if (i == 0) {
+//            self.selectView = itemL;
+//            [self setupAttributeStatus:itemL status:YES];
+//        } else {
+//        }
+        [self setupAttributeStatus:itemL status:NO];
     }
     
     self.targetSetBtn = [self createSimpleButtonWithTitle:@"0" font:57 color:[ZCConfigColor txtColor]];
@@ -196,7 +196,9 @@
     [self setupAttributeStatus:self.selectView status:NO];
     [self setupAttributeStatus:lb status:YES];
     self.selectView = lb;
-    [self routerWithEventName:@"mode" userInfo:@{@"index":[NSString stringWithFormat:@"%tu", lb.tag]}];
+    [self routerWithEventName:@"mode" userInfo:@{@"index":[NSString stringWithFormat:@"%tu", lb.tag]} block:^(id  _Nonnull result) {
+        
+    }];
 }
 
 - (void)setupAttributeStatus:(UILabel *)targetView status:(BOOL)status {

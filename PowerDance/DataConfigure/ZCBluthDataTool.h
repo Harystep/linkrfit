@@ -19,6 +19,7 @@ typedef enum : NSUInteger {
 
 NS_ASSUME_NONNULL_BEGIN
 
+
 @interface ZCBluthDataTool : NSObject
 
 @property (nonatomic, assign) Byte *bytes;
@@ -105,6 +106,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param hexStr <#hexStr description#>
 + (unsigned long long)convertHexToDecimal:(NSString *)hexStr;
 
++ (NSString *)ToHex:(long long int)tmpid;
+
 //跳绳
 + (NSData *)getSuitRopeMode ;
 //健腹轮
@@ -132,14 +135,11 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSData *)sendStopStationOperate;
 /// 收绳
 + (NSData *)sendBackRopeStationOperate;
+//设置运动模式
++ (NSData *)sendSportModeStationOperate:(NSString *)mode;
 
-+ (NSData *)sendSportMode1StationOperate;
-+ (NSData *)sendSportMode2StationOperate;
-+ (NSData *)sendSportMode3StationOperate;
-+ (NSData *)sendSportMode4StationOperate;
-+ (NSData *)sendSportMode5StationOperate;
-+ (NSData *)sendSportMode6StationOperate;
-
+/// 设置运动模式值
++ (NSData *)setDeviceSportMode:(NSString *)mode value:(NSString *)value;
 /// 获取设备基本信息
 + (NSData *)sendGetDeviceInfoOrder;
 
@@ -151,6 +151,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 获取当前拉力
 + (NSData *)sendGetDevicePullForceOrder;
+/// 获取当前模式设定值
++ (NSData *)sendGetCurrentModeSetValueOrder;
+
+/// 获取当前爆发力
++ (NSData *)sendGetPowerForceOrder;
 
 //获取消耗卡路里
 + (NSData *)sendGetConsumeKcalOrder;
@@ -217,6 +222,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// 模式单位转换
 /// - Parameter mode: <#mode description#>
 + (NSString *)convertUnitTitleWithMode:(NSInteger)mode;
+
+/// 实际位置
++ (NSData *)getDeviceSportLocalData;
+
 @end
 
 NS_ASSUME_NONNULL_END

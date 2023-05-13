@@ -124,22 +124,22 @@
             NSData *data;
             switch ([userInfo[@"index"] integerValue]) {
                 case 0://常规模式
-                    data = [ZCBluthDataTool sendSportMode1StationOperate];
+                    
                     break;
                 case 1://离心模式
-                    data = [ZCBluthDataTool sendSportMode3StationOperate];
+                    
                     break;
                 case 2://向心模式
-                    data = [ZCBluthDataTool sendSportMode2StationOperate];
+                    
                     break;
                 case 3://等速模式
-                    data = [ZCBluthDataTool sendSportMode4StationOperate];
+                    
                     break;
                 case 4://弹力绳模式
-                    data = [ZCBluthDataTool sendSportMode5StationOperate];
+                    
                     break;
                 case 5://划船模式
-                    data = [ZCBluthDataTool sendSportMode6StationOperate];
+                    
                     break;
                                         
                 default:

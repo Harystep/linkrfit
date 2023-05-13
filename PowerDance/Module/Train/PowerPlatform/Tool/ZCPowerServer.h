@@ -9,6 +9,13 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #import "PeriperalInfo.h"
 
+#define kUpdateFileBackNoticeKey @"kUpdateFileBackNoticeKey"//文件更新
+#define kUpdataCurrentModeValueKey @"kUpdataCurrentModeValueKey"//当前模式设置值
+#define kUpdataPowerValueKey @"kUpdataPowerValueKey"//爆发力
+#define kUpdataKcalValueKey @"kUpdataKcalValueKey"//卡路里
+#define kUpdataLocalValueKey @"kUpdataLocalValueKey"//位置
+#define kUpdataCurrentPullValueKey @"kUpdataCurrentPullValueKey"//实际拉力
+
 NS_ASSUME_NONNULL_BEGIN
 
 typedef void (^eventBlock)(CBPeripheral *peripheral, BOOL status, NSError *error);

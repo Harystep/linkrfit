@@ -527,51 +527,63 @@
     }
     return [self convertHexToByteData:temStr];
 }
+//01 02 03 04 05 06
++ (NSData *)sendSportModeStationOperate:(NSString *)mode {
+    NSMutableString *temStr = [NSMutableString stringWithString:@"03010211"];
+    [temStr appendString:mode];
+    return [self convertHexToByteData:temStr];
+}
 
-+ (NSData *)sendSportMode1StationOperate {
-    Byte bytes[] = {0x03, 0x01, 0x02, 0x11, 0x01};
-    NSMutableString *temStr = [NSMutableString string];
-    for (int i = 0; i < 5; i ++) {
-        [temStr appendFormat:@"%02x", bytes[i]];
-    }
++ (NSData *)setDeviceSportMode:(NSString *)mode value:(NSString *)value {
+    NSMutableString *temStr = [NSMutableString stringWithString:@"030103"];
+    [temStr appendString:mode];
+    [temStr appendString:value];
     return [self convertHexToByteData:temStr];
 }
+/// 向心模式
 + (NSData *)sendSportMode2StationOperate {
-    Byte bytes[] = {0x03, 0x01, 0x02, 0x11, 0x02};
+    //03 01 03 20 拉力设置
+    Byte bytes[] = {0x03, 0x01, 0x03, 0x20};
     NSMutableString *temStr = [NSMutableString string];
-    for (int i = 0; i < 5; i ++) {
+    for (int i = 0; i < 4; i ++) {
         [temStr appendFormat:@"%02x", bytes[i]];
     }
     return [self convertHexToByteData:temStr];
 }
+/// 离心模式
 + (NSData *)sendSportMode3StationOperate {
-    Byte bytes[] = {0x03, 0x01, 0x02, 0x11, 0x03};
+    //03 01 03 21 收力设置
+    Byte bytes[] = {0x03, 0x01, 0x03, 0x21};
     NSMutableString *temStr = [NSMutableString string];
-    for (int i = 0; i < 5; i ++) {
+    for (int i = 0; i < 4; i ++) {
         [temStr appendFormat:@"%02x", bytes[i]];
     }
     return [self convertHexToByteData:temStr];
 }
+/// 等速模式
 + (NSData *)sendSportMode4StationOperate {
-    Byte bytes[] = {0x03, 0x01, 0x02, 0x11, 0x04};
+    Byte bytes[] = {0x03, 0x01, 0x03, 0x22};
     NSMutableString *temStr = [NSMutableString string];
-    for (int i = 0; i < 5; i ++) {
+    for (int i = 0; i < 4; i ++) {
         [temStr appendFormat:@"%02x", bytes[i]];
     }
     return [self convertHexToByteData:temStr];
 }
+/// 弹力绳模式
 + (NSData *)sendSportMode5StationOperate {
-    Byte bytes[] = {0x03, 0x01, 0x02, 0x11, 0x05};
+    Byte bytes[] = {0x03, 0x01, 0x03, 0x23};
     NSMutableString *temStr = [NSMutableString string];
-    for (int i = 0; i < 5; i ++) {
+    for (int i = 0; i < 4; i ++) {
         [temStr appendFormat:@"%02x", bytes[i]];
     }
     return [self convertHexToByteData:temStr];
 }
+/// 划船模式
 + (NSData *)sendSportMode6StationOperate {
-    Byte bytes[] = {0x03, 0x01, 0x02, 0x11, 0x06};
+    ///03 01 03 24
+    Byte bytes[] = {0x03, 0x01, 0x03, 0x24};
     NSMutableString *temStr = [NSMutableString string];
-    for (int i = 0; i < 5; i ++) {
+    for (int i = 0; i < 4; i ++) {
         [temStr appendFormat:@"%02x", bytes[i]];
     }
     return [self convertHexToByteData:temStr];
@@ -675,10 +687,40 @@
     }
     return [self convertHexToByteData:temStr];
 }
+//爆发力
++ (NSData *)sendGetPowerForceOrder {
+    //04 01 01 1B
+    Byte bytes[] = {0x04, 0x01, 0x01, 0x1B};
+    NSMutableString *temStr = [NSMutableString string];
+    for (int i = 0; i < 4; i ++) {
+        [temStr appendFormat:@"%02x", bytes[i]];
+    }
+    return [self convertHexToByteData:temStr];
+}
+
+/// 获取当前模式设定值
++ (NSData *)sendGetCurrentModeSetValueOrder {
+    //04 01 01 12
+    Byte bytes[] = {0x04, 0x01, 0x01, 0x12};
+    NSMutableString *temStr = [NSMutableString string];
+    for (int i = 0; i < 4; i ++) {
+        [temStr appendFormat:@"%02x", bytes[i]];
+    }
+    return [self convertHexToByteData:temStr];
+}
 
 //获取消耗卡路里
 + (NSData *)sendGetConsumeKcalOrder {
     Byte bytes[] = {0x04, 0x01, 0x01, 0x17};
+    NSMutableString *temStr = [NSMutableString string];
+    for (int i = 0; i < 4; i ++) {
+        [temStr appendFormat:@"%02x", bytes[i]];
+    }
+    return [self convertHexToByteData:temStr];
+}
+//实际位置
++ (NSData *)getDeviceSportLocalData {
+    Byte bytes[] = {0x04, 0x01, 0x01, 0x1A};
     NSMutableString *temStr = [NSMutableString string];
     for (int i = 0; i < 4; i ++) {
         [temStr appendFormat:@"%02x", bytes[i]];
@@ -927,7 +969,6 @@ unsigned short GetCRC16(unsigned char *puchMsg, unsigned short usDataLen, unsign
 /// 设置常规模式 离心力 向心力
 /// @param content 设置数据
 + (NSData *)sendSportModePowerData:(NSString *)content {
-    NSData *data;
     int powerNum = [content intValue] * 10;
     NSString *powerHex = [self ToHex:powerNum];
     NSString *hexStr = [NSString stringWithFormat:@"%@%@", @"015270F700000000", powerHex];
@@ -947,7 +988,7 @@ unsigned short GetCRC16(unsigned char *puchMsg, unsigned short usDataLen, unsign
 /// 设置等速模式 0x7107  cm/s
 /// @param content <#content description#>
 + (NSData *)sendSportModeSpeedData:(NSString *)content {
-    NSData *data;
+    
     int powerNum = [content intValue] * 10;
     NSString *powerHex = [self ToHex:powerNum];
     NSString *hexStr = [NSString stringWithFormat:@"%@%@", @"0152077100000000", powerHex];

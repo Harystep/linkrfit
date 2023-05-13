@@ -46,7 +46,6 @@
 - (void)createSubviews {
     
     [self addSubview:self.maskBtn];
-    self.valueStr = @"1";
     UIView *contentView = [[UIView alloc] init];
     contentView.backgroundColor = [ZCConfigColor whiteColor];
     contentView.frame = CGRectMake((SCREEN_W - AUTO_MARGIN(291))/2.0, AUTO_MARGIN(230), AUTO_MARGIN(291), AUTO_MARGIN(240));
@@ -138,6 +137,7 @@
     _configureArr = configureArr;
     self.dataArr = [NSMutableArray arrayWithArray:configureArr];
     _picker.dataArr = self.dataArr;
+    self.valueStr = self.dataArr[0];
     _picker.defaultSelectedRow = @[@"0"];
 }
 
