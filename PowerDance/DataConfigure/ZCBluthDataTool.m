@@ -783,11 +783,12 @@
 }
 
 + (NSData *)sendFilePackage:(NSString *)package content:(NSString *)content filename:(NSString *)filename total:(NSInteger)totalIndex currentIndex:(NSInteger)currentIndex bytes:(Byte *)bytes {
-    NSInteger size = package.length / 2000;
+    NSInteger size = package.length / 2048;
     NSInteger length = content.length / 2;
     length = length + 26;
     NSMutableString *str = [NSMutableString stringWithString:@"0501"];
     [str appendString:[self ToHex:length]];
+    [str appendString:@"01"];
     [str appendString:@"01"];
     [str appendString:filename];
     NSInteger remainIndex = (24 - filename.length)/2;
@@ -971,7 +972,8 @@ unsigned short GetCRC16(unsigned char *puchMsg, unsigned short usDataLen, unsign
 + (NSData *)sendSportModePowerData:(NSString *)content {
     int powerNum = [content intValue] * 10;
     NSString *powerHex = [self ToHex:powerNum];
-    NSString *hexStr = [NSString stringWithFormat:@"%@%@", @"015270F700000000", powerHex];
+    powerHex = [self convertSetData:powerHex];
+    NSString *hexStr = [NSString stringWithFormat:@"%@%@", @"015270F7000000", powerHex];
     int num = 0;
     for (int i = 0; i < hexStr.length / 2; i ++) {
         NSString *hex = [hexStr substringWithRange:NSMakeRange(i*2, 2)];
@@ -981,7 +983,7 @@ unsigned short GetCRC16(unsigned char *puchMsg, unsigned short usDataLen, unsign
     NSString *transHex = [self ToHex:num];
     NSString *lowHex = [transHex substringFromIndex:transHex.length-2];
     NSString *dataStr = [NSString stringWithFormat:@"%@%@", hexStr, lowHex];
-    NSLog(@"dataStr:%@", dataStr);
+    NSLog(@"setDataStr:%@", dataStr);
     return [self convertHexStrToData:dataStr];
 }
 
@@ -989,9 +991,77 @@ unsigned short GetCRC16(unsigned char *puchMsg, unsigned short usDataLen, unsign
 /// @param content <#content description#>
 + (NSData *)sendSportModeSpeedData:(NSString *)content {
     
-    int powerNum = [content intValue] * 10;
+    int powerNum = [content intValue];
     NSString *powerHex = [self ToHex:powerNum];
-    NSString *hexStr = [NSString stringWithFormat:@"%@%@", @"0152077100000000", powerHex];
+    powerHex = [self convertSetData:powerHex];
+    NSString *hexStr = [NSString stringWithFormat:@"%@%@", @"01527107000000", powerHex];
+    int num = 0;
+    for (int i = 0; i < hexStr.length / 2; i ++) {
+        NSString *hex = [hexStr substringWithRange:NSMakeRange(i*2, 2)];
+//        NSLog(@"%@", hex);
+        num += (int)strtoul([hex UTF8String], 0, 16);
+    }
+    NSString *transHex = [self ToHex:num];
+    NSString *lowHex = [transHex substringFromIndex:transHex.length-2];
+    NSString *dataStr = [NSString stringWithFormat:@"%@%@", hexStr, lowHex];
+    NSLog(@"setDataStr:%@", dataStr);
+    return [self convertHexStrToData:dataStr];
+}
+//设置划船
++ (NSData *)sendSportGearModeData:(NSString *)content {
+    int powerNum = [content intValue]*200;
+    NSString *powerHex = [self ToHex:powerNum];
+    powerHex = [self convertSetData:powerHex];
+    NSString *hexStr = [NSString stringWithFormat:@"%@%@", @"01527106000000", powerHex];
+    int num = 0;
+    for (int i = 0; i < hexStr.length / 2; i ++) {
+        NSString *hex = [hexStr substringWithRange:NSMakeRange(i*2, 2)];
+//        NSLog(@"%@", hex);
+        num += (int)strtoul([hex UTF8String], 0, 16);
+    }
+    NSString *transHex = [self ToHex:num];
+    NSString *lowHex = [transHex substringFromIndex:transHex.length-2];
+    NSString *dataStr = [NSString stringWithFormat:@"%@%@", hexStr, lowHex];
+    NSLog(@"setDataStr:%@", dataStr);
+    return [self convertHexStrToData:dataStr];
+}
+
+/// 设置弹力绳 0x7109  g/cm
+/// @param content <#content description#>
++ (NSData *)sendSportModeRopeData:(NSString *)content {
+    
+    int powerNum = [content intValue];
+    NSString *powerHex = [self ToHex:powerNum];
+    powerHex = [self convertSetData:powerHex];
+    NSString *hexStr = [NSString stringWithFormat:@"%@%@", @"01527109000000", powerHex];
+    int num = 0;
+    for (int i = 0; i < hexStr.length / 2; i ++) {
+        NSString *hex = [hexStr substringWithRange:NSMakeRange(i*2, 2)];
+//        NSLog(@"%@", hex);
+        num += (int)strtoul([hex UTF8String], 0, 16);
+    }
+    NSString *transHex = [self ToHex:num];
+    NSString *lowHex = [transHex substringFromIndex:transHex.length-2];
+    NSString *dataStr = [NSString stringWithFormat:@"%@%@", hexStr, lowHex];
+    NSLog(@"setDataStr:%@", dataStr);
+    return [self convertHexStrToData:dataStr];
+}
+
++ (NSString *)convertSetData:(NSString *)content {
+    if(content.length == 4) {
+    } else if (content.length == 3) {
+        content = [NSString stringWithFormat:@"0%@", content];
+    } else if (content.length == 2) {
+        content = [NSString stringWithFormat:@"00%@", content];
+    } else {
+        content = [NSString stringWithFormat:@"000%@", content];
+    }
+    return content;
+}
+
++ (NSData *)setCurrentSportMode:(NSString *)data {
+    
+    NSString *hexStr = [NSString stringWithFormat:@"%@%@", @"0151710800000000", data];
     int num = 0;
     for (int i = 0; i < hexStr.length / 2; i ++) {
         NSString *hex = [hexStr substringWithRange:NSMakeRange(i*2, 2)];
@@ -1005,13 +1075,8 @@ unsigned short GetCRC16(unsigned char *puchMsg, unsigned short usDataLen, unsign
     return [self convertHexStrToData:dataStr];
 }
 
-/// 设置弹力绳 0x7109  g/cm
-/// @param content <#content description#>
-+ (NSData *)sendSportModeRopeData:(NSString *)content {
-    
-    int powerNum = [content intValue] * 10;
-    NSString *powerHex = [self ToHex:powerNum];
-    NSString *hexStr = [NSString stringWithFormat:@"%@%@", @"0152097100000000", powerHex];
++ (NSData *)readSportPullModeData {
+    NSString *hexStr = @"01A0710D0000000000";
     int num = 0;
     for (int i = 0; i < hexStr.length / 2; i ++) {
         NSString *hex = [hexStr substringWithRange:NSMakeRange(i*2, 2)];
@@ -1021,7 +1086,84 @@ unsigned short GetCRC16(unsigned char *puchMsg, unsigned short usDataLen, unsign
     NSString *transHex = [self ToHex:num];
     NSString *lowHex = [transHex substringFromIndex:transHex.length-2];
     NSString *dataStr = [NSString stringWithFormat:@"%@%@", hexStr, lowHex];
-    NSLog(@"dataStr:%@", dataStr);
+    return [self convertHexStrToData:dataStr];
+}
++ (NSData *)readSportKcalModeData {
+    NSString *hexStr = @"01A0710F0000000000";
+    int num = 0;
+    for (int i = 0; i < hexStr.length / 2; i ++) {
+        NSString *hex = [hexStr substringWithRange:NSMakeRange(i*2, 2)];
+//        NSLog(@"%@", hex);
+        num += (int)strtoul([hex UTF8String], 0, 16);
+    }
+    NSString *transHex = [self ToHex:num];
+    NSString *lowHex = [transHex substringFromIndex:transHex.length-2];
+    NSString *dataStr = [NSString stringWithFormat:@"%@%@", hexStr, lowHex];
+    return [self convertHexStrToData:dataStr];
+}
++ (NSData *)readSportPowerModeData {
+    NSString *hexStr = @"01A071010000000000";
+    int num = 0;
+    for (int i = 0; i < hexStr.length / 2; i ++) {
+        NSString *hex = [hexStr substringWithRange:NSMakeRange(i*2, 2)];
+//        NSLog(@"%@", hex);
+        num += (int)strtoul([hex UTF8String], 0, 16);
+    }
+    NSString *transHex = [self ToHex:num];
+    NSString *lowHex = [transHex substringFromIndex:transHex.length-2];
+    NSString *dataStr = [NSString stringWithFormat:@"%@%@", hexStr, lowHex];
+    return [self convertHexStrToData:dataStr];
+}
++ (NSData *)readSportLocalModeData {
+    NSString *hexStr = @"01A071110000000000";
+    int num = 0;
+    for (int i = 0; i < hexStr.length / 2; i ++) {
+        NSString *hex = [hexStr substringWithRange:NSMakeRange(i*2, 2)];
+//        NSLog(@"%@", hex);
+        num += (int)strtoul([hex UTF8String], 0, 16);
+    }
+    NSString *transHex = [self ToHex:num];
+    NSString *lowHex = [transHex substringFromIndex:transHex.length-2];
+    NSString *dataStr = [NSString stringWithFormat:@"%@%@", hexStr, lowHex];
+    return [self convertHexStrToData:dataStr];
+}
+
++ (NSData *)startSportSingleMode {
+    NSString *hexStr = @"015171160000000000";
+    int num = 0;
+    for (int i = 0; i < hexStr.length / 2; i ++) {
+        NSString *hex = [hexStr substringWithRange:NSMakeRange(i*2, 2)];
+//        NSLog(@"%@", hex);
+        num += (int)strtoul([hex UTF8String], 0, 16);
+    }
+    NSString *transHex = [self ToHex:num];
+    NSString *lowHex = [transHex substringFromIndex:transHex.length-2];
+    NSString *dataStr = [NSString stringWithFormat:@"%@%@", hexStr, lowHex];
+    return [self convertHexStrToData:dataStr];
+}
++ (NSData *)stopSportSingleMode {
+    NSString *hexStr = @"015171160000000004";
+    int num = 0;
+    for (int i = 0; i < hexStr.length / 2; i ++) {
+        NSString *hex = [hexStr substringWithRange:NSMakeRange(i*2, 2)];
+//        NSLog(@"%@", hex);
+        num += (int)strtoul([hex UTF8String], 0, 16);
+    }
+    NSString *transHex = [self ToHex:num];
+    NSString *lowHex = [transHex substringFromIndex:transHex.length-2];
+    NSString *dataStr = [NSString stringWithFormat:@"%@%@", hexStr, lowHex];
+    return [self convertHexStrToData:dataStr];
+}
+
+/// 获取当前速度
++ (NSData *)getCurrentModeSport {
+    NSString *dataStr = @"01A0710C00000000001E";
+    return [self convertHexStrToData:dataStr];
+}
+
+/// 获取当前拉力
++ (NSData *)getCurrentModePullSport {
+    NSString *dataStr = @"01A0710D00000000001F";
     return [self convertHexStrToData:dataStr];
 }
 
@@ -1117,13 +1259,22 @@ unsigned short GetCRC16(unsigned char *puchMsg, unsigned short usDataLen, unsign
             title = @"g/cm";
             break;
         case 5://划船
-            title = @"g/cm";
+            title = NSLocalizedString(@"档", nil);
             break;
             
         default:
             break;
     }
     return title;
+}
+
++ (float)convertHexStrTopFloat:(NSString *)hexStr {
+        
+    NSData *dddtt = [self convertHexStrToData:hexStr];
+    Byte*bytes = (Byte*)[dddtt bytes];
+    float *p = (float *)bytes;
+    printf("c->%g", *p);
+    return *p;
 }
 
 @end

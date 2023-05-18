@@ -11,12 +11,6 @@
 
 @property (nonatomic,strong) UILabel *selectView;
 
-@property (nonatomic,strong) UILabel *consumeL;//消耗
-
-@property (nonatomic,strong) UILabel *totalL;//实际拉力
-
-@property (nonatomic,strong) UILabel *eruptL;//爆发力
-
 @property (nonatomic,strong) UIButton *startBtn;
 
 @property (nonatomic,strong) UIButton *stopBtn;

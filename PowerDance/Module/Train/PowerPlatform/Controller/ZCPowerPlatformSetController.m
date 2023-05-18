@@ -13,6 +13,7 @@
 #import "ZCPowerStationSetUnitView.h"
 #import "ZCPowerStationVoiceView.h"
 #import "ZCPowerStationAboutView.h"
+#import "ZCPowerServer.h"
 
 @interface ZCPowerPlatformSetController () <UITableViewDelegate, UITableViewDataSource>
 
@@ -94,7 +95,7 @@
     }];
 }
 
-- (void)updataBackNotice:(NSNotification *)noti {
+- (void)updataBackNotice  {
     self.index ++;
     [self sendSubpackageWithindex:self.index];
 }
@@ -125,8 +126,8 @@
             self.totalIndex = ceil(data.length/128.0);
             NSLog(@"%tu-%tu", self.remainLength, self.totalIndex);
             self.bytes = bytes;
-            self.filename = @"";
-            [ZCBluthDataTool sendFilePackage:self.subpackage content:[self.subpackage substringWithRange:NSMakeRange(0, 256)] filename:[ZCBluthDataTool convertStringToHexStr:@"test.bin"] total:self.totalIndex currentIndex:0 bytes:self.bytes];
+            self.filename = @"test.bin";
+//            [ZCBluthDataTool sendFilePackage:self.subpackage content:[self.subpackage substringWithRange:NSMakeRange(0, 256)] filename:[ZCBluthDataTool convertStringToHexStr:@"test.bin"] total:self.totalIndex currentIndex:0 bytes:self.bytes];
         }
     }];
     // 创建的task都是挂起状态，需要resume才能执行
@@ -136,13 +137,20 @@
 - (void)sendSubpackageWithindex:(NSInteger)index {
     NSString *package;
     if(self.index < self.totalIndex) {
-        NSInteger length = 128;
+        NSInteger length = 256;
         if(self.index == self.totalIndex-1) {
             length = self.remainLength;
         }
-        package = [self.subpackage substringWithRange:NSMakeRange(128*index, length)];
+        package = [self.subpackage substringWithRange:NSMakeRange(256*index, length)];
         NSString *filename = [ZCBluthDataTool convertStringToHexStr:self.filename];
-        [ZCBluthDataTool sendFilePackage:self.subpackage content:package filename:filename total:self.totalIndex currentIndex:self.index bytes:self.bytes];
+        NSData *data = [ZCBluthDataTool sendFilePackage:self.subpackage content:package filename:filename total:self.totalIndex currentIndex:self.index bytes:self.bytes];
+        if([ZCPowerServer defaultBLEServer].selectPeripheral) {
+            [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerServer defaultBLEServer].selectFileCharacteristic type:CBCharacteristicWriteWithResponse];
+        }
+        NSLog(@">>>%tu", self.index);
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.05 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self updataBackNotice];
+        });
     }
 }
 

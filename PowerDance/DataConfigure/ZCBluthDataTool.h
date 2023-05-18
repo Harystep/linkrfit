@@ -188,18 +188,6 @@ NS_ASSUME_NONNULL_BEGIN
 ///   - filename: <#filename description#>
 + (NSData *)sendFilePackage:(NSString *)package content:(NSString *)content filename:(NSString *)filename total:(NSInteger)totalIndex currentIndex:(NSInteger)currentIndex bytes:(Byte *)bytes ;
 
-/// 设置常规模式 离心力 向心力
-/// @param content 设置数据
-+ (NSData *)sendSportModePowerData:(NSString *)content;
-
-/// 设置等速模式 0x7107  cm/s
-/// @param content <#content description#>
-+ (NSData *)sendSportModeSpeedData:(NSString *)content;
-
-/// 设置弹力绳 0x7109  g/cm
-/// @param content <#content description#>
-+ (NSData *)sendSportModeRopeData:(NSString *)content;
-
 /// 拉力设置 kg
 + (NSArray *)getPowerPullConfigureData;
 
@@ -225,6 +213,45 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 实际位置
 + (NSData *)getDeviceSportLocalData;
+
+/// 十六进制转浮点float
+/// - Parameter hexStr: <#hexStr description#>
++ (float)convertHexStrTopFloat:(NSString *)hexStr;
+
+/*-------------------------- 单电机 --------------------------*/
+/// 设置常规模式 离心力 向心力
+/// @param content 设置数据
++ (NSData *)sendSportModePowerData:(NSString *)content;
+
+/// 设置等速模式 0x7107  cm/s
+/// @param content <#content description#>
++ (NSData *)sendSportModeSpeedData:(NSString *)content;
+
+/// 设置弹力绳 0x7109  g/cm
+/// @param content <#content description#>
++ (NSData *)sendSportModeRopeData:(NSString *)content;
+
+/// 获取当前速度
++ (NSData *)getCurrentModeSport;
+
+/// 获取当前拉力
++ (NSData *)getCurrentModePullSport;
+
+/// 设置运动模式
+/// - Parameter data: <#data description#>
++ (NSData *)setCurrentSportMode:(NSString *)data;
+
+/// 设置档位
+/// - Parameter content: <#content description#>
++ (NSData *)sendSportGearModeData:(NSString *)content;
+
++ (NSData *)readSportPullModeData;
++ (NSData *)readSportKcalModeData;
++ (NSData *)readSportPowerModeData;
++ (NSData *)readSportLocalModeData;
+
++ (NSData *)startSportSingleMode;
++ (NSData *)stopSportSingleMode;
 
 @end
 

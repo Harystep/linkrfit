@@ -23,14 +23,14 @@
         //设置相关属性
         self.clipsToBounds = YES;
         
-        self.amplitude = 0.4;
+        self.amplitude = 1;
         self.pointMartin = 1;
         self.penBrushWidth = 1;
         self.layer.borderWidth = 1;
 //        self.layer.cornerRadius = 8;
         self.drawNumbers = 0;
         
-        self.drawerColor = [UIColor greenColor];
+        self.drawerColor = rgba(138, 205, 215, 1);
         self.backgroundColor = [UIColor clearColor];
         self.layer.borderColor = [[UIColor clearColor] CGColor];
         
@@ -150,12 +150,14 @@
     /* 
      根据self.lineArray数组中的每个值计算出一个相应的CGPoint，然后把这些坐标点绘制到self上
      */
-    CGFloat firstpointY = self.height*0.618 - (CGFloat)[self.lineArray[0] floatValue]*_scaleValue;
+//    CGFloat firstpointY = self.height*0.618 - (CGFloat)[self.lineArray[0] floatValue]*_scaleValue;
+    CGFloat firstpointY = 200 - (CGFloat)[self.lineArray[0] floatValue]*_scaleValue;
     CGFloat pointX = 0;
     [self.bezierpath moveToPoint:CGPointMake(pointX, firstpointY)];
     for (int i=1; i<self.lineArray.count; i++) {
         pointX = pointX + self.pointMartin;
-        CGFloat pointY = self.height*0.618 - (CGFloat)[self.lineArray[i] floatValue]*_scaleValue;
+//        CGFloat pointY = self.height*0.618 - (CGFloat)[self.lineArray[i] floatValue]*_scaleValue;
+        CGFloat pointY = 200 - (CGFloat)[self.lineArray[i] floatValue]*_scaleValue;        
         if (pointX < self.width) {
             [self drawLineLineToPoint:CGPointMake(pointX, pointY) withLineWidth:self.penBrushWidth];
         }else {

@@ -5,11 +5,11 @@
 //  Created by oneStep on 2023/4/11.
 //
 
-#import "ZCBaseViewController.h"
+#import "ZCBaseScrollController.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ZCPowerPlatformController : ZCBaseViewController
+@interface ZCPowerPlatformController : ZCBaseScrollController
 
 @end
 

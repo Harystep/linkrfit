@@ -12,11 +12,11 @@
 #import "ZCPowerStationSetView.h"
 #import "ECGView.h"
 
+#define kChartTopMargin 30
+
 @interface ZCPowerPlatformController ()<BLEPowerServerDelegate>
 
 @property (nonatomic,strong) ZCPowerPlatformTypeView *topView;
-
-//@property (nonatomic,strong) LNLineChartView *chartView;
 
 @property (nonatomic,strong) ECGView *chartView;
 
@@ -45,17 +45,26 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.view.backgroundColor = rgba(246, 246, 246, 1);
+    self.view.backgroundColor = [ZCConfigColor whiteColor];
     
     [self configureNavi];
     
     UIView *statusView = [[UIView alloc] init];
-    [self.view addSubview:statusView];
+    [self.contentView addSubview:statusView];
     statusView.backgroundColor = [ZCConfigColor whiteColor];
     [statusView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.leading.trailing.mas_equalTo(self.view);
-        make.top.mas_equalTo(self.naviView.mas_bottom);
+        make.leading.trailing.mas_equalTo(self.contentView);
+        make.top.mas_equalTo(self.contentView.mas_top);
         make.height.mas_equalTo(50);
+    }];
+    
+    UIView *lineView = [[UIView alloc] init];
+    [self.contentView addSubview:lineView];
+    lineView.backgroundColor = rgba(246, 246, 246, 1);
+    [lineView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.leading.trailing.mas_equalTo(self.contentView);
+        make.top.mas_equalTo(statusView.mas_bottom);
+        make.height.mas_equalTo(5);
     }];
     
     self.statusL = [self.view createSimpleLabelWithTitle:NSLocalizedString(@"连接中···", nil) font:14 bold:NO color:[ZCConfigColor point8TxtColor]];
@@ -66,31 +75,53 @@
     }];
     
     self.topView = [[ZCPowerPlatformTypeView alloc] init];
-    [self.view addSubview:self.topView];
+    [self.contentView addSubview:self.topView];
     [self.topView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.leading.trailing.mas_equalTo(self.view);
+        make.leading.trailing.mas_equalTo(self.contentView);
         make.top.mas_equalTo(statusView.mas_bottom).offset(5);
         make.height.mas_equalTo(375);
     }];
     
-    self.chartView = [[ECGView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(self.topView.frame)+5, SCREEN_W, 200)];
-    self.chartView.dataType = 0;
-    [self.view addSubview:self.chartView];
-    [self.chartView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.leading.trailing.mas_equalTo(self.view);
-        make.top.mas_equalTo(self.topView.mas_bottom).offset(5);
-        make.height.mas_equalTo(200);
+    UIView *line2View = [[UIView alloc] init];
+    [self.contentView addSubview:line2View];
+    line2View.backgroundColor = rgba(246, 246, 246, 1);
+    [line2View mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.leading.trailing.mas_equalTo(self.contentView);
+        make.top.mas_equalTo(self.topView.mas_bottom);
+        make.height.mas_equalTo(5);
     }];
     
-    self.chartRightView = [[ECGView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(self.topView.frame)+5, SCREEN_W, 200)];
-    [self.view addSubview:self.chartRightView];
+    [self drawGridLine];
+    
+    UILabel *unitL = [self.view createSimpleLabelWithTitle:[NSString stringWithFormat:@"%@:cm", NSLocalizedString(@"单位", nil)] font:10 bold:NO color:[ZCConfigColor subTxtColor]];
+    [self.contentView addSubview:unitL];
+    [unitL mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.leading.mas_equalTo(self.contentView.mas_leading).offset(5);
+        make.top.mas_equalTo(line2View.mas_bottom).offset(5);
+    }];
+    
+    self.chartView = [[ECGView alloc] initWithFrame:CGRectMake(41, CGRectGetMaxY(self.topView.frame)+kChartTopMargin, SCREEN_W-41, 200)];
+    self.chartView.dataType = 0;
+    [self.contentView addSubview:self.chartView];
+    [self.chartView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.trailing.mas_equalTo(self.contentView);
+        make.leading.mas_equalTo(self.contentView).offset(41);
+        make.top.mas_equalTo(self.topView.mas_bottom).offset(kChartTopMargin);
+        make.height.mas_equalTo(200);
+        make.bottom.mas_equalTo(self.contentView.mas_bottom).inset(20);
+    }];
+    
+    self.chartRightView = [[ECGView alloc] initWithFrame:CGRectMake(41, CGRectGetMaxY(self.topView.frame)+kChartTopMargin, SCREEN_W-41, 200)];
+    [self.contentView addSubview:self.chartRightView];
     self.chartRightView.dataType = 1;
     [self.chartRightView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.leading.trailing.mas_equalTo(self.view);
-        make.top.mas_equalTo(self.topView.mas_bottom).offset(5);
+        make.trailing.mas_equalTo(self.contentView);
+        make.leading.mas_equalTo(self.contentView).offset(41);
+        make.top.mas_equalTo(self.topView.mas_bottom).offset(kChartTopMargin);
         make.height.mas_equalTo(200);
+        make.bottom.mas_equalTo(self.contentView.mas_bottom).inset(20);
     }];
-    self.chartRightView.drawerColor = [UIColor redColor];
+    self.chartRightView.drawerColor = rgba(248, 107, 34, 1);
 
     self.defaultBLEServer = [ZCPowerServer defaultBLEServer];
     self.defaultBLEServer.delegate = self;
@@ -98,11 +129,64 @@
         [self.defaultBLEServer startScan];
     });
     
-    [self downloadFileOperate];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(modeChangeOperate:) name:kUpdataCurrentModeValueKey object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(kcalChangeOperate:) name:kUpdataKcalValueKey object:nil];
+    
+    //
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pullChangeOperate:) name:kUpdataCurrentPullValueKey object:nil];
+    
+    //
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(powerChangeOperate:) name:kUpdataPowerValueKey object:nil];
+    
+    //
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(localChangeOperate:) name:kUpdataLocalValueKey object:nil];
 }
 
+- (void)touchesView {
+    int x = arc4random() % 200 + 1;
+    int y = arc4random() % 200 + 1;
+    NSLog(@"%d---%d", x, y);
+    [self.chartView drawCurve:[NSString stringWithFormat:@"%d", x]];
+    [self.chartRightView drawCurve:[NSString stringWithFormat:@"%d", y]];
+}
+
+/// 位置
+/// - Parameter noti: <#noti description#>
+- (void)localChangeOperate:(NSNotification *)noti {
+    NSDictionary *dic = noti.object;
+    [self.chartView drawCurve:dic[@"left"]];
+    [self.chartRightView drawCurve:dic[@"right"]];
+}
+
+/// 爆发力
+- (void)powerChangeOperate:(NSNotification *)noti {
+    NSString *content = noti.object;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.topView.eruptL.text = content;
+    });
+}
+
+/// 获取拉力
+/// - Parameter noti: <#noti description#>
+- (void)pullChangeOperate:(NSNotification *)noti {
+    NSString *content = noti.object;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.topView.totalL.text = content;
+    });
+}
+
+#pragma mark - 卡路里
+- (void)kcalChangeOperate:(NSNotification *)noti {
+    NSString *content = noti.object;
+    float kcal = [ZCBluthDataTool convertHexStrTopFloat:content];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.topView.consumeL.text = [NSString stringWithFormat:@"%.2f", kcal];
+    });
+    
+}
+#pragma mark - 当前设定值
 - (void)modeChangeOperate:(NSNotification *)noti {
     NSString *data = noti.object;
     NSString *high = [data substringWithRange:NSMakeRange(2, 2)];
@@ -113,18 +197,107 @@
     [self.topView.targetSetBtn setTitle:[NSString stringWithFormat:@"%ld", content] forState:UIControlStateNormal];
 }
 
-- (void)reaviceDataBack:(NSNotification *)noti {
+/// 网格线
+- (void)drawGridLine {
     
-    [self.chartView drawCurve:@""];
-    [self.chartRightView drawCurve:@""];
+    UIView *leftView = [[UIView alloc] init];
+    [self.contentView addSubview:leftView];
+    [leftView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.mas_equalTo(self.contentView.mas_centerX).offset(-80);
+        make.width.mas_equalTo(120);
+        make.top.mas_equalTo(self.topView.mas_bottom).offset(10);
+        make.height.mas_equalTo(16);
+    }];
+    
+    UIView *rightView = [[UIView alloc] init];
+    [self.contentView addSubview:rightView];
+    [rightView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.mas_equalTo(self.contentView.mas_centerX).offset(80);
+        make.width.mas_equalTo(120);
+        make.top.mas_equalTo(self.topView.mas_bottom).offset(10);
+        make.height.mas_equalTo(16);
+    }];
+    
+    [self createTartetView:leftView title:@"左侧位置" color:rgba(138, 205, 215, 1)];
+    
+    [self createTartetView:rightView title:@"右侧位置" color:rgba(248, 107, 34, 1)];
+    
+    UIView *lineView = [[UIView alloc] init];
+    [self.contentView addSubview:lineView];
+    lineView.backgroundColor = [ZCConfigColor bgColor];
+    [lineView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.leading.mas_equalTo(self.contentView.mas_leading).offset(40);
+        make.top.mas_equalTo(self.topView.mas_bottom).offset(kChartTopMargin);
+        make.height.mas_equalTo(200);
+        make.width.mas_equalTo(1);
+    }];
+    lineView.hidden = YES;
+    
+    UIView *horView = [[UIView alloc] init];
+    [self.contentView addSubview:horView];
+    horView.backgroundColor = [ZCConfigColor bgColor];
+    [horView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.leading.mas_equalTo(self.contentView.mas_leading).offset(40);
+        make.top.mas_equalTo(lineView.mas_bottom);
+        make.height.mas_equalTo(1);
+        make.width.mas_equalTo(SCREEN_W);
+    }];
+    
+    [self createOtherHorView:horView];
 }
 
-//- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-//    int x = arc4random() % 100 + 1;
-//    int y = arc4random() % 100 + 1;
-//    [self.chartView drawCurve:[NSString stringWithFormat:@"%d", x]];
-//    [self.chartRightView drawCurve:[NSString stringWithFormat:@"%d", y]];
-//}
+- (void)createTartetView:(UIView *)itemView title:(NSString *)title color:(UIColor *)color {
+    UIView *lineView = [[UIView alloc] init];
+    [itemView addSubview:lineView];
+    lineView.backgroundColor = color;
+    UILabel *titleL = [self.view createSimpleLabelWithTitle:@"右侧位置" font:12 bold:NO color:[ZCConfigColor subTxtColor]];
+    [itemView addSubview:titleL];
+    if([title containsString:@"左"]) {
+        [titleL mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerY.mas_equalTo(itemView.mas_centerY);
+            make.trailing.mas_equalTo(itemView.mas_trailing);
+        }];
+        [lineView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerY.mas_equalTo(itemView.mas_centerY);
+            make.width.mas_equalTo(30);
+            make.height.mas_equalTo(2);
+            make.trailing.mas_equalTo(titleL.mas_leading).inset(10);
+        }];
+    } else {
+        [lineView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerY.mas_equalTo(itemView.mas_centerY);
+            make.width.mas_equalTo(30);
+            make.height.mas_equalTo(2);
+            make.leading.mas_equalTo(itemView.mas_leading);
+        }];
+        [titleL mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerY.mas_equalTo(itemView.mas_centerY);
+            make.leading.mas_equalTo(lineView.mas_trailing).offset(10);
+        }];
+    }
+}
+
+- (void)createOtherHorView:(UIView *)horView {
+    for (int i = 0; i < 4; i ++) {
+        UIView *item = [[UIView alloc] init];
+        [self.contentView addSubview:item];
+        item.backgroundColor = [ZCConfigColor bgColor];
+        [item mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.leading.mas_equalTo(self.contentView.mas_leading).offset(41);
+            make.top.mas_equalTo(horView.mas_top).offset(-i*50);
+            make.height.mas_equalTo(1);
+            make.width.mas_equalTo(SCREEN_W);
+        }];
+        UILabel *numL = [self.contentView createSimpleLabelWithTitle:[NSString stringWithFormat:@"%d", 50*i] font:9 bold:NO color:[ZCConfigColor subTxtColor]];
+        [self.contentView addSubview:numL];
+        numL.textAlignment = NSTextAlignmentCenter;
+        [numL mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.leading.mas_equalTo(self.contentView.mas_leading);
+            make.trailing.mas_equalTo(item.mas_leading);
+            make.centerY.mas_equalTo(item.mas_centerY);
+        }];
+    }
+}
 
 - (void)didConnect:(PeriperalInfo *)info {
     
@@ -138,6 +311,7 @@
 - (void)routerWithEventName:(NSString *)eventName userInfo:(NSDictionary *)userInfo block:(nonnull void (^)(id _Nonnull))block {
     NSData *data;
     if([eventName isEqualToString:@"start"]) {
+        [self touchesView];
         data = [ZCBluthDataTool sendStartStationOperate];
         if(self.defaultBLEServer.selectPeripheral) {
             [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
@@ -241,15 +415,15 @@
 
 //获取设备数据返回
 - (void)getDeviceForceDataOrder {
-    //爆发力
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool sendGetPowerForceOrder] forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
-    });
-    //卡路里
-    [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool sendGetConsumeKcalOrder] forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
-    
-    //实际位置    
-    [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool getDeviceSportLocalData] forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
+//    //爆发力
+//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//        [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool sendGetPowerForceOrder] forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
+//    });
+//    //卡路里
+//    [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool sendGetConsumeKcalOrder] forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
+//
+    //实际位置
+//    [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool getDeviceSportLocalData] forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
 }
 
 //获取当前设置值
@@ -263,55 +437,10 @@
     });
 }
 
-- (void)downloadFileOperate {
-    NSURL *url = [NSURL URLWithString:@"https://zc-tk.oss-cn-beijing.aliyuncs.com/bootloader.bin"];
-    // 创建request对象
-    NSURLRequest *request = [NSURLRequest requestWithURL:url];
-    
-    // 使用URLSession来进行网络请求
-    // 创建会话配置对象
-    NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
-    // 创建会话对象
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
-    // 创建会话任务对象
-    NSURLSessionTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (data) {
-            // 将下载的数据传出去，进行UI更新
-            NSLog(@"%@", data);
-            Byte *bytes = (Byte *)[data bytes];
-//            NSMutableString *str = [NSMutableString stringWithCapacity:data.length];
-//            for (int i = 0; i < data.length; i ++) {
-//                [str appendFormat:@"%02x", bytes[i]];
-//            }
-//            NSLog(@"str:%@", str);
-//            self.remainLength = data.length % 128;
-//            self.totalIndex = ceil(data.length/128.0);
-//            NSLog(@"%tu-%tu", self.remainLength, self.totalIndex);
-            NSMutableString *str = [NSMutableString string];
-            for (int i = 0; i < 20; i ++) {
-                [str appendFormat:@"%02x", bytes[i]];
-            }
-            NSLog(@"str:%@", str);
-            NSData *temData = [ZCBluthDataTool convertHexStrToData:str];
-            NSLog(@"temData:%@", temData);
-            Byte *temBytes = (Byte *)[temData bytes];
-            NSMutableString *temStr = [NSMutableString string];
-            for (int i = 0; i < 20; i ++) {
-                [temStr appendFormat:@"%02x", temBytes[i]];
-            }
-            NSLog(@"temStr:%@", temStr);
-        }
-    }];    
-    // 创建的task都是挂起状态，需要resume才能执行
-    [task resume];
-}
-
-
 - (void)didDisconnect {
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.statusL.text = NSLocalizedString(@"断开连接", nil);
-        
+        self.statusL.text = NSLocalizedString(@"断开连接", nil);        
     });
 }
 
@@ -366,18 +495,5 @@
 -(void)continueTimer {
     [self.timer setFireDate:[NSDate distantPast]];
 }
-
-#pragma mark - <LNLineChartViewDelegate>
-- (void)refreshLatestObjectWithDateStr:(NSString *)dateStr star:(NSInteger)star
-{
-    
-}
-
-- (void)chartViewDotsTouchWithIndex:(NSInteger)index model:(LNLineChartModel *)model
-{
-    [self refreshLatestObjectWithDateStr:model.playDate star:model.star];
-}
-
-
 
 @end

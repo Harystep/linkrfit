@@ -7,15 +7,17 @@
 
 #import "ZCPowerSingleTypeController.h"
 #import "ZCPowerPlatformTypeView.h"
-#import "LNLineChartView.h"
 #import "ZCPowerSingleServer.h"
 #import "ZCPowerStationSetView.h"
+#import "ECGView.h"
 
-@interface ZCPowerSingleTypeController ()<LNLineChartViewDelegate, ZCPowerSingleServerDelegate>
+#define kChartTopMargin 30
+
+@interface ZCPowerSingleTypeController ()<ZCPowerSingleServerDelegate>
 
 @property (nonatomic,strong) ZCPowerPlatformTypeView *topView;
 
-@property (nonatomic,strong) LNLineChartView *chartView;
+@property (nonatomic,strong) ECGView *chartView;
 
 @property (nonatomic, assign) int count;
 
@@ -29,6 +31,10 @@
 
 @property (nonatomic,assign) NSInteger mode;
 
+@property (nonatomic,strong) NSTimer *timer;
+
+@property (nonatomic,assign) BOOL signTimerFlag;//标记定时器是否暂停
+
 @end
 
 @implementation ZCPowerSingleTypeController
@@ -36,17 +42,26 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.view.backgroundColor = rgba(246, 246, 246, 1);
+    self.view.backgroundColor = [ZCConfigColor whiteColor];
     
     [self configureNavi];
     
     UIView *statusView = [[UIView alloc] init];
-    [self.view addSubview:statusView];
+    [self.contentView addSubview:statusView];
     statusView.backgroundColor = [ZCConfigColor whiteColor];
     [statusView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.leading.trailing.mas_equalTo(self.view);
-        make.top.mas_equalTo(self.naviView.mas_bottom);
+        make.leading.trailing.mas_equalTo(self.contentView);
+        make.top.mas_equalTo(self.contentView.mas_top);
         make.height.mas_equalTo(50);
+    }];
+    
+    UIView *lineView = [[UIView alloc] init];
+    [self.contentView addSubview:lineView];
+    lineView.backgroundColor = rgba(246, 246, 246, 1);
+    [lineView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.leading.trailing.mas_equalTo(self.contentView);
+        make.top.mas_equalTo(statusView.mas_bottom);
+        make.height.mas_equalTo(5);
     }];
     
     self.statusL = [self.view createSimpleLabelWithTitle:NSLocalizedString(@"连接中···", nil) font:14 bold:NO color:[ZCConfigColor point8TxtColor]];
@@ -57,37 +72,41 @@
     }];
     
     self.topView = [[ZCPowerPlatformTypeView alloc] init];
-    [self.view addSubview:self.topView];
+    [self.contentView addSubview:self.topView];
     [self.topView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.leading.trailing.mas_equalTo(self.view);
+        make.leading.trailing.mas_equalTo(self.contentView);
         make.top.mas_equalTo(statusView.mas_bottom).offset(5);
         make.height.mas_equalTo(375);
     }];
     
-    self.chartView = [[LNLineChartView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(self.topView.frame)+5, SCREEN_W, 200)];
-    self.chartView.delegate = self;
-    self.chartView.backgroundColor = [ZCConfigColor whiteColor];
-    [self.view addSubview:self.chartView];
-    [self.chartView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.leading.trailing.mas_equalTo(self.view);
-        make.top.mas_equalTo(self.topView.mas_bottom).offset(5);
-        make.height.mas_equalTo(200);
+    UIView *line2View = [[UIView alloc] init];
+    [self.contentView addSubview:line2View];
+    line2View.backgroundColor = rgba(246, 246, 246, 1);
+    [line2View mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.leading.trailing.mas_equalTo(self.contentView);
+        make.top.mas_equalTo(self.topView.mas_bottom);
+        make.height.mas_equalTo(5);
     }];
     
-    _count = 7;
-    NSMutableArray *chartDataArr = [[NSMutableArray alloc] init];
-    for (int i = 0; i<_count; i++) {
-        NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-        if (i<1) {
-            dict[@"star"] = [NSNumber numberWithInt:i%4];
-            dict[@"playDate"] = [NSString stringWithFormat:@"%dmin", i+1];
-        }else{
-            dict[@"star"] = [NSNumber numberWithInt:i%4];
-            dict[@"playDate"] = [NSString stringWithFormat:@"%dmin", i+1];
-        }
-        [chartDataArr addObject:dict];
-    }
-    self.chartView.starInfoArr = chartDataArr;
+    [self drawGridLine];
+    
+    UILabel *unitL = [self.view createSimpleLabelWithTitle:[NSString stringWithFormat:@"%@:cm", NSLocalizedString(@"单位", nil)] font:10 bold:NO color:[ZCConfigColor subTxtColor]];
+    [self.contentView addSubview:unitL];
+    [unitL mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.leading.mas_equalTo(self.contentView.mas_leading).offset(5);
+        make.top.mas_equalTo(line2View.mas_bottom).offset(5);
+    }];
+    
+    self.chartView = [[ECGView alloc] initWithFrame:CGRectMake(41, CGRectGetMaxY(self.topView.frame)+kChartTopMargin, SCREEN_W-41, 200)];
+    self.chartView.dataType = 0;
+    [self.contentView addSubview:self.chartView];
+    [self.chartView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.trailing.mas_equalTo(self.contentView);
+        make.leading.mas_equalTo(self.contentView).offset(41);
+        make.top.mas_equalTo(self.topView.mas_bottom).offset(kChartTopMargin);
+        make.height.mas_equalTo(200);
+        make.bottom.mas_equalTo(self.contentView.mas_bottom).inset(20);
+    }];
 
     self.defaultBLEServer = [ZCPowerSingleServer defaultBLEServer];
     self.defaultBLEServer.delegate = self;
@@ -95,14 +114,106 @@
         [self.defaultBLEServer startScan];
     });
     
-    [self downloadFileOperate];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pullChangeOperate:) name:@"kSportPullDataKey" object:nil];
+    
+    //
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(localChangeOperate:) name:@"kSportLocalDataKey" object:nil];
+    
+    //
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(powerChangeOperate:) name:@"kSportPowerDataKey" object:nil];
+    
+    //
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(kcalChangeOperate:) name:@"kSportKcalDataKey" object:nil];
+    
+}
+
+/// 位置
+/// - Parameter noti: <#noti description#>
+- (void)localChangeOperate:(NSNotification *)noti {
+    NSString *content = noti.object;
+    [self.chartView drawCurve:content];
+}
+
+/// 爆发力
+- (void)powerChangeOperate:(NSNotification *)noti {
+    NSString *content = noti.object;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.topView.eruptL.text = content;
+    });
+}
+
+/// 获取拉力
+/// - Parameter noti: <#noti description#>
+- (void)pullChangeOperate:(NSNotification *)noti {
+    NSString *content = noti.object;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.topView.totalL.text = content;
+    });
+}
+
+#pragma mark - 卡路里
+- (void)kcalChangeOperate:(NSNotification *)noti {
+    NSString *content = noti.object;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.topView.consumeL.text = [NSString stringWithFormat:@"%@", content];
+    });
+    
+}
+
+/// 网格线
+- (void)drawGridLine {
+    
+    UIView *lineView = [[UIView alloc] init];
+    [self.contentView addSubview:lineView];
+    lineView.backgroundColor = [ZCConfigColor bgColor];
+    [lineView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.leading.mas_equalTo(self.contentView.mas_leading).offset(40);
+        make.top.mas_equalTo(self.topView.mas_bottom).offset(kChartTopMargin);
+        make.height.mas_equalTo(200);
+        make.width.mas_equalTo(1);
+    }];
+    lineView.hidden = YES;
+    
+    UIView *horView = [[UIView alloc] init];
+    [self.contentView addSubview:horView];
+    horView.backgroundColor = [ZCConfigColor bgColor];
+    [horView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.leading.mas_equalTo(self.contentView.mas_leading).offset(40);
+        make.top.mas_equalTo(lineView.mas_bottom);
+        make.height.mas_equalTo(1);
+        make.width.mas_equalTo(SCREEN_W);
+    }];
+    
+    [self createOtherHorView:horView];
+}
+
+- (void)createOtherHorView:(UIView *)horView {
+    for (int i = 0; i < 4; i ++) {
+        UIView *item = [[UIView alloc] init];
+        [self.contentView addSubview:item];
+        item.backgroundColor = [ZCConfigColor bgColor];
+        [item mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.leading.mas_equalTo(self.contentView.mas_leading).offset(41);
+            make.top.mas_equalTo(horView.mas_top).offset(-i*50);
+            make.height.mas_equalTo(1);
+            make.width.mas_equalTo(SCREEN_W);
+        }];
+        UILabel *numL = [self.contentView createSimpleLabelWithTitle:[NSString stringWithFormat:@"%d", 50*i] font:9 bold:NO color:[ZCConfigColor subTxtColor]];
+        [self.contentView addSubview:numL];
+        numL.textAlignment = NSTextAlignmentCenter;
+        [numL mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.leading.mas_equalTo(self.contentView.mas_leading);
+            make.trailing.mas_equalTo(item.mas_leading);
+            make.centerY.mas_equalTo(item.mas_centerY);
+        }];
+    }
 }
 
 - (void)didConnect:(PeriperalInfo *)info {
     
     dispatch_async(dispatch_get_main_queue(), ^{
         self.statusL.text = NSLocalizedString(@"连接成功", nil);
-        [[ZCPowerSingleServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool sendGetTokenContent] forCharacteristic:[ZCPowerSingleServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
+//        [[ZCPowerSingleServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool sendGetTokenContent] forCharacteristic:[ZCPowerSingleServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
     });
    
 }
@@ -110,45 +221,74 @@
 - (void)routerWithEventName:(NSString *)eventName userInfo:(NSDictionary *)userInfo block:(nonnull void (^)(id _Nonnull))block {
     NSData *data;
     if([eventName isEqualToString:@"start"]) {
-        data = [ZCBluthDataTool sendStartStationOperate];
-        if(self.defaultBLEServer.selectPeripheral) {
+        data = [ZCBluthDataTool startSportSingleMode];
+        if(self.defaultBLEServer.selectCharacteristic) {
             [[ZCPowerSingleServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerSingleServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
+            block(@"");
+            if(_timer == nil) {
+                _timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(mouseAutoOperate) userInfo:nil repeats:YES];
+                [[NSRunLoop mainRunLoop] addTimer:_timer forMode:NSRunLoopCommonModes];
+            }
+            if(self.signTimerFlag) {
+                [self continueTimer];
+            }
+            self.signTimerFlag = NO;
         }
     } else if ([eventName isEqualToString:@"stop"]) {
-        data = [ZCBluthDataTool sendStopStationOperate];
-        if(self.defaultBLEServer.selectPeripheral) {
-            [[ZCPowerSingleServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerSingleServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
+        data = [ZCBluthDataTool stopSportSingleMode];
+        if(self.defaultBLEServer.selectCharacteristic) {
+            [[ZCPowerSingleServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerSingleServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];           
+            block(@"");
+            [self pauseTimer];
         }
     } else if ([eventName isEqualToString:@"mode"]) {
-        if(self.defaultBLEServer.selectPeripheral) {
+        if(self.defaultBLEServer.selectCharacteristic) {
             NSData *data;
+            NSData *currentData;
+            self.mode = [userInfo[@"index"] integerValue];
             switch ([userInfo[@"index"] integerValue]) {
-                case 0://常规模式
-                    
+                case 0://常规模式//5
+                    data = [ZCBluthDataTool setCurrentSportMode:@"01"];
+                    currentData = [ZCBluthDataTool sendSportModePowerData:@"5"];
+                    [self.topView.targetSetBtn setTitle:@"5" forState:UIControlStateNormal];
                     break;
-                case 1://离心模式
-                    
+                case 1://离心模式 //5
+                    data = [ZCBluthDataTool setCurrentSportMode:@"02"];
+                    currentData = [ZCBluthDataTool sendSportModePowerData:@"5"];
+                    [self.topView.targetSetBtn setTitle:@"5" forState:UIControlStateNormal];
                     break;
-                case 2://向心模式
-                    
+                case 2://向心模式 //5
+                    data = [ZCBluthDataTool setCurrentSportMode:@"03"];
+                    currentData = [ZCBluthDataTool sendSportModePowerData:@"5"];
+                    [self.topView.targetSetBtn setTitle:@"5" forState:UIControlStateNormal];
                     break;
-                case 3://等速模式
-                    
+                case 3://等速模式  //80
+                    data = [ZCBluthDataTool setCurrentSportMode:@"04"];
+                    currentData = [ZCBluthDataTool sendSportModeSpeedData:@"80"];
+                    [self.topView.targetSetBtn setTitle:@"80" forState:UIControlStateNormal];
                     break;
-                case 4://弹力绳模式
-                    
+                case 4://弹力绳模式  //30
+                    data = [ZCBluthDataTool setCurrentSportMode:@"05"];
+                    currentData = [ZCBluthDataTool sendSportModeRopeData:@"30"];
+                    [self.topView.targetSetBtn setTitle:@"30" forState:UIControlStateNormal];
                     break;
-                case 5://划船模式
-                    
+                case 5://划船模式  //1 *200
+                    data = [ZCBluthDataTool setCurrentSportMode:@"06"];
+                    currentData = [ZCBluthDataTool sendSportGearModeData:@"1"];
+                    [self.topView.targetSetBtn setTitle:@"1" forState:UIControlStateNormal];
                     break;
                                         
                 default:
                     break;
             }
-            data = [ZCBluthDataTool setPullPowerData];
+            NSLog(@"data:%@", data);
+            NSLog(@"setdata:%@", currentData);
             [[ZCPowerSingleServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerSingleServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
             self.topView.unitL.text = [ZCBluthDataTool convertUnitTitleWithMode:self.mode];
             
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [[ZCPowerSingleServer defaultBLEServer].selectPeripheral writeValue:currentData forCharacteristic:[ZCPowerSingleServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
+            });
             block(@"");
         }
     } else if ([eventName isEqualToString:@"set"]) {
@@ -157,57 +297,42 @@
         setView.titleL.text = NSLocalizedString(@"设置", nil);
         setView.configureArr = [ZCBluthDataTool convertDataWithMode:self.mode];
         [setView showAlertView];
+        kweakself(self);
         setView.sureRepeatOperate = ^(NSString * _Nonnull content) {
-            
+            NSLog(@"%@", content);
+            [weakself.topView.targetSetBtn setTitle:content forState:UIControlStateNormal];
+            [weakself setCurrentModeValue:content];
         };
     }
 }
 
-- (void)downloadFileOperate {
-    NSURL *url = [NSURL URLWithString:@"https://zc-tk.oss-cn-beijing.aliyuncs.com/bootloader.bin"];
-    // 创建request对象
-    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+- (void)mouseAutoOperate {
+    //爆发力
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [[ZCPowerSingleServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool readSportPowerModeData] forCharacteristic:[ZCPowerSingleServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
+    });
+    //卡路里
+    [[ZCPowerSingleServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool readSportKcalModeData] forCharacteristic:[ZCPowerSingleServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
     
-    // 使用URLSession来进行网络请求
-    // 创建会话配置对象
-    NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
-    // 创建会话对象
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration];
-    // 创建会话任务对象
-    NSURLSessionTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (data) {
-            // 将下载的数据传出去，进行UI更新
-            NSLog(@"%@", data);
-            Byte *bytes = (Byte *)[data bytes];
-//            NSMutableString *str = [NSMutableString stringWithCapacity:data.length];
-//            for (int i = 0; i < data.length; i ++) {
-//                [str appendFormat:@"%02x", bytes[i]];
-//            }
-//            NSLog(@"str:%@", str);
-//            self.remainLength = data.length % 128;
-//            self.totalIndex = ceil(data.length/128.0);
-//            NSLog(@"%tu-%tu", self.remainLength, self.totalIndex);
-            NSMutableString *str = [NSMutableString string];
-            for (int i = 0; i < 20; i ++) {
-                [str appendFormat:@"%02x", bytes[i]];
-            }
-            NSLog(@"str:%@", str);
-            NSData *temData = [ZCBluthDataTool convertHexStrToData:str];
-            NSLog(@"temData:%@", temData);
-            Byte *temBytes = (Byte *)[temData bytes];
-            NSMutableString *temStr = [NSMutableString string];
-            for (int i = 0; i < 20; i ++) {
-                [temStr appendFormat:@"%02x", temBytes[i]];
-            }
-            NSLog(@"temStr:%@", temStr);
-        }
-    }];
-    // 创建的task都是挂起状态，需要resume才能执行
-    [task resume];
+   // 实际位置
+    [[ZCPowerSingleServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool readSportLocalModeData] forCharacteristic:[ZCPowerSingleServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
+    
+    // 实际
+     [[ZCPowerSingleServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool readSportPullModeData] forCharacteristic:[ZCPowerSingleServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
 }
 
-- (void)sendSubpackage:(Byte *)bytes index:(NSInteger)index length:(NSInteger)length {
-    
+- (void)setCurrentModeValue:(NSString *)content {    
+    NSData *currentData;
+    if (self.mode < 3) {
+        currentData = [ZCBluthDataTool sendSportModePowerData:content];
+    } else if (self.mode == 3) {
+        currentData = [ZCBluthDataTool sendSportModeSpeedData:content];
+    } else if (self.mode == 4) {
+        currentData = [ZCBluthDataTool sendSportModeRopeData:content];
+    } else {
+        currentData = [ZCBluthDataTool sendSportGearModeData:content];
+    }
+    [[ZCPowerSingleServer defaultBLEServer].selectPeripheral writeValue:currentData forCharacteristic:[ZCPowerSingleServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
 }
 
 - (void)didDisconnect {
@@ -250,41 +375,25 @@
         make.trailing.mas_equalTo(self.naviView.mas_trailing).inset(5);
         make.bottom.mas_equalTo(self.naviView.mas_bottom).inset(8);
     }];
+    setBtn.hidden = YES;
 }
 
 - (void)dealloc {
+    [self.timer invalidate];
+    self.timer = nil;
     [[ZCPowerSingleServer defaultBLEServer] stopScan];
     [[ZCPowerSingleServer defaultBLEServer] disConnect];
 //    [BLESuitServer defaultBLEServer].selectPeripheral = nil;
 }
 
-//- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-//
-//    NSMutableArray *chartDataArr = [[NSMutableArray alloc] init];
-//    _count ++;
-//    for (int i = 0; i<_count; i++) {
-//        NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-//        if (i<2) {
-//            dict[@"star"] = [NSNumber numberWithInt:i%4];
-//            dict[@"playDate"] = [NSString stringWithFormat:@"%dmin", i+1];
-//        }else{
-//            dict[@"star"] = [NSNumber numberWithInt:i%4];
-//            dict[@"playDate"] = [NSString stringWithFormat:@"%dmin", i+1];
-//        }
-//        [chartDataArr addObject:dict];
-//    }
-//    self.chartView.starInfoArr = chartDataArr;
-//}
-
-#pragma mark - <LNLineChartViewDelegate>
-- (void)refreshLatestObjectWithDateStr:(NSString *)dateStr star:(NSInteger)star
-{
-    
+#pragma -- mark 暂停
+//暂停定时器(只是暂停,并没有销毁timer)
+-(void)pauseTimer {
+    [self.timer setFireDate:[NSDate distantFuture]];
 }
-
-- (void)chartViewDotsTouchWithIndex:(NSInteger)index model:(LNLineChartModel *)model
-{
-    [self refreshLatestObjectWithDateStr:model.playDate star:model.star];
+#pragma -- mark 继续
+-(void)continueTimer {
+    [self.timer setFireDate:[NSDate distantPast]];
 }
 
 @end

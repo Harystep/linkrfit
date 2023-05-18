@@ -30,7 +30,7 @@
 }
 
 - (void)createSubviews {
-    
+    self.view.backgroundColor = [ZCConfigColor bgColor];
     UIImageView *secondIv = [[UIImageView alloc] initWithImage:kIMAGE(@"train_home_efficient")];
     [self.view addSubview:secondIv];
     [secondIv mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -49,30 +49,7 @@
     self.collectionView.mj_header.automaticallyChangeAlpha = YES;
     
     [self getSmartDeviceListInfo];
-    
-//    for (int i = 0; i < 2; i ++) {
-//        UIButton *btn = [self.view createSimpleButtonWithTitle:[NSString stringWithFormat:@"mode%d", i] font:15 color:[ZCConfigColor txtColor]];
-//        [self.view addSubview:btn];
-//        [btn mas_makeConstraints:^(MASConstraintMaker *make) {
-//            make.width.mas_equalTo(65);
-//            make.height.mas_equalTo(35);
-//            make.bottom.mas_equalTo(self.view.mas_bottom).inset(40);
-//            make.leading.mas_equalTo(self.view.mas_leading).inset(20+75*i);
-//        }];
-//        [btn setViewBorderWithColor:1 color:[ZCConfigColor point8TxtColor]];
-//        [btn setViewCornerRadiu:5];
-//        btn.tag = i;
-//        [btn addTarget:self action:@selector(btnClick:) forControlEvents:UIControlEventTouchUpInside];
-//    }
 }
-
-//- (void)btnClick:(UIButton *)sender {
-//    if(sender.tag == 1) {
-//        [HCRouter router:@"PowerPlatform" params:@{} viewController:self];
-//    } else {
-//        [HCRouter router:@"PowerSingleType" params:@{} viewController:self];
-//    }
-//}
 
 #pragma -- mark 获取设备列表信息
 - (void)getSmartDeviceListInfo {

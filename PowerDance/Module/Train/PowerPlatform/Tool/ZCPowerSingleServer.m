@@ -457,11 +457,34 @@ static ZCPowerSingleServer *_defaultBTServer = nil;
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
 {
     NSData *data = characteristic.value;
-    NSLog(@"data:%@", data);
-    if ([[characteristic.UUID UUIDString] containsString:@"ECBE34729BB3"]) {//
-        Byte *bytes = (Byte *)[data bytes];
-        NSString *content = [self transformCharateristicValueFromData:characteristic.value];
-        NSLog(@"content:%@", content);
+    NSString *content = [self transformCharateristicValueFromData:data];
+    NSLog(@"content:%@", content);
+    if([content containsString:@"710d"]) {//拉力
+        NSString *value = [content substringWithRange:NSMakeRange(10, 8)];
+        long data = [ZCBluthDataTool convertHexToDecimal:value];
+        NSLog(@"拉力：%ld", data);
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"kSportPullDataKey" object:[NSString stringWithFormat:@"%.2f", data/1000.0]];
+    } else if ([content containsString:@"710f"]) {//卡路里
+        NSString *value = [content substringWithRange:NSMakeRange(10, 8)];
+        long data = [ZCBluthDataTool convertHexToDecimal:value];
+        NSLog(@"卡路里:%ld", data);
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"kSportKcalDataKey" object:[NSString stringWithFormat:@"%.2f", data/100.0]];
+    } else if ([content containsString:@"7111"]) {//实际位置
+        NSString *value = [content substringWithRange:NSMakeRange(10, 8)];
+        long data = [ZCBluthDataTool convertHexToDecimal:value];
+        NSLog(@"实际位置:%ld", data);
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"kSportLocalDataKey" object:[NSString stringWithFormat:@"%.2f", data/10.0]];
+    } else if ([content containsString:@"7101"]) {//爆发力
+        NSString *value = [content substringWithRange:NSMakeRange(10, 8)];
+        long data = [ZCBluthDataTool convertHexToDecimal:value];
+        NSLog(@"爆发力:%ld", data);
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"kSportPowerDataKey" object:[NSString stringWithFormat:@"%.1f", data/100.0]];
+    } else if ([content containsString:@""]) {
+        
+    } else if ([content containsString:@""]) {
+        
+    } else if ([content containsString:@""]) {
+        
     }
     //00002
     if (error){

@@ -15,6 +15,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic,strong) UIButton *targetSetBtn;//目标设置
 
+@property (nonatomic,strong) UILabel *consumeL;//消耗
+
+@property (nonatomic,strong) UILabel *totalL;//实际拉力
+
+@property (nonatomic,strong) UILabel *eruptL;//爆发力
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -56,6 +56,7 @@ typedef enum{
 @property (strong,nonatomic)CBPeripheral* selectPeripheral; //选中的外设
 @property (strong,nonatomic)CBService* discoveredSevice; //发现的服务
 @property (strong,nonatomic)CBCharacteristic *selectCharacteristic; //选中的特征
+@property (strong,nonatomic)CBCharacteristic *selectFileCharacteristic; //选中文件的特征
 @property (strong,nonatomic)CBCentralManager *myCenter;
 
 //

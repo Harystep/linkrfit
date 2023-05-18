@@ -436,7 +436,12 @@ static ZCPowerServer *_defaultBTServer = nil;
                 NSLog(@"读写设备");
                 [peripheral setNotifyValue:YES forCharacteristic:ch];
                 [peripheral readValueForCharacteristic:ch];
-               
+                
+            } else if ([[ch.UUID UUIDString] containsString:@"FED2"]) {//订阅写入文件服务
+                NSLog(@"读写设备");
+                [peripheral setNotifyValue:YES forCharacteristic:ch];
+                [peripheral readValueForCharacteristic:ch];
+                self.selectFileCharacteristic = ch;
             }
         }
         
@@ -487,18 +492,19 @@ static ZCPowerServer *_defaultBTServer = nil;
         } else if ([content hasPrefix:@"04020515"]) {//获取实际速度
             NSLog(@"实际速度:%@", content);
         } else if ([content hasPrefix:@"04020516"]) {//获取实际拉力或收力
-            NSLog(@"获取实际拉力或收力:%@", content);
-            NSString *value = [content substringWithRange:NSMakeRange(8, 4)];
+            NSString *value = [content substringWithRange:NSMakeRange(8, 8)];
+            NSLog(@"获取实际拉力或收力:%@", value);
             NSString *lowEnd = [value substringWithRange:NSMakeRange(0, 2)];
             NSString *highEnd = [value substringWithRange:NSMakeRange(2, 2)];
             NSString *lowPre = [value substringWithRange:NSMakeRange(4, 2)];
             NSString *highPre = [value substringWithRange:NSMakeRange(6, 2)];
             value = [NSString stringWithFormat:@"%@%@%@%@", highPre, lowPre, highEnd, lowEnd];
             long power = [ZCBluthDataTool convertHexToDecimal:value];
-            [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataCurrentPullValueKey object:[NSString stringWithFormat:@"%.2f", power/1000.0]];
+            NSLog(@"获取实际拉力或收力 value:%@g", value);
+            [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataCurrentPullValueKey object:[NSString stringWithFormat:@"%.2f", power/10.0]];
         } else if ([content hasPrefix:@"04020517"]) {//获取消耗卡路里
             NSLog(@"消耗卡路里:%@", content);
-            NSString *value = [content substringWithRange:NSMakeRange(8, 4)];
+            NSString *value = [content substringWithRange:NSMakeRange(8, 8)];
             [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataKcalValueKey object:value];
         } else if ([content hasPrefix:@"04020518"]) {//获取训练次数
             NSLog(@"训练次数:%@", content);
@@ -511,24 +517,67 @@ static ZCPowerServer *_defaultBTServer = nil;
         } else if ([content hasPrefix:@"03020301"]) {//语言设置
             NSLog(@"语言设置:%@", content);
         } else if ([content hasPrefix:@"05021301"]) {//上传文件返回结果
-            NSString *type = [content substringWithRange:NSMakeRange(8, 1)];
+            NSString *type = [content substringWithRange:NSMakeRange(8, 2)];
+            NSLog(@"file:%@", content);
             if([type isEqualToString:@"00"] || [type isEqualToString:@"0"]) {//成功
                 [[NSNotificationCenter defaultCenter] postNotificationName:kUpdateFileBackNoticeKey object:nil];
             } else {//失败
                 
             }
         } else if ([content hasPrefix:@"0402071b"]) {
-            NSLog(@"爆发力:%@", content);
-            NSString *value = [content substringWithRange:NSMakeRange(8, 6)];
+            //            NSLog(@"爆发力:%@", content);
+            NSString *value = [content substringWithRange:NSMakeRange(8, 12)];
+            NSLog(@"爆发力：%@", value);
+            NSString *left = [value substringWithRange:NSMakeRange(0, 6)];
+            NSString *right = [value substringWithRange:NSMakeRange(6, 6)];
+            NSString *leftStatus = [left substringWithRange:NSMakeRange(0, 2)];
+            NSString *rightStatus = [right substringWithRange:NSMakeRange(0, 2)];
+            NSString *contentLeft = [left substringWithRange:NSMakeRange(2, 4)];
+            NSString *contentRight = [left substringWithRange:NSMakeRange(2, 4)];
+            contentLeft = [self convert4HexTransData:contentLeft];
+            contentRight = [self convert4HexTransData:contentRight];
+            if([leftStatus isEqualToString:@"01"] && [rightStatus isEqualToString:@"01"]) {
+                long pullLeft = [ZCBluthDataTool convertHexToDecimal:contentLeft];
+                long pullRight = [ZCBluthDataTool convertHexToDecimal:contentRight];
+                double agv = (pullLeft + pullRight) / 2.0;
+                value = [NSString stringWithFormat:@"%.2f", agv/100.0];
+            } else if([leftStatus isEqualToString:@"01"] && [rightStatus isEqualToString:@"00"]) {
+                long pullLeft = [ZCBluthDataTool convertHexToDecimal:contentLeft];
+                value = [NSString stringWithFormat:@"%.2f", pullLeft/100.0];
+            } else if([leftStatus isEqualToString:@"00"] && [rightStatus isEqualToString:@"01"]) {
+                long pullRight = [ZCBluthDataTool convertHexToDecimal:contentRight];
+                value = [NSString stringWithFormat:@"%.2f", pullRight/100.0];
+            } else {
+                value = @"0.0";
+            }
             [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataPowerValueKey object:value];
+            NSLog(@"爆发力 value：%@", value);
         } else if ([content hasPrefix:@"04020612"]){//当前模式设置值
-            NSLog(@"当前模式设置值:%@", content);
             NSString *value = [content substringWithRange:NSMakeRange(10, 4)];
             [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataCurrentModeValueKey object:value];
         } else if ([content hasPrefix:@"04020b1a"]) {
-            NSLog(@"实际位置:%@", content);
-            NSString *value = [content substringWithRange:NSMakeRange(8, 10)];
-            [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataLocalValueKey object:value];
+            NSLog(@"位置：%@", content);
+            NSString *value = [content substringWithRange:NSMakeRange(8, 20)];
+            NSString *left = [value substringWithRange:NSMakeRange(0, 10)];
+            NSString *right = [value substringWithRange:NSMakeRange(10, 10)];
+            NSString *leftStatus = [left substringWithRange:NSMakeRange(0, 2)];
+            NSString *rightStatus = [right substringWithRange:NSMakeRange(0, 2)];
+            NSString *contentLeft = [left substringWithRange:NSMakeRange(2, 8)];
+            NSString *contentRight = [left substringWithRange:NSMakeRange(2, 8)];
+            NSString *leftValue = @"0";
+            NSString *rightValue =  @"0";
+            if ([leftStatus isEqualToString:@"01"] && [rightStatus isEqualToString:@"01"]) {
+                leftValue = [NSString stringWithFormat:@"%.1f", [ZCBluthDataTool convertHexToDecimal:[self convert8HexTransData:contentLeft]]/1000.0];
+                rightValue = [NSString stringWithFormat:@"%.1f", [ZCBluthDataTool convertHexToDecimal:[self convert8HexTransData:contentRight]]/1000.0];
+                [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataLocalValueKey object:@{@"left":leftValue, @"right":rightValue}];
+            } else if([leftStatus isEqualToString:@"01"] && [rightStatus isEqualToString:@"00"]) {
+                leftValue = [NSString stringWithFormat:@"%.1f", [ZCBluthDataTool convertHexToDecimal:[self convert8HexTransData:contentLeft]]/1000.0];
+                [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataLocalValueKey object:@{@"left":leftValue, @"right":rightValue}];
+            } else if([leftStatus isEqualToString:@"00"] && [rightStatus isEqualToString:@"01"]) {
+                rightValue = [NSString stringWithFormat:@"%.1f", [ZCBluthDataTool convertHexToDecimal:[self convert8HexTransData:contentRight]]/1000.0];
+                [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataLocalValueKey object:@{@"left":leftValue, @"right":rightValue}];
+            }
+            NSLog(@"left:%@ right:%@", leftValue, rightValue);
         }
     }
     //00002
@@ -575,6 +624,19 @@ static ZCPowerServer *_defaultBTServer = nil;
         }
     }];
     return destStr;
+}
+
+- (NSString *)convert4HexTransData:(NSString *)content {
+    return [NSString stringWithFormat:@"%@%@", [content substringWithRange:NSMakeRange(2, 2)], [content substringWithRange:NSMakeRange(0, 2)]];
+}
+
+- (NSString *)convert8HexTransData:(NSString *)value {
+    NSString *lowEnd = [value substringWithRange:NSMakeRange(0, 2)];
+    NSString *highEnd = [value substringWithRange:NSMakeRange(2, 2)];
+    NSString *lowPre = [value substringWithRange:NSMakeRange(4, 2)];
+    NSString *highPre = [value substringWithRange:NSMakeRange(6, 2)];
+    value = [NSString stringWithFormat:@"%@%@%@%@", highPre, lowPre, highEnd, lowEnd];
+    return value;
 }
 
 @end
