@@ -421,9 +421,9 @@
 //    });
 //    //卡路里
 //    [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool sendGetConsumeKcalOrder] forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
-//
+
     //实际位置
-//    [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool getDeviceSportLocalData] forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
+    [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool getDeviceSportLocalData] forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
 }
 
 //获取当前设置值

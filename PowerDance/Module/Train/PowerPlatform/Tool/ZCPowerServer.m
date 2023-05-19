@@ -433,12 +433,9 @@ static ZCPowerServer *_defaultBTServer = nil;
                     [self.delegate didConnect:nil];
                 }
             } else if ([[ch.UUID UUIDString] containsString:@"2902"]) {//写入数据
-                NSLog(@"读写设备");
                 [peripheral setNotifyValue:YES forCharacteristic:ch];
                 [peripheral readValueForCharacteristic:ch];
-                
             } else if ([[ch.UUID UUIDString] containsString:@"FED2"]) {//订阅写入文件服务
-                NSLog(@"读写设备");
                 [peripheral setNotifyValue:YES forCharacteristic:ch];
                 [peripheral readValueForCharacteristic:ch];
                 self.selectFileCharacteristic = ch;
@@ -501,7 +498,7 @@ static ZCPowerServer *_defaultBTServer = nil;
             value = [NSString stringWithFormat:@"%@%@%@%@", highPre, lowPre, highEnd, lowEnd];
             long power = [ZCBluthDataTool convertHexToDecimal:value];
             NSLog(@"获取实际拉力或收力 value:%@g", value);
-            [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataCurrentPullValueKey object:[NSString stringWithFormat:@"%.2f", power/10.0]];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataCurrentPullValueKey object:[NSString stringWithFormat:@"%.2f", power/1000.0]];
         } else if ([content hasPrefix:@"04020517"]) {//获取消耗卡路里
             NSLog(@"消耗卡路里:%@", content);
             NSString *value = [content substringWithRange:NSMakeRange(8, 8)];

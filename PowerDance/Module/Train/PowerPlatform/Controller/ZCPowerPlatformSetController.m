@@ -25,8 +25,9 @@
 @property (nonatomic, assign) NSInteger totalIndex;//分包数
 @property (nonatomic, assign) NSInteger remainLength;//剩余长度
 @property (nonatomic, copy) NSString *filename;
-
 @property (nonatomic, assign) Byte *bytes;
+@property (nonatomic,assign) int disconnectFlag;//断开连接
+@property (nonatomic,strong) ZCPowerStationAlertView *updateView;
 
 @end
 
@@ -48,9 +49,12 @@
     footerView.backgroundColor = rgba(246, 246, 246, 1);
     [self setupFooterSubViews:footerView];
      
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updataBackNotice:) name:@"kUpdataBackNoticeKey" object:nil];
-    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updataBackSucNotice:) name:@"kUpdataBackNoticeKey" object:nil];
     [self downloadFileOperate];
+}
+
+- (void)updataBackSucNotice:(NSNotification *)noti {
+    self.updateView.successFlag = YES;
 }
 
 - (void)configureAlertView:(NSString *)title {
@@ -95,7 +99,7 @@
     }];
 }
 
-- (void)updataBackNotice  {
+- (void)updataBackNotice {
     self.index ++;
     [self sendSubpackageWithindex:self.index];
 }
@@ -144,15 +148,19 @@
         package = [self.subpackage substringWithRange:NSMakeRange(256*index, length)];
         NSString *filename = [ZCBluthDataTool convertStringToHexStr:self.filename];
         NSData *data = [ZCBluthDataTool sendFilePackage:self.subpackage content:package filename:filename total:self.totalIndex currentIndex:self.index bytes:self.bytes];
-        if([ZCPowerServer defaultBLEServer].selectPeripheral) {
+        if([ZCPowerServer defaultBLEServer].selectPeripheral != nil) {
             [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerServer defaultBLEServer].selectFileCharacteristic type:CBCharacteristicWriteWithResponse];
+            NSLog(@">>>%tu", self.index);
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                if(self.disconnectFlag) {
+                } else {
+                    [self updataBackNotice];
+                }
+            });
         }
-        NSLog(@">>>%tu", self.index);
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.05 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [self updataBackNotice];
-        });
     }
 }
+
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     return self.dataArr.count;
@@ -189,10 +197,11 @@
 
 - (void)updateOperate {
     ZCPowerStationAlertView *alertView = [[ZCPowerStationAlertView alloc] init];
+    self.updateView = alertView;
     [alertView showAlertView];
     kweakself(self);
     alertView.updateBlock = ^{
-        [weakself sendSubpackageWithindex:0];
+//        [weakself sendSubpackageWithindex:0];
     };
 }
 

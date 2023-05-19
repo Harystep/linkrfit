@@ -820,7 +820,7 @@
         [str appendString:[crcCcurrentStr substringWithRange:NSMakeRange(0, 2)]];
     }
         
-    [self appendWitContent:[self ToHex:length] contain:str];
+    [self appendWitContent:[self ToHex:content.length / 2] contain:str];
     
     [str appendString:content];
     
