@@ -34,6 +34,10 @@
 
 @property (nonatomic,strong) UIView *updateSuccessView;
 
+@property (nonatomic,strong) UILabel *nowVersionL;
+
+@property (nonatomic,strong) UILabel *lastVersionL;
+
 @end
 
 @implementation ZCPowerStationAlertView
@@ -101,12 +105,24 @@
         make.leading.mas_equalTo(self.baseView.mas_leading).offset(60);
         make.top.mas_equalTo(self.titleL.mas_bottom).offset(22);
     }];
+    self.nowVersionL = [self createSimpleLabelWithTitle:@"" font:12 bold:NO color:[ZCConfigColor subTxtColor]];
+    [self.baseView addSubview:self.nowVersionL];
+    [self.nowVersionL mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.mas_equalTo(currentIv.mas_centerX);
+        make.top.mas_equalTo(currentIv.mas_bottom).offset(5);
+    }];
     
     UIImageView *lasterIv = [[UIImageView alloc] initWithImage:kIMAGE(@"power_station_laster")];
     [self.baseView  addSubview:lasterIv];
     [lasterIv mas_makeConstraints:^(MASConstraintMaker *make) {
         make.trailing.mas_equalTo(self.baseView.mas_trailing).inset(60);
         make.top.mas_equalTo(self.titleL.mas_bottom).offset(22);
+    }];
+    self.lastVersionL = [self createSimpleLabelWithTitle:@"" font:12 bold:NO color:[ZCConfigColor subTxtColor]];
+    [self.baseView addSubview:self.lastVersionL];
+    [self.lastVersionL mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.mas_equalTo(lasterIv.mas_centerX);
+        make.top.mas_equalTo(lasterIv.mas_bottom).offset(5);
     }];
     
     UIImageView *centerIv = [[UIImageView alloc] initWithImage:kIMAGE(@"power_station_update_process")];
@@ -265,6 +281,20 @@
 
 - (void)deleteOperate {
     [self hideAlertView];
+}
+
+- (void)setLastVersion:(NSString *)lastVersion {
+    _lastVersion = lastVersion;
+    self.lastVersionL.text = checkSafeContent(lastVersion);
+}
+
+- (void)setNowVersion:(NSString *)nowVersion {
+    _nowVersion = nowVersion;
+    if(nowVersion.length > 1) {
+        NSString *pre = [nowVersion substringWithRange:NSMakeRange(0, 1)];
+        NSString *end = [nowVersion substringWithRange:NSMakeRange(1, nowVersion.length-1)];
+        self.nowVersionL.text = [NSString stringWithFormat:@"%@,%@", pre, end];
+    }
 }
 
 @end

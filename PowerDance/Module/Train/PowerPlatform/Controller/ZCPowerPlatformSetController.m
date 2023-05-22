@@ -27,7 +27,7 @@
 @property (nonatomic, copy) NSString *filename;
 @property (nonatomic, assign) Byte *bytes;
 @property (nonatomic,strong) ZCPowerStationAlertView *updateView;
-
+@property (nonatomic,copy) NSString *currentDeviceVersion;//当前设备版本号
 @property (nonatomic,strong) NSDictionary *f0Version;
 @property (nonatomic,copy) NSDictionary *f1Version;
 
@@ -53,13 +53,21 @@
      
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updataBackSucNotice:) name:kUpdateFileBackNoticeKey object:nil];
     
-    [self downloadFileOperate];
-    
     [self queryHardwareInfo];
     
     if([ZCPowerServer defaultBLEServer].selectPeripheral != nil) {
         [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool getDeviceVersionInfo] forCharacteristic:[ZCPowerServer defaultBLEServer].selectFileCharacteristic type:CBCharacteristicWriteWithResponse];
     }
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceParamsBack:) name:kGetDeviceBaseInfoKey object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(startUpdateBack:) name:kStartFileBackNoticeKey object:nil];
+    //
+}
+
+- (void)deviceParamsBack:(NSNotification *)noti {
+    NSString *version = noti.object;
+    self.currentDeviceVersion = [version substringWithRange:NSMakeRange(0, 2)];
 }
 
 - (void)queryHardwareInfo {    
@@ -75,11 +83,20 @@
     NSString *content = noti.object;
     dispatch_async(dispatch_get_main_queue(), ^{
         if([content isEqualToString:@"00"]) {
+            [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool setStartUpdateWithType:@"01" fileName:[ZCBluthDataTool convertStringToHexStr:self.filename]] forCharacteristic:[ZCPowerServer defaultBLEServer].selectFileCharacteristic type:CBCharacteristicWriteWithResponse];
+        } else {
+        }
+    });
+}
+
+- (void)startUpdateBack:(NSNotification *)noti {
+    NSString *content = noti.object;
+    self.index = 0;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if([content isEqualToString:@"00"] || [content isEqualToString:@"0"]) {
             self.updateView.successFlag = YES;
-//            [self.view makeToast:@"成功" duration:2.0 position:CSToastPositionCenter];
         } else {
             self.updateView.failFlag = YES;
-//            [self.view makeToast:@"失败" duration:2.0 position:CSToastPositionCenter];
         }
     });
 }
@@ -131,8 +148,8 @@
     [self sendSubpackageWithindex:self.index];
 }
 
-- (void)downloadFileOperate {
-    NSURL *url = [NSURL URLWithString:@"https://zc-tk.oss-cn-beijing.aliyuncs.com/bootloader.bin"];
+- (void)downloadFileOperate:(NSDictionary *)fileDic {
+    NSURL *url = [NSURL URLWithString:checkSafeContent(fileDic[@"url"])];
     // 创建request对象
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
     
@@ -157,7 +174,18 @@
             self.totalIndex = ceil(data.length/128.0);
             NSLog(@"%tu-%tu", self.remainLength, self.totalIndex);
             self.bytes = bytes;
-            self.filename = @"test.bin";
+            self.filename = checkSafeContent(fileDic[@"name"]);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                ZCPowerStationAlertView *alertView = [[ZCPowerStationAlertView alloc] init];
+                self.updateView = alertView;
+                [alertView showAlertView];
+                alertView.nowVersion = self.currentDeviceVersion;
+                alertView.lastVersion = checkSafeContent(self.f0Version[@"version"]);
+                kweakself(self);
+                alertView.updateBlock = ^{
+                    [weakself sendSubpackageWithindex:0];
+                };
+            });
         }
     }];
     // 创建的task都是挂起状态，需要resume才能执行
@@ -223,13 +251,14 @@
 }
 
 - (void)updateOperate {
-    ZCPowerStationAlertView *alertView = [[ZCPowerStationAlertView alloc] init];
-    self.updateView = alertView;
-    [alertView showAlertView];
-    kweakself(self);
-    alertView.updateBlock = ^{
-        [weakself sendSubpackageWithindex:0];
-    };
+    NSInteger f0Version = [checkSafeContent(self.f0Version[@"version"]) integerValue];
+    if(f0Version > [self.currentDeviceVersion integerValue]) {
+        NSArray *files = self.f0Version[@"files"];
+        NSDictionary *fileDic = files[0];
+        [self downloadFileOperate:fileDic];
+    } else {
+        [self.view makeToast:NSLocalizedString(@"当前已是最新版本", nil) duration:2.0 position:CSToastPositionCenter];
+    }
 }
 
 - (void)unitOperate {

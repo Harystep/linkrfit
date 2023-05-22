@@ -217,10 +217,6 @@ static ZCPowerServer *_defaultBTServer = nil;
 {
     if ([peripheralInfo.peripheral.name containsString:kName]) {
         NSLog(@"要连接的外设:%@",peripheralInfo.peripheral.name);
-        //连接外设
-//        NSDictionary *options = @{CBConnectPeripheralOptionNotifyOnDisconnectionKey:@YES,
-//                                  CBConnectPeripheralOptionNotifyOnNotificationKey:@YES,
-//                                CBConnectPeripheralOptionNotifyOnConnectionKey:@YES};
         [self.myCenter connectPeripheral:peripheralInfo.peripheral options:nil];
         
         self.selectPeripheral = peripheralInfo.peripheral;
@@ -514,6 +510,7 @@ static ZCPowerServer *_defaultBTServer = nil;
     } else if ([content hasPrefix:@"04020310"]) {//当前版本信息
         NSLog(@"当前版本信息:%@", content);
         NSString *value = [content substringWithRange:NSMakeRange(8, 8)];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kGetDeviceBaseInfoKey object:value];
     }  else if ([content hasPrefix:@"04020517"]) {//获取消耗卡路里
         NSLog(@"消耗卡路里:%@", content);
         NSString *value = [content substringWithRange:NSMakeRange(8, 8)];
@@ -532,6 +529,9 @@ static ZCPowerServer *_defaultBTServer = nil;
         NSString *type = [content substringWithRange:NSMakeRange(42, 2)];
         NSLog(@"file:%@", content);
         [[NSNotificationCenter defaultCenter] postNotificationName:kUpdateFileBackNoticeKey object:type];
+    } else if ([content hasPrefix:@"05020202"]) {//执行更新返回
+        NSString *type = [content substringWithRange:NSMakeRange(8, 2)];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kStartFileBackNoticeKey object:type];
     } else if ([content hasPrefix:@"0402071b"]) {
         //            NSLog(@"爆发力:%@", content);
         NSString *value = [content substringWithRange:NSMakeRange(8, 12)];

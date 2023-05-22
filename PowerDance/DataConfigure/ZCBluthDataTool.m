@@ -840,6 +840,12 @@
     [str appendString:[sizeTem substringWithRange:NSMakeRange(0, 2)]];
 }
 
++ (NSData *)setStartUpdateWithType:(NSString *)type fileName:(NSString *)name {
+    NSData *data;
+    NSMutableString *str = [NSMutableString stringWithFormat:@"%@%@%@", @"05010E02", type, name];    
+    return [self convertHexToByteData:str];
+}
+
 /* CRC 高位字节值表 */
 unsigned char auchCRCHi[256] = {
     0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0,

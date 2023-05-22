@@ -188,6 +188,13 @@ NS_ASSUME_NONNULL_BEGIN
 ///   - filename: <#filename description#>
 + (NSData *)sendFilePackage:(NSString *)package content:(NSString *)content filename:(NSString *)filename total:(NSInteger)totalIndex currentIndex:(NSInteger)currentIndex bytes:(Byte *)bytes ;
 
+/// 开始更新
+/// - Parameters:
+///   - type: <#type description#>
+///   - name: <#name description#>
++ (NSData *)setStartUpdateWithType:(NSString *)type fileName:(NSString *)name;
+
+/// 获取设备参数
 + (NSData *)getDeviceVersionInfo;
 
 /// 拉力设置 kg
