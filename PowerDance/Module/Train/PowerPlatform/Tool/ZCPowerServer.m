@@ -106,6 +106,14 @@ static ZCPowerServer *_defaultBTServer = nil;
     else if ([central state] == CBCentralManagerStatePoweredOff) {
         NSLog(@"Bluetooth处于关闭状态");
         [self showBluetoothStatus:NSLocalizedString(@"蓝牙处于关闭状态", nil)];
+        if(self.connectFlag == YES) {
+            self.connectFlag = NO;
+            if (self.delegate) {
+                if([(id)self.delegate respondsToSelector:@selector(didDisconnect)]){
+                    [self.delegate didDisconnect];
+                }
+            }
+        }
     }
     else if ([central state] == CBCentralManagerStateUnauthorized) {
         NSLog(@"Bluetooth的状态是未经授权的");
@@ -236,6 +244,7 @@ static ZCPowerServer *_defaultBTServer = nil;
 {
     if(self.myCenter && self.selectPeripheral){
         //断开方法
+        self.connectFlag = NO;
         [self.myCenter cancelPeripheralConnection:self.selectPeripheral];
     }
 }
@@ -359,6 +368,7 @@ static ZCPowerServer *_defaultBTServer = nil;
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral
 {
     connectState = KSUCCESS;
+    self.connectFlag = YES;
     if (connectBlock) {
         connectBlock(peripheral,true,nil);
         connectBlock = nil;
@@ -375,6 +385,7 @@ static ZCPowerServer *_defaultBTServer = nil;
 {
     NSLog(@"断开外设:%@",peripheral.name);
     connectState = KFAILED;
+    self.connectFlag = NO;
     if (connectBlock) {
         connectBlock(peripheral,false,nil);
         connectBlock = nil;
@@ -422,22 +433,22 @@ static ZCPowerServer *_defaultBTServer = nil;
     if (nil == error) {
         for (CBCharacteristic *ch in service.characteristics) {
             NSLog(@"UUID--->%@", [ch.UUID UUIDString]);
-            
             if ([[ch.UUID UUIDString] containsString:@"FED1"]) {
                 [peripheral setNotifyValue:YES forCharacteristic:ch];
                 [peripheral readValueForCharacteristic:ch];
                 self.selectCharacteristic = ch;
-                characteristicState = KSUCCESS;
-                self.discoveredSevice = service;
+                characteristicState = KSUCCESS;                
                 if([(id)self.delegate respondsToSelector:@selector(didConnect:)]){
                     [self.delegate didConnect:nil];
                 }
             } else if ([[ch.UUID UUIDString] containsString:@"2902"]) {//写入数据
+                
                 [peripheral setNotifyValue:YES forCharacteristic:ch];
                 [peripheral readValueForCharacteristic:ch];
             } else if ([[ch.UUID UUIDString] containsString:@"FED2"]) {//订阅写入文件服务
-                [peripheral setNotifyValue:YES forCharacteristic:ch];
+                
                 [peripheral readValueForCharacteristic:ch];
+                [peripheral setNotifyValue:YES forCharacteristic:ch];
                 self.selectFileCharacteristic = ch;
             }
         }
@@ -446,6 +457,8 @@ static ZCPowerServer *_defaultBTServer = nil;
         
     }
 }
+
+
 #pragma mark 订阅之后调用这个方法
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateNotificationStateForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
 {
@@ -464,118 +477,115 @@ static ZCPowerServer *_defaultBTServer = nil;
 #pragma mark 当设备有数据返回时会调用如下方法：
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
 {
-    if ([[characteristic.UUID UUIDString] containsString:@"FED1"]) {//
-        NSData *data = characteristic.value;
-        NSString *content = [self transformCharateristicValueFromData:data];
-//        NSLog(@"%@", content);
-        if ([content hasPrefix:@"010204"]) {//保存token
-            NSString *token = [content substringFromIndex:6];
-            NSLog(@"token:%@", token);
-            kUserStore.tokenBytes = token;
-        } else if ([content hasPrefix:@"03020320"]) {//常规模式
-            NSLog(@"常规模式:%@", content);
-        } else if ([content hasPrefix:@"03020321"]) {//离心模式
-            NSLog(@"离心模式:%@", content);
-        } else if ([content hasPrefix:@"03020321"]) {//向心模式
-            NSLog(@"向心模式:%@", content);
-        } else if ([content hasPrefix:@"03020322"]) {//等速模式
-            NSLog(@"等速模式:%@", content);
-        } else if ([content hasPrefix:@"03020323"]) {//拉力绳模式
-            NSLog(@"拉力绳模式:%@", content);
-        } else if ([content hasPrefix:@"03020324"]) {//划船机模式
-            NSLog(@"划船机模式:%@", content);
-        } else if ([content hasPrefix:@"04020211"]) {//获取当前运动模式
-            NSLog(@"当前运动模式:%@", content);
-        } else if ([content hasPrefix:@"04020515"]) {//获取实际速度
-            NSLog(@"实际速度:%@", content);
-        } else if ([content hasPrefix:@"04020516"]) {//获取实际拉力或收力
-            NSString *value = [content substringWithRange:NSMakeRange(8, 8)];
-            NSLog(@"获取实际拉力或收力:%@", value);
-            NSString *lowEnd = [value substringWithRange:NSMakeRange(0, 2)];
-            NSString *highEnd = [value substringWithRange:NSMakeRange(2, 2)];
-            NSString *lowPre = [value substringWithRange:NSMakeRange(4, 2)];
-            NSString *highPre = [value substringWithRange:NSMakeRange(6, 2)];
-            value = [NSString stringWithFormat:@"%@%@%@%@", highPre, lowPre, highEnd, lowEnd];
-            long power = [ZCBluthDataTool convertHexToDecimal:value];
-            NSLog(@"获取实际拉力或收力 value:%@g", value);
-            [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataCurrentPullValueKey object:[NSString stringWithFormat:@"%.2f", power/1000.0]];
-        } else if ([content hasPrefix:@"04020517"]) {//获取消耗卡路里
-            NSLog(@"消耗卡路里:%@", content);
-            NSString *value = [content substringWithRange:NSMakeRange(8, 8)];
-            [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataKcalValueKey object:value];
-        } else if ([content hasPrefix:@"04020518"]) {//获取训练次数
-            NSLog(@"训练次数:%@", content);
-        } else if ([content hasPrefix:@"04020501"]) {//获取设备参数
-            NSLog(@"设备参数:%@", content);
-        } else if ([content hasPrefix:@"03020303"]) {//重量单位设置
-            NSLog(@"单位设置:%@", content);
-        } else if ([content hasPrefix:@"03020302"]) {//音量设置
-            NSLog(@"音量设置:%@", content);
-        } else if ([content hasPrefix:@"03020301"]) {//语言设置
-            NSLog(@"语言设置:%@", content);
-        } else if ([content hasPrefix:@"05021301"]) {//上传文件返回结果
-            NSString *type = [content substringWithRange:NSMakeRange(8, 2)];
-            NSLog(@"file:%@", content);
-            if([type isEqualToString:@"00"] || [type isEqualToString:@"0"]) {//成功
-                [[NSNotificationCenter defaultCenter] postNotificationName:kUpdateFileBackNoticeKey object:nil];
-            } else {//失败
-                
-            }
-        } else if ([content hasPrefix:@"0402071b"]) {
-            //            NSLog(@"爆发力:%@", content);
-            NSString *value = [content substringWithRange:NSMakeRange(8, 12)];
-            NSLog(@"爆发力：%@", value);
-            NSString *left = [value substringWithRange:NSMakeRange(0, 6)];
-            NSString *right = [value substringWithRange:NSMakeRange(6, 6)];
-            NSString *leftStatus = [left substringWithRange:NSMakeRange(0, 2)];
-            NSString *rightStatus = [right substringWithRange:NSMakeRange(0, 2)];
-            NSString *contentLeft = [left substringWithRange:NSMakeRange(2, 4)];
-            NSString *contentRight = [left substringWithRange:NSMakeRange(2, 4)];
-            contentLeft = [self convert4HexTransData:contentLeft];
-            contentRight = [self convert4HexTransData:contentRight];
-            if([leftStatus isEqualToString:@"01"] && [rightStatus isEqualToString:@"01"]) {
-                long pullLeft = [ZCBluthDataTool convertHexToDecimal:contentLeft];
-                long pullRight = [ZCBluthDataTool convertHexToDecimal:contentRight];
-                double agv = (pullLeft + pullRight) / 2.0;
-                value = [NSString stringWithFormat:@"%.2f", agv/100.0];
-            } else if([leftStatus isEqualToString:@"01"] && [rightStatus isEqualToString:@"00"]) {
-                long pullLeft = [ZCBluthDataTool convertHexToDecimal:contentLeft];
-                value = [NSString stringWithFormat:@"%.2f", pullLeft/100.0];
-            } else if([leftStatus isEqualToString:@"00"] && [rightStatus isEqualToString:@"01"]) {
-                long pullRight = [ZCBluthDataTool convertHexToDecimal:contentRight];
-                value = [NSString stringWithFormat:@"%.2f", pullRight/100.0];
-            } else {
-                value = @"0.0";
-            }
-            [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataPowerValueKey object:value];
-            NSLog(@"爆发力 value：%@", value);
-        } else if ([content hasPrefix:@"04020612"]){//当前模式设置值
-            NSString *value = [content substringWithRange:NSMakeRange(10, 4)];
-            [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataCurrentModeValueKey object:value];
-        } else if ([content hasPrefix:@"04020b1a"]) {
-            NSLog(@"位置：%@", content);
-            NSString *value = [content substringWithRange:NSMakeRange(8, 20)];
-            NSString *left = [value substringWithRange:NSMakeRange(0, 10)];
-            NSString *right = [value substringWithRange:NSMakeRange(10, 10)];
-            NSString *leftStatus = [left substringWithRange:NSMakeRange(0, 2)];
-            NSString *rightStatus = [right substringWithRange:NSMakeRange(0, 2)];
-            NSString *contentLeft = [left substringWithRange:NSMakeRange(2, 8)];
-            NSString *contentRight = [left substringWithRange:NSMakeRange(2, 8)];
-            NSString *leftValue = @"0";
-            NSString *rightValue =  @"0";
-            if ([leftStatus isEqualToString:@"01"] && [rightStatus isEqualToString:@"01"]) {
-                leftValue = [NSString stringWithFormat:@"%.1f", [ZCBluthDataTool convertHexToDecimal:[self convert8HexTransData:contentLeft]]/1000.0];
-                rightValue = [NSString stringWithFormat:@"%.1f", [ZCBluthDataTool convertHexToDecimal:[self convert8HexTransData:contentRight]]/1000.0];
-                [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataLocalValueKey object:@{@"left":leftValue, @"right":rightValue}];
-            } else if([leftStatus isEqualToString:@"01"] && [rightStatus isEqualToString:@"00"]) {
-                leftValue = [NSString stringWithFormat:@"%.1f", [ZCBluthDataTool convertHexToDecimal:[self convert8HexTransData:contentLeft]]/1000.0];
-                [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataLocalValueKey object:@{@"left":leftValue, @"right":rightValue}];
-            } else if([leftStatus isEqualToString:@"00"] && [rightStatus isEqualToString:@"01"]) {
-                rightValue = [NSString stringWithFormat:@"%.1f", [ZCBluthDataTool convertHexToDecimal:[self convert8HexTransData:contentRight]]/1000.0];
-                [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataLocalValueKey object:@{@"left":leftValue, @"right":rightValue}];
-            }
-            NSLog(@"left:%@ right:%@", leftValue, rightValue);
+    NSData *data = characteristic.value;
+    NSString *content = [self transformCharateristicValueFromData:data];
+    //        NSLog(@"%@", content);
+    if ([content hasPrefix:@"010204"]) {//保存token
+        NSString *token = [content substringFromIndex:6];
+        NSLog(@"token:%@", token);
+        kUserStore.tokenBytes = token;
+    } else if ([content hasPrefix:@"03020320"]) {//常规模式
+        NSLog(@"常规模式:%@", content);
+    } else if ([content hasPrefix:@"03020321"]) {//离心模式
+        NSLog(@"离心模式:%@", content);
+    } else if ([content hasPrefix:@"03020321"]) {//向心模式
+        NSLog(@"向心模式:%@", content);
+    } else if ([content hasPrefix:@"03020322"]) {//等速模式
+        NSLog(@"等速模式:%@", content);
+    } else if ([content hasPrefix:@"03020323"]) {//拉力绳模式
+        NSLog(@"拉力绳模式:%@", content);
+    } else if ([content hasPrefix:@"03020324"]) {//划船机模式
+        NSLog(@"划船机模式:%@", content);
+    } else if ([content hasPrefix:@"04020211"]) {//获取当前运动模式
+        NSLog(@"当前运动模式:%@", content);
+    } else if ([content hasPrefix:@"04020515"]) {//获取实际速度
+        NSLog(@"实际速度:%@", content);
+    } else if ([content hasPrefix:@"04020516"]) {//获取实际拉力或收力
+        NSString *value = [content substringWithRange:NSMakeRange(8, 8)];
+        NSLog(@"获取实际拉力或收力:%@", value);
+        NSString *lowEnd = [value substringWithRange:NSMakeRange(0, 2)];
+        NSString *highEnd = [value substringWithRange:NSMakeRange(2, 2)];
+        NSString *lowPre = [value substringWithRange:NSMakeRange(4, 2)];
+        NSString *highPre = [value substringWithRange:NSMakeRange(6, 2)];
+        value = [NSString stringWithFormat:@"%@%@%@%@", highPre, lowPre, highEnd, lowEnd];
+        long power = [ZCBluthDataTool convertHexToDecimal:value];
+        NSLog(@"获取实际拉力或收力 value:%@g", value);
+        [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataCurrentPullValueKey object:[NSString stringWithFormat:@"%.2f", power/1000.0]];
+    } else if ([content hasPrefix:@"04020310"]) {//当前版本信息
+        NSLog(@"当前版本信息:%@", content);
+        NSString *value = [content substringWithRange:NSMakeRange(8, 8)];
+    }  else if ([content hasPrefix:@"04020517"]) {//获取消耗卡路里
+        NSLog(@"消耗卡路里:%@", content);
+        NSString *value = [content substringWithRange:NSMakeRange(8, 8)];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataKcalValueKey object:value];
+    } else if ([content hasPrefix:@"04020518"]) {//获取训练次数
+        NSLog(@"训练次数:%@", content);
+    } else if ([content hasPrefix:@"04020501"]) {//获取设备参数
+        NSLog(@"设备参数:%@", content);
+    } else if ([content hasPrefix:@"03020303"]) {//重量单位设置
+        NSLog(@"单位设置:%@", content);
+    } else if ([content hasPrefix:@"03020302"]) {//音量设置
+        NSLog(@"音量设置:%@", content);
+    } else if ([content hasPrefix:@"03020301"]) {//语言设置
+        NSLog(@"语言设置:%@", content);
+    } else if ([content hasPrefix:@"05021301"]) {//上传文件返回结果
+        NSString *type = [content substringWithRange:NSMakeRange(42, 2)];
+        NSLog(@"file:%@", content);
+        [[NSNotificationCenter defaultCenter] postNotificationName:kUpdateFileBackNoticeKey object:type];
+    } else if ([content hasPrefix:@"0402071b"]) {
+        //            NSLog(@"爆发力:%@", content);
+        NSString *value = [content substringWithRange:NSMakeRange(8, 12)];
+        NSLog(@"爆发力：%@", value);
+        NSString *left = [value substringWithRange:NSMakeRange(0, 6)];
+        NSString *right = [value substringWithRange:NSMakeRange(6, 6)];
+        NSString *leftStatus = [left substringWithRange:NSMakeRange(0, 2)];
+        NSString *rightStatus = [right substringWithRange:NSMakeRange(0, 2)];
+        NSString *contentLeft = [left substringWithRange:NSMakeRange(2, 4)];
+        NSString *contentRight = [left substringWithRange:NSMakeRange(2, 4)];
+        contentLeft = [self convert4HexTransData:contentLeft];
+        contentRight = [self convert4HexTransData:contentRight];
+        if([leftStatus isEqualToString:@"01"] && [rightStatus isEqualToString:@"01"]) {
+            long pullLeft = [ZCBluthDataTool convertHexToDecimal:contentLeft];
+            long pullRight = [ZCBluthDataTool convertHexToDecimal:contentRight];
+            double agv = (pullLeft + pullRight) / 2.0;
+            value = [NSString stringWithFormat:@"%.2f", agv/100.0];
+        } else if([leftStatus isEqualToString:@"01"] && [rightStatus isEqualToString:@"00"]) {
+            long pullLeft = [ZCBluthDataTool convertHexToDecimal:contentLeft];
+            value = [NSString stringWithFormat:@"%.2f", pullLeft/100.0];
+        } else if([leftStatus isEqualToString:@"00"] && [rightStatus isEqualToString:@"01"]) {
+            long pullRight = [ZCBluthDataTool convertHexToDecimal:contentRight];
+            value = [NSString stringWithFormat:@"%.2f", pullRight/100.0];
+        } else {
+            value = @"0.0";
         }
+        [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataPowerValueKey object:value];
+        NSLog(@"爆发力 value：%@", value);
+    } else if ([content hasPrefix:@"04020612"]){//当前模式设置值
+        NSString *value = [content substringWithRange:NSMakeRange(10, 4)];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataCurrentModeValueKey object:value];
+    } else if ([content hasPrefix:@"04020b1a"]) {
+        NSLog(@"位置：%@", content);
+        NSString *value = [content substringWithRange:NSMakeRange(8, 20)];
+        NSString *left = [value substringWithRange:NSMakeRange(0, 10)];
+        NSString *right = [value substringWithRange:NSMakeRange(10, 10)];
+        NSString *leftStatus = [left substringWithRange:NSMakeRange(0, 2)];
+        NSString *rightStatus = [right substringWithRange:NSMakeRange(0, 2)];
+        NSString *contentLeft = [left substringWithRange:NSMakeRange(2, 8)];
+        NSString *contentRight = [left substringWithRange:NSMakeRange(2, 8)];
+        NSString *leftValue = @"0";
+        NSString *rightValue =  @"0";
+        if ([leftStatus isEqualToString:@"01"] && [rightStatus isEqualToString:@"01"]) {
+            leftValue = [NSString stringWithFormat:@"%.1f", [ZCBluthDataTool convertHexToDecimal:[self convert8HexTransData:contentLeft]]/10.0];
+            rightValue = [NSString stringWithFormat:@"%.1f", [ZCBluthDataTool convertHexToDecimal:[self convert8HexTransData:contentRight]]/10.0];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataLocalValueKey object:@{@"left":leftValue, @"right":rightValue}];
+        } else if([leftStatus isEqualToString:@"01"] && [rightStatus isEqualToString:@"00"]) {
+            leftValue = [NSString stringWithFormat:@"%.1f", [ZCBluthDataTool convertHexToDecimal:[self convert8HexTransData:contentLeft]]/10.0];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataLocalValueKey object:@{@"left":leftValue, @"right":rightValue}];
+        } else if([leftStatus isEqualToString:@"00"] && [rightStatus isEqualToString:@"01"]) {
+            rightValue = [NSString stringWithFormat:@"%.1f", [ZCBluthDataTool convertHexToDecimal:[self convert8HexTransData:contentRight]]/10.0];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataLocalValueKey object:@{@"left":leftValue, @"right":rightValue}];
+        }
+        NSLog(@"left:%@ right:%@", leftValue, rightValue);
     }
     //00002
     if (error){

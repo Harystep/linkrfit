@@ -6,8 +6,6 @@
 //
 
 #import "ZCCourseEquipmentFilterView.h"
-#import "Masonry.h"
-#import "ZCSportGroupModel.h"
 
 #pragma mark - 小格子
 @interface ZCContentLabel : UILabel

@@ -295,7 +295,11 @@
                 [weakself saveUserInfoWithData:@{@"weight":weight}];
             };
         }
-    } else {
+    } else if ([jumpCode isEqualToString:@"pp1"]) {
+        [HCRouter router:@"PowerSingleType" params:dic viewController:self animated:YES];
+    } else if ([jumpCode isEqualToString:@"pp2"]) {
+        [HCRouter router:@"PowerPlatform" params:dic viewController:self animated:YES];
+    } else if([jumpCode isEqualToString:@"scale"]) {
         //scale
         if ([ZCDataTool getSignHasInputUserInfo]) {
             [HCRouter router:@"SmartCloud" params:dic viewController:self animated:YES];

@@ -51,7 +51,7 @@ typedef enum{
 +(ZCPowerServer *)defaultBLEServer;
 
 @property(weak, nonatomic) id<BLEPowerServerDelegate> delegate;
-
+@property (nonatomic,assign) BOOL connectFlag;//标记是否连接
 @property (strong,nonatomic)NSMutableArray *discoveredPeripherals; //发现的外设数组
 @property (strong,nonatomic)CBPeripheral* selectPeripheral; //选中的外设
 @property (strong,nonatomic)CBService* discoveredSevice; //发现的服务

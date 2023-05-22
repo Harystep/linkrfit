@@ -6,6 +6,9 @@
 //
 
 #import "ZCPowerStationAlertView.h"
+#import "FLAnimatedImageView+WebCache.h"
+
+#define kTestFlag NO
 
 @interface ZCPowerStationAlertView ()
 
@@ -19,7 +22,7 @@
 
 @property (nonatomic,strong) UIView *baseView;//基本信息视图
 
-@property (nonatomic,strong) UIImageView *updateIv;//更新视图
+@property (nonatomic,strong) FLAnimatedImageView *updateIv;//更新视图
 
 @property (nonatomic,strong) UIButton *deleteBtn;
 
@@ -113,7 +116,7 @@
         make.centerX.mas_equalTo(self.baseView.mas_centerX);
     }];
     
-    self.updateIv = [[UIImageView alloc] init];
+    self.updateIv = [[FLAnimatedImageView alloc] init];
     [contentView addSubview:self.updateIv];
     [self.updateIv mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.mas_equalTo(contentView.mas_centerX);
@@ -122,6 +125,14 @@
         make.width.mas_equalTo(133);
     }];
     self.updateIv.hidden = YES;
+    if(kTestFlag) {
+        UILabel *contentL = [self createSimpleLabelWithTitle:@"正在加载····" font:12 bold:NO color:[ZCConfigColor subTxtColor]];
+        [self.updateIv addSubview:contentL];
+        [contentL mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerX.mas_equalTo(self.updateIv.mas_centerX);
+            make.centerY.mas_equalTo(self.updateIv.mas_centerY);
+        }];
+    }
     
     UIButton *sure = [self createSimpleButtonWithTitle:NSLocalizedString(@"立即升级", nil) font:14 color:[ZCConfigColor whiteColor]];
     [self.contentView  addSubview:sure];
@@ -146,11 +157,15 @@
     }];
     [self.deleteBtn addTarget:self action:@selector(deleteOperate) forControlEvents:UIControlEventTouchUpInside];
     
-    NSString *path = [[NSBundle mainBundle] pathForResource:@"power_update" ofType:@"gif"];
-    self.gifData = [NSData dataWithContentsOfFile:path];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        self.updateIv.image = [UIImage sd_imageWithGIFData:self.gifData];
-    });
+    if(kTestFlag) {
+    } else {
+        NSString *path = [[NSBundle mainBundle] pathForResource:@"power_update" ofType:@"gif"];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.gifData = [NSData dataWithContentsOfFile:path];
+            FLAnimatedImage *image = [FLAnimatedImage animatedImageWithGIFData:self.gifData];
+            self.updateIv.animatedImage = image;
+        });
+    }
 }
 
 - (void)setFailFlag:(NSInteger)failFlag {
@@ -243,12 +258,6 @@
     self.baseView.hidden = YES;
     self.faiView.hidden = YES;
     self.operateBtn.hidden = YES;
-//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-//        [self createFailViewSubviews];
-//        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-//            [self createSuccessViewSubviews];
-//        });
-//    });
     if(self.updateBlock) {
         self.updateBlock();
     }

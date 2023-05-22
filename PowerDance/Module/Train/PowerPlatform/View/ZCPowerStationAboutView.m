@@ -31,8 +31,6 @@
 
 @property (nonatomic,strong) UIView *updateSuccessView;
 
-@property (nonatomic,strong) UILabel *systemL;//系统版本
-@property (nonatomic,strong) UILabel *driveL;//序列号
 @property (nonatomic,strong) UILabel *numL;//序列号
 @property (nonatomic,strong) UILabel *descL;
 

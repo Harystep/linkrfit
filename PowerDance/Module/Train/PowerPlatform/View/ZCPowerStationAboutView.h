@@ -11,6 +11,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ZCPowerStationAboutView : UIView
 
+@property (nonatomic,strong) UILabel *systemL;//系统版本
+@property (nonatomic,strong) UILabel *driveL;//序列号
+
 - (void)showAlertView;
 
 @end

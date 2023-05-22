@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 //查询器械分类
 + (void)queryEquipmentCategoryInfo:(NSDictionary *)parms completeHandler:(void (^)(id responseObj))completerHandler;
 /// 查询器械分类相关列表
-/// @param parms <#parms description#>
+/// @param parms parms description
 /// @param completerHandler <#completerHandler description#>
 + (void)queryEquipmentListInfo:(NSDictionary *)parms completeHandler:(void (^)(id responseObj))completerHandler;
 
@@ -135,6 +135,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param params <#params description#>
 /// @param completerHandler <#completerHandler description#>
 + (void)queryTrainClassFromTimeURL:(NSDictionary *)params completeHandler:(void (^)(id responseObj))completerHandler;
+
+/// 获取硬件版本信息
+/// @param params <#params description#>
+/// @param completerHandler <#completerHandler description#>
++ (void)queryHardwareVersionInfoURL:(NSDictionary *)params completeHandler:(void (^)(id responseObj))completerHandler;
 
 @end
 

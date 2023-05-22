@@ -52,6 +52,8 @@
 
 #define kQueryTrainClassFromTimeURL @"user/record/list"//根据时间查询训练课程
 
+#define kQueryHardwareVersionInfoURL @"version/hardware"///获取当前硬件版本信息
+
 @implementation ZCTrainManage
 
 + (void)queryEquipmentCategoryInfo:(NSDictionary *)parms completeHandler:(void (^)(id responseObj))completerHandler {
@@ -332,6 +334,15 @@
 //
 + (void)queryTrainClassFromTimeURL:(NSDictionary *)params completeHandler:(void (^)(id responseObj))completerHandler {
     [[ZCNetwork shareInstance] request_postWithApi:kQueryTrainClassFromTimeURL params:params isNeedSVP:NO success:^(id  _Nullable responseObj) {
+        completerHandler(responseObj);
+    } failed:^(id  _Nullable data) {
+        
+    }];
+}
+
+//
++ (void)queryHardwareVersionInfoURL:(NSDictionary *)params completeHandler:(void (^)(id responseObj))completerHandler {
+    [[ZCNetwork shareInstance] request_getWithApi:kQueryHardwareVersionInfoURL params:@{} isNeedSVP:NO success:^(id  _Nullable responseObj) {
         completerHandler(responseObj);
     } failed:^(id  _Nullable data) {
         

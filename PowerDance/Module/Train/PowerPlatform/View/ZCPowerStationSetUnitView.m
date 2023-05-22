@@ -104,14 +104,7 @@
     if (self.setDeviceUnitBlock) {
         self.setDeviceUnitBlock([NSString stringWithFormat:@"%tu", sender.tag]);
     }
-    NSData *data;
-    if(sender.tag == 1) {
-        Byte bytes[] = {0x02};
-        data = [ZCBluthDataTool sendSetDeviceUnitOrder:bytes];
-    } else {
-        Byte bytes[] = {0x01};
-        data = [ZCBluthDataTool sendSetDeviceUnitOrder:bytes];
-    }    
+        
 }
 
 - (void)showAlertView {

@@ -620,7 +620,6 @@
         range.location += range.length;
         range.length = 2;
     }
-  
     return hexData;
 }
 
@@ -739,35 +738,40 @@
 }
 
 //语言设置
-+ (NSData *)sendSetDeviceLanguageOrder:(Byte *)byte {
++ (NSData *)sendSetDeviceLanguageOrder:(NSString *)byte {
     Byte bytes[] = {0x03, 0x01, 0x02, 0x01};
     NSMutableString *temStr = [NSMutableString string];
     for (int i = 0; i < 4; i ++) {
         [temStr appendFormat:@"%02x", bytes[i]];
     }
-    [temStr appendFormat:@"%02x", byte[0]];
+    [temStr appendFormat:@"%@", byte];
+    return [self convertHexToByteData:temStr];
+}
+
++ (NSData *)getDeviceVersionInfo {
+    NSMutableString *temStr = [NSMutableString stringWithString:@"04010110"];
     return [self convertHexToByteData:temStr];
 }
 
 //音量设置
-+ (NSData *)sendSetDeviceVoiceOrder:(Byte *)byte {
++ (NSData *)sendSetDeviceVoiceOrder:(NSString *)byte {
     Byte bytes[] = {0x03, 0x01, 0x02, 0x02};
     NSMutableString *temStr = [NSMutableString string];
     for (int i = 0; i < 4; i ++) {
         [temStr appendFormat:@"%02x", bytes[i]];
     }
-    [temStr appendFormat:@"%02x", byte[0]];
+    [temStr appendFormat:@"%@", byte];
     return [self convertHexToByteData:temStr];
 }
 
 //重量单位设置
-+ (NSData *)sendSetDeviceUnitOrder:(Byte *)byte {
++ (NSData *)sendSetDeviceUnitOrder:(NSString *)byte {
     Byte bytes[] = {0x03, 0x01, 0x02, 0x03};
     NSMutableString *temStr = [NSMutableString string];
     for (int i = 0; i < 4; i ++) {
         [temStr appendFormat:@"%02x", bytes[i]];
     }
-    [temStr appendFormat:@"%02x", byte[0]];
+    [temStr appendFormat:@"%@", byte];
     return [self convertHexToByteData:temStr];
 }
 
@@ -800,30 +804,29 @@
     unsigned short rc = 0;
     rc = GetCRC16(bytes, package.length/2, 0xFFFF);
     NSString *crcStr = [self ToHex:rc];
-    if(crcStr.length == 4) {
-        [str appendString:[crcStr substringWithRange:NSMakeRange(2, 2)]];
-        [str appendString:[crcStr substringWithRange:NSMakeRange(0, 2)]];
-    }
+    [self appendWitContent:crcStr contain:str];
+//    if(crcStr.length == 4) {
+//        [str appendString:[crcStr substringWithRange:NSMakeRange(2, 2)]];
+//        [str appendString:[crcStr substringWithRange:NSMakeRange(0, 2)]];
+//    }
     
     [self appendWitContent:[self ToHex:totalIndex] contain:str];
     [self appendWitContent:[self ToHex:currentIndex] contain:str];
     
     //当前包crc16
     NSData *temData = [ZCBluthDataTool convertHexStrToData:content];
-    NSLog(@"temData:%@", temData);
     Byte *temBytes = (Byte *)[temData bytes];
     unsigned short rc1 = 0;
     rc1 = GetCRC16(temBytes, temData.length, 0xFFFF);
     NSString *crcCcurrentStr = [self ToHex:rc1];
-    if(crcCcurrentStr.length == 4) {
-        [str appendString:[crcCcurrentStr substringWithRange:NSMakeRange(2, 2)]];
-        [str appendString:[crcCcurrentStr substringWithRange:NSMakeRange(0, 2)]];
-    }
-        
+    [self appendWitContent:crcCcurrentStr contain:str];
+//    if(crcCcurrentStr.length == 4) {
+//        [str appendString:[crcCcurrentStr substringWithRange:NSMakeRange(2, 2)]];
+//        [str appendString:[crcCcurrentStr substringWithRange:NSMakeRange(0, 2)]];
+//    }
     [self appendWitContent:[self ToHex:content.length / 2] contain:str];
-    
     [str appendString:content];
-    
+    NSLog(@"content:%@", str);
     return [self convertHexToByteData:str];
 }
 

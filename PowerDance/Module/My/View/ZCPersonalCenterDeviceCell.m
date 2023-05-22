@@ -117,7 +117,11 @@
         [HCRouter router:@"SmartRuler" params:dic viewController:self.superViewController animated:YES];
     } else if ([jumpCode isEqualToString:@"timer"]) {
         [HCRouter router:@"SmartTimer" params:dic viewController:self.superViewController animated:YES];
-    } else if ([jumpCode isEqualToString:@"suit"]) {
+    } else if ([jumpCode isEqualToString:@"pp1"]) {
+        [HCRouter router:@"PowerSingleType" params:dic viewController:self.superViewController animated:YES];
+    } else if ([jumpCode isEqualToString:@"pp2"]) {
+        [HCRouter router:@"PowerPlatform" params:dic viewController:self.superViewController animated:YES];
+    } else if([jumpCode isEqualToString:@"scale"]) {
 //        [HCRouter router:@"FamilySuit" params:dic viewController:self.superViewController animated:YES];
         NSDictionary *dataDic = kUserStore.userData;
         if ([checkSafeContent(dataDic[@"weight"]) doubleValue] > 0.0) {

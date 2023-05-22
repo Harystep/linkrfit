@@ -17,5 +17,7 @@ target 'PowerDance' do
     pod 'AlipaySDK-iOS'
     pod 'SocketRocket'
     pod 'lottie-ios', '~> 2.5.0'
+#    pod 'FLAnimatedImage', '~> 1.0'
+#    pod 'SDWebImage/GIF'
     
 end

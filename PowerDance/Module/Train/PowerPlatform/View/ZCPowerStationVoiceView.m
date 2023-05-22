@@ -139,12 +139,10 @@
 
 - (void)sliderOperate {
     NSString *numStr = [NSString stringWithFormat:@"%.f", self.sliderView.value];
-    NSString *hexStr = [NSString stringWithFormat:@"%@", [[NSString alloc] initWithFormat:@"%02lx", (long)[numStr integerValue]]];
-    self.voice = hexStr;
+//    NSString *hexStr = [NSString stringWithFormat:@"%@", [[NSString alloc] initWithFormat:@"%02lx", (long)[numStr integerValue]]];
+    NSString *hexStr = [ZCBluthDataTool ToHex:[numStr integerValue]];
     NSLog(@"%@", hexStr);
-    NSData *temData = [ZCBluthDataTool convertHexStrToData:hexStr];
-    NSLog(@"temData:%@", temData);
-    Byte *temBytes = (Byte *)[temData bytes];
+    self.voice = hexStr;
 }
 
 //将NSString转换成十六进制的字符串则可使用如下方式:
@@ -192,9 +190,7 @@
     if (self.setDeviceVoiceBlock) {        
         self.setDeviceVoiceBlock(self.voice);
     }
-    NSData *temData = [ZCBluthDataTool convertHexStrToData:self.voice];
-    Byte *temBytes = (Byte *)[temData bytes];
-    NSData *data = [ZCBluthDataTool sendSetDeviceVoiceOrder:temBytes];
+    
 }
 
 @end

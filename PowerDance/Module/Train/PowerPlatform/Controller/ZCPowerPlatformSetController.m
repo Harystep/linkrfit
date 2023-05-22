@@ -26,8 +26,10 @@
 @property (nonatomic, assign) NSInteger remainLength;//剩余长度
 @property (nonatomic, copy) NSString *filename;
 @property (nonatomic, assign) Byte *bytes;
-@property (nonatomic,assign) int disconnectFlag;//断开连接
 @property (nonatomic,strong) ZCPowerStationAlertView *updateView;
+
+@property (nonatomic,strong) NSDictionary *f0Version;
+@property (nonatomic,copy) NSDictionary *f1Version;
 
 @end
 
@@ -49,12 +51,37 @@
     footerView.backgroundColor = rgba(246, 246, 246, 1);
     [self setupFooterSubViews:footerView];
      
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updataBackSucNotice:) name:@"kUpdataBackNoticeKey" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updataBackSucNotice:) name:kUpdateFileBackNoticeKey object:nil];
+    
     [self downloadFileOperate];
+    
+    [self queryHardwareInfo];
+    
+    if([ZCPowerServer defaultBLEServer].selectPeripheral != nil) {
+        [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool getDeviceVersionInfo] forCharacteristic:[ZCPowerServer defaultBLEServer].selectFileCharacteristic type:CBCharacteristicWriteWithResponse];
+    }
+}
+
+- (void)queryHardwareInfo {    
+    [ZCTrainManage queryHardwareVersionInfoURL:@{} completeHandler:^(id  _Nonnull responseObj) {
+        NSLog(@"hardwareInfo%@", responseObj);
+        NSDictionary *fileDic = responseObj[@"data"];
+        self.f0Version = responseObj[@"f01"];
+        self.f1Version = responseObj[@"f02"];
+    }];
 }
 
 - (void)updataBackSucNotice:(NSNotification *)noti {
-    self.updateView.successFlag = YES;
+    NSString *content = noti.object;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if([content isEqualToString:@"00"]) {
+            self.updateView.successFlag = YES;
+//            [self.view makeToast:@"成功" duration:2.0 position:CSToastPositionCenter];
+        } else {
+            self.updateView.failFlag = YES;
+//            [self.view makeToast:@"失败" duration:2.0 position:CSToastPositionCenter];
+        }
+    });
 }
 
 - (void)configureAlertView:(NSString *)title {
@@ -131,7 +158,6 @@
             NSLog(@"%tu-%tu", self.remainLength, self.totalIndex);
             self.bytes = bytes;
             self.filename = @"test.bin";
-//            [ZCBluthDataTool sendFilePackage:self.subpackage content:[self.subpackage substringWithRange:NSMakeRange(0, 256)] filename:[ZCBluthDataTool convertStringToHexStr:@"test.bin"] total:self.totalIndex currentIndex:0 bytes:self.bytes];
         }
     }];
     // 创建的task都是挂起状态，需要resume才能执行
@@ -143,19 +169,16 @@
     if(self.index < self.totalIndex) {
         NSInteger length = 256;
         if(self.index == self.totalIndex-1) {
-            length = self.remainLength;
+            length = self.remainLength*2;
         }
         package = [self.subpackage substringWithRange:NSMakeRange(256*index, length)];
         NSString *filename = [ZCBluthDataTool convertStringToHexStr:self.filename];
-        NSData *data = [ZCBluthDataTool sendFilePackage:self.subpackage content:package filename:filename total:self.totalIndex currentIndex:self.index bytes:self.bytes];
         if([ZCPowerServer defaultBLEServer].selectPeripheral != nil) {
+            NSData *data = [ZCBluthDataTool sendFilePackage:self.subpackage content:package filename:filename total:self.totalIndex currentIndex:self.index bytes:self.bytes];
             [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerServer defaultBLEServer].selectFileCharacteristic type:CBCharacteristicWriteWithResponse];
             NSLog(@">>>%tu", self.index);
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                if(self.disconnectFlag) {
-                } else {
-                    [self updataBackNotice];
-                }
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.03 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [self updataBackNotice];
             });
         }
     }
@@ -173,25 +196,29 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    switch (indexPath.row) {
-        case 0:
-            [self updateOperate];
-            break;
-            
-        case 1:
-            [self voiceOperate];
-            break;
-            
-        case 2:
-            [self languageOperate];
-            break;
-            
-        case 3:
-            [self unitOperate];
-            break;
-            
-        default:
-            break;
+    if([ZCPowerServer defaultBLEServer].connectFlag) {
+        switch (indexPath.row) {
+            case 0:
+                [self updateOperate];
+                break;
+                
+            case 1:
+                [self voiceOperate];
+                break;
+                
+            case 2:
+                [self languageOperate];
+                break;
+                
+            case 3:
+                [self unitOperate];
+                break;
+                
+            default:
+                break;
+        }
+    } else {
+        [self.view makeToast:NSLocalizedString(@"断开连接", nil) duration:2.0 position:CSToastPositionCenter];
     }
 }
 
@@ -201,28 +228,66 @@
     [alertView showAlertView];
     kweakself(self);
     alertView.updateBlock = ^{
-//        [weakself sendSubpackageWithindex:0];
+        [weakself sendSubpackageWithindex:0];
     };
 }
 
 - (void)unitOperate {
     ZCPowerStationSetUnitView *alertView = [[ZCPowerStationSetUnitView alloc] init];
     [alertView showAlertView];
+    kweakself(self);
+    alertView.setDeviceUnitBlock = ^(NSString * _Nonnull type) {
+        NSData *data;
+        if([type integerValue] == 1) {            
+            data = [ZCBluthDataTool sendSetDeviceUnitOrder:@"02"];
+        } else {
+            data = [ZCBluthDataTool sendSetDeviceUnitOrder:@"01"];
+        }
+        [weakself setDeviceData:data];
+    };
 }
 
 - (void)languageOperate {
     ZCPowerStationSetLanguageView *alertView = [[ZCPowerStationSetLanguageView alloc] init];
     [alertView showAlertView];
+    kweakself(self);
+    alertView.setDeviceLanguageBlock = ^(NSString * _Nonnull type) {
+        NSData *data;
+        if([type integerValue] == 1) {
+            data = [ZCBluthDataTool sendSetDeviceUnitOrder:@"02"];
+        } else if ([type integerValue] == 2) {
+            data = [ZCBluthDataTool sendSetDeviceUnitOrder:@"03"];
+        } else {
+            data = [ZCBluthDataTool sendSetDeviceUnitOrder:@"01"];
+        }
+        [weakself setDeviceData:data];
+    };
 }
 
 - (void)aboutOperate {
     ZCPowerStationAboutView *alertView = [[ZCPowerStationAboutView alloc] init];
     [alertView showAlertView];
+//    alertView.systemL.text = self.f0Version[@"version"];
+//    alertView.driveL.text = self.f1Version[@"version"];
 }
 
 - (void)voiceOperate {
     ZCPowerStationVoiceView *alertView = [[ZCPowerStationVoiceView alloc] init];
     [alertView showAlertView];
+    kweakself(self);
+    alertView.setDeviceVoiceBlock = ^(NSString * _Nonnull type) {
+        NSData *data = [ZCBluthDataTool sendSetDeviceVoiceOrder:type];
+        [weakself setDeviceData:data];
+    };
+}
+
+- (void)setDeviceData:(NSData *)data {
+    if([ZCPowerServer defaultBLEServer].connectFlag) {
+        [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
+    } else {
+        [self.view makeToast:NSLocalizedString(@"断开连接", nil) duration:2.0 position:CSToastPositionCenter];
+    }
+        
 }
 
 - (UITableView *)tableView {

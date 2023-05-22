@@ -313,7 +313,7 @@
     if([eventName isEqualToString:@"start"]) {
         [self touchesView];
         data = [ZCBluthDataTool sendStartStationOperate];
-        if(self.defaultBLEServer.selectPeripheral) {
+        if(self.defaultBLEServer.connectFlag) {
             [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
             block(@"");
             if(_timer == nil) {
@@ -328,13 +328,13 @@
     } else if ([eventName isEqualToString:@"stop"]) {
         self.signTimerFlag = YES;
         data = [ZCBluthDataTool sendStopStationOperate];
-        if(self.defaultBLEServer.selectPeripheral) {
+        if(self.defaultBLEServer.connectFlag) {
             [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
             block(@"");
             [self pauseTimer];
         }
     } else if ([eventName isEqualToString:@"mode"]) {
-        if(self.defaultBLEServer.selectPeripheral) {
+        if(self.defaultBLEServer.connectFlag) {
             NSData *data;
             self.mode = [userInfo[@"index"] integerValue];
             switch ([userInfo[@"index"] integerValue]) {
@@ -440,7 +440,7 @@
 - (void)didDisconnect {
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.statusL.text = NSLocalizedString(@"断开连接", nil);        
+        self.statusL.text = NSLocalizedString(@"断开连接", nil);
     });
 }
 
@@ -456,7 +456,7 @@
 }
 
 - (void)configureOperate {
-    [HCRouter router:@"PowerPlatformSet" params:@{} viewController:self animated:YES];
+    [HCRouter router:@"PowerPlatformSet" params:@{} viewController:self animated:YES];    
 }
 
 - (void)configureNavi {

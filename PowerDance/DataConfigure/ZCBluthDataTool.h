@@ -164,13 +164,13 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSData *)sendGetTrainTimesOrder;
 
 //语言设置
-+ (NSData *)sendSetDeviceLanguageOrder:(Byte *)byte;
++ (NSData *)sendSetDeviceLanguageOrder:(NSString *)byte;
 
 //音量设置
-+ (NSData *)sendSetDeviceVoiceOrder:(Byte *)byte;
++ (NSData *)sendSetDeviceVoiceOrder:(NSString *)byte;
 
 //重量单位设置
-+ (NSData *)sendSetDeviceUnitOrder:(Byte *)byte;
++ (NSData *)sendSetDeviceUnitOrder:(NSString *)byte;
 
 //將16進制的字符串轉換成NSData
 + (NSMutableData *)convertHexStrToData:(NSString *)str;
@@ -187,6 +187,8 @@ NS_ASSUME_NONNULL_BEGIN
 ///   - content: <#content description#>
 ///   - filename: <#filename description#>
 + (NSData *)sendFilePackage:(NSString *)package content:(NSString *)content filename:(NSString *)filename total:(NSInteger)totalIndex currentIndex:(NSInteger)currentIndex bytes:(Byte *)bytes ;
+
++ (NSData *)getDeviceVersionInfo;
 
 /// 拉力设置 kg
 + (NSArray *)getPowerPullConfigureData;
