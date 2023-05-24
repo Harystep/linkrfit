@@ -591,7 +591,7 @@
 }
 
 + (NSData *)convertHexToByteData:(NSMutableString *)str {
-    NSString *token = kUserStore.tokenBytes;
+    NSString *token = checkSafeContent(kUserStore.tokenBytes);
     [str appendFormat:@"%@", token];
     return [self convertHexStrToData:str];
 }
@@ -767,11 +767,7 @@
 
 //重量单位设置
 + (NSData *)sendSetDeviceUnitOrder:(NSString *)byte {
-    Byte bytes[] = {0x03, 0x01, 0x02, 0x03};
-    NSMutableString *temStr = [NSMutableString string];
-    for (int i = 0; i < 4; i ++) {
-        [temStr appendFormat:@"%02x", bytes[i]];
-    }
+    NSMutableString *temStr = [NSMutableString stringWithString:@"03010203"];
     [temStr appendFormat:@"%@", byte];
     return [self convertHexToByteData:temStr];
 }

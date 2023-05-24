@@ -269,13 +269,14 @@
     kweakself(self);
     alertView.setDeviceUnitBlock = ^(NSString * _Nonnull type) {
         NSData *data;
-        if([type integerValue] == 1) {            
+        if([type integerValue] == 1) {    //lb
             data = [ZCBluthDataTool sendSetDeviceUnitOrder:@"02"];
             [ZCPowerServer defaultBLEServer].unitStr = @"02";
-        } else {
+        } else {//kg
             data = [ZCBluthDataTool sendSetDeviceUnitOrder:@"01"];
             [ZCPowerServer defaultBLEServer].unitStr = @"01";
         }
+//        NSLog(@"%@", data);
         [weakself setDeviceData:data];
     };
 }
@@ -287,21 +288,20 @@
     alertView.setDeviceLanguageBlock = ^(NSString * _Nonnull type) {
         NSData *data;
         if([type integerValue] == 1) {
-            data = [ZCBluthDataTool sendSetDeviceUnitOrder:@"02"];
+            data = [ZCBluthDataTool sendSetDeviceLanguageOrder:@"02"];
         } else if ([type integerValue] == 2) {
-            data = [ZCBluthDataTool sendSetDeviceUnitOrder:@"03"];
+            data = [ZCBluthDataTool sendSetDeviceLanguageOrder:@"03"];
         } else {
-            data = [ZCBluthDataTool sendSetDeviceUnitOrder:@"01"];
+            data = [ZCBluthDataTool sendSetDeviceLanguageOrder:@"01"];
         }
         [weakself setDeviceData:data];
+//        NSLog(@"%@", data);
     };
 }
 
 - (void)aboutOperate {
     ZCPowerStationAboutView *alertView = [[ZCPowerStationAboutView alloc] init];
     [alertView showAlertView];
-//    alertView.systemL.text = self.f0Version[@"version"];
-//    alertView.driveL.text = self.f1Version[@"version"];
 }
 
 - (void)voiceOperate {
@@ -310,6 +310,7 @@
     kweakself(self);
     alertView.setDeviceVoiceBlock = ^(NSString * _Nonnull type) {
         NSData *data = [ZCBluthDataTool sendSetDeviceVoiceOrder:type];
+//        NSLog(@"%@", data);
         [weakself setDeviceData:data];
     };
 }

@@ -55,7 +55,7 @@
     [super viewDidLoad];
     
     self.view.backgroundColor = [ZCConfigColor whiteColor];
-    
+    self.mode = -1;
     [self configureNavi];
     
     UIView *statusView = [[UIView alloc] init];
@@ -311,6 +311,10 @@
 - (void)routerWithEventName:(NSString *)eventName userInfo:(NSDictionary *)userInfo block:(nonnull void (^)(id _Nonnull))block {
     NSData *data;
     if(self.defaultBLEServer.connectFlag) {
+        if(self.mode == -1) {
+            [self.view makeToast:NSLocalizedString(@"请先选择运动模式", nil) duration:1.5 position:CSToastPositionCenter];
+            return;
+        }
         if([eventName isEqualToString:@"start"]) {
             data = [ZCBluthDataTool sendStartStationOperate];
             
@@ -399,10 +403,12 @@
 /// 设置当前运动值
 /// - Parameter content: <#content description#>
 - (void)setCurrentModeValue:(NSString *)content {
-    if (self.mode < 3) {
-        NSInteger temCount = [content integerValue];
-        temCount = temCount/kUnitToKG;
-        content = [NSString stringWithFormat:@"%ld", temCount];
+    if([self.defaultBLEServer.unitStr isEqualToString:@"02"]) {
+        if (self.mode < 3) {
+            NSInteger temCount = [content integerValue];
+            temCount = temCount/kUnitToKG;
+            content = [NSString stringWithFormat:@"%ld", temCount];
+        }
     }
     content = [ZCBluthDataTool ToHex:[content integerValue]];
     NSMutableString *temStr = [NSMutableString string];
