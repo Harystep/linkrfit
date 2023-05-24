@@ -38,7 +38,7 @@
     _indicatorHeight = 3;
     _indicatorCornerRadius = JXCategoryViewAutomaticDimension;
     _indicatorColor = [UIColor redColor];
-    _scrollStyle = JXCategoryIndicatorScrollStyleSimple;    
+    _scrollStyle = JXCategoryIndicatorScrollStyleSimple;
 }
 
 #pragma mark - Public

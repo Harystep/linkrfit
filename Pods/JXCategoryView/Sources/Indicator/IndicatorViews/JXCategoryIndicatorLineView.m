@@ -49,7 +49,7 @@
 
     CGFloat selectedLineWidth = [self indicatorWidthValue:model.selectedCellFrame];
     CGFloat x = model.selectedCellFrame.origin.x + (model.selectedCellFrame.size.width - selectedLineWidth)/2;
-    CGFloat y = self.superview.bounds.size.height - [self indicatorHeightValue:model.selectedCellFrame] - self.verticalMargin - 5;
+    CGFloat y = self.superview.bounds.size.height - [self indicatorHeightValue:model.selectedCellFrame] - self.verticalMargin;
     if (self.componentPosition == JXCategoryComponentPosition_Top) {
         y = self.verticalMargin;
     }

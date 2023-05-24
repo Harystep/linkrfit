@@ -10,6 +10,7 @@
 #import "ZCPowerSingleServer.h"
 #import "ZCPowerStationSetView.h"
 #import "ECGView.h"
+#import "CFFBluetoothStatusView.h"
 
 #define kChartTopMargin 30
 
@@ -23,8 +24,6 @@
 
 @property (nonatomic,strong) ZCPowerSingleServer *defaultBLEServer;
 
-@property (nonatomic,strong) UILabel *statusL;
-
 @property (nonatomic, assign) NSInteger index;//分包索引
 @property (nonatomic, assign) NSInteger totalIndex;//分包数
 @property (nonatomic, assign) NSInteger remainLength;//剩余长度
@@ -33,7 +32,9 @@
 
 @property (nonatomic,strong) NSTimer *timer;
 
-@property (nonatomic,assign) BOOL signTimerFlag;//标记定时器是否暂停
+@property (nonatomic,assign) NSInteger signTimerFlag;//暂停 1 yunxing 2
+
+@property (nonatomic,strong) CFFBluetoothStatusView *bluView;
 
 @end
 
@@ -64,12 +65,12 @@
         make.height.mas_equalTo(5);
     }];
     
-    self.statusL = [self.view createSimpleLabelWithTitle:NSLocalizedString(@"连接中···", nil) font:14 bold:NO color:[ZCConfigColor point8TxtColor]];
-    [statusView addSubview:self.statusL];
-    [self.statusL mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerY.mas_equalTo(statusView.mas_centerY);
+    [statusView addSubview:self.bluView];
+    [self.bluView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.trailing.mas_equalTo(statusView.mas_trailing).inset(15);
+        make.top.mas_equalTo(statusView.mas_top).offset(6);
     }];
+    self.bluView.type = BluetoothConnectStatusIng;
     
     self.topView = [[ZCPowerPlatformTypeView alloc] init];
     [self.contentView addSubview:self.topView];
@@ -209,40 +210,32 @@
     }
 }
 
-- (void)didConnect:(PeriperalInfo *)info {
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        self.statusL.text = NSLocalizedString(@"连接成功", nil);
-//        [[ZCPowerSingleServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool sendGetTokenContent] forCharacteristic:[ZCPowerSingleServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
-    });
-   
-}
-
 - (void)routerWithEventName:(NSString *)eventName userInfo:(NSDictionary *)userInfo block:(nonnull void (^)(id _Nonnull))block {
     NSData *data;
-    if([eventName isEqualToString:@"start"]) {
-        data = [ZCBluthDataTool startSportSingleMode];
-        if(self.defaultBLEServer.selectCharacteristic) {
+    if(self.defaultBLEServer.selectCharacteristic) {
+        if([eventName isEqualToString:@"start"]) {
+            data = [ZCBluthDataTool startSportSingleMode];
             [[ZCPowerSingleServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerSingleServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
             block(@"");
             if(_timer == nil) {
                 _timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(mouseAutoOperate) userInfo:nil repeats:YES];
                 [[NSRunLoop mainRunLoop] addTimer:_timer forMode:NSRunLoopCommonModes];
             }
-            if(self.signTimerFlag) {
+            if(self.signTimerFlag == 1) {
                 [self continueTimer];
             }
-            self.signTimerFlag = NO;
-        }
-    } else if ([eventName isEqualToString:@"stop"]) {
-        data = [ZCBluthDataTool stopSportSingleMode];
-        if(self.defaultBLEServer.selectCharacteristic) {
+            self.signTimerFlag = 2;
+        } else if ([eventName isEqualToString:@"stop"]) {
+            data = [ZCBluthDataTool stopSportSingleMode];
+            self.signTimerFlag = 1;
             [self pauseTimer];
-            [[ZCPowerSingleServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerSingleServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];           
+            [[ZCPowerSingleServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerSingleServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
             block(@"");
-        }
-    } else if ([eventName isEqualToString:@"mode"]) {
-        if(self.defaultBLEServer.selectCharacteristic) {
+        } else if ([eventName isEqualToString:@"mode"]) {
+            if(self.signTimerFlag == 2) {
+                [self.view makeToast:NSLocalizedString(@"请先暂停运动", nil) duration:2.0 position:CSToastPositionCenter];
+                return;
+            }
             NSData *data;
             NSData *currentData;
             self.mode = [userInfo[@"index"] integerValue];
@@ -277,7 +270,7 @@
                     currentData = [ZCBluthDataTool sendSportGearModeData:@"1"];
                     [self.topView.targetSetBtn setTitle:@"1" forState:UIControlStateNormal];
                     break;
-                                        
+                    
                 default:
                     break;
             }
@@ -289,20 +282,26 @@
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 [[ZCPowerSingleServer defaultBLEServer].selectPeripheral writeValue:currentData forCharacteristic:[ZCPowerSingleServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
             });
-            block(@"");
+            block(@"");            
+        } else if ([eventName isEqualToString:@"set"]) {
+            if(self.signTimerFlag == 2) {
+                [self.view makeToast:NSLocalizedString(@"请先暂停运动", nil) duration:2.0 position:CSToastPositionCenter];
+                return;
+            }
+            ZCPowerStationSetView *setView = [[ZCPowerStationSetView alloc] init];
+            [self.view addSubview:setView];
+            setView.titleL.text = NSLocalizedString(@"设置", nil);
+            setView.configureArr = [ZCBluthDataTool convertDataWithMode:self.mode];
+            [setView showAlertView];
+            kweakself(self);
+            setView.sureRepeatOperate = ^(NSString * _Nonnull content) {
+                NSLog(@"%@", content);
+                [weakself.topView.targetSetBtn setTitle:content forState:UIControlStateNormal];
+                [weakself setCurrentModeValue:content];
+            };
         }
-    } else if ([eventName isEqualToString:@"set"]) {
-        ZCPowerStationSetView *setView = [[ZCPowerStationSetView alloc] init];
-        [self.view addSubview:setView];
-        setView.titleL.text = NSLocalizedString(@"设置", nil);
-        setView.configureArr = [ZCBluthDataTool convertDataWithMode:self.mode];
-        [setView showAlertView];
-        kweakself(self);
-        setView.sureRepeatOperate = ^(NSString * _Nonnull content) {
-            NSLog(@"%@", content);
-            [weakself.topView.targetSetBtn setTitle:content forState:UIControlStateNormal];
-            [weakself setCurrentModeValue:content];
-        };
+    } else {
+        [self.view makeToast:NSLocalizedString(@"请先连接设备", nil) duration:2.0 position:CSToastPositionCenter];
     }
 }
 
@@ -335,17 +334,25 @@
     [[ZCPowerSingleServer defaultBLEServer].selectPeripheral writeValue:currentData forCharacteristic:[ZCPowerSingleServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
 }
 
+
+- (void)didConnect:(PeriperalInfo *)info {
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.bluView.type = BluetoothConnectStatusOk;
+    });
+   
+}
+
 - (void)didDisconnect {
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.statusL.text = NSLocalizedString(@"断开连接", nil);
-        
+        self.bluView.type = BluetoothConnectStatusClosed;
     });
 }
 
 - (void)didStopScan {
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.statusL.text = NSLocalizedString(@"断开连接", nil);
+        self.bluView.type = BluetoothConnectStatusClosed;
         
     });
 }
@@ -394,6 +401,14 @@
 #pragma -- mark 继续
 -(void)continueTimer {
     [self.timer setFireDate:[NSDate distantPast]];
+}
+
+- (CFFBluetoothStatusView *)bluView {
+    if (!_bluView) {
+        _bluView = [[CFFBluetoothStatusView alloc] init];
+        _bluView.deviceType = SmartDeviceTypeRuler;
+    }
+    return _bluView;
 }
 
 @end

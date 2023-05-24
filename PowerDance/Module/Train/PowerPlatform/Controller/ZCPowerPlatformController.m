@@ -11,8 +11,10 @@
 #import "ZCPowerServer.h"
 #import "ZCPowerStationSetView.h"
 #import "ECGView.h"
+#import "CFFBluetoothStatusView.h"
 
 #define kChartTopMargin 30
+#define kUnitToKG 2.204
 
 @interface ZCPowerPlatformController ()<BLEPowerServerDelegate>
 
@@ -26,8 +28,6 @@
 
 @property (nonatomic,strong) ZCPowerServer *defaultBLEServer;
 
-@property (nonatomic,strong) UILabel *statusL;
-
 @property (nonatomic, assign) NSInteger index;//分包索引
 @property (nonatomic, assign) NSInteger totalIndex;//分包数
 @property (nonatomic, assign) NSInteger remainLength;//剩余长度
@@ -36,11 +36,20 @@
 
 @property (nonatomic,strong) NSTimer *timer;
 
-@property (nonatomic,assign) BOOL signTimerFlag;//标记定时器是否暂停
+@property (nonatomic,assign) NSInteger signTimerFlag;//1 暂停 2 运行
+
+@property (nonatomic,assign) int unitFlag;//标记当前单位
+
+@property (nonatomic,strong) CFFBluetoothStatusView *bluView;
 
 @end
 
 @implementation ZCPowerPlatformController
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+ 
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -67,12 +76,12 @@
         make.height.mas_equalTo(5);
     }];
     
-    self.statusL = [self.view createSimpleLabelWithTitle:NSLocalizedString(@"连接中···", nil) font:14 bold:NO color:[ZCConfigColor point8TxtColor]];
-    [statusView addSubview:self.statusL];
-    [self.statusL mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerY.mas_equalTo(statusView.mas_centerY);
+    [statusView addSubview:self.bluView];
+    [self.bluView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.trailing.mas_equalTo(statusView.mas_trailing).inset(15);
+        make.top.mas_equalTo(statusView.mas_top).offset(6);
     }];
+    self.bluView.type = BluetoothConnectStatusIng;
     
     self.topView = [[ZCPowerPlatformTypeView alloc] init];
     [self.contentView addSubview:self.topView];
@@ -142,14 +151,14 @@
     
     //
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(localChangeOperate:) name:kUpdataLocalValueKey object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceParamsBack:) name:kGetDeviceBaseInfoKey object:nil];
+
 }
 
-- (void)touchesView {
-    int x = arc4random() % 200 + 1;
-    int y = arc4random() % 200 + 1;
-    NSLog(@"%d---%d", x, y);
-    [self.chartView drawCurve:[NSString stringWithFormat:@"%d", x]];
-    [self.chartRightView drawCurve:[NSString stringWithFormat:@"%d", y]];
+- (void)deviceParamsBack:(NSNotification *)noti {
+    NSString *version = noti.object;
+    self.defaultBLEServer.unitStr = [version substringWithRange:NSMakeRange(6, 2)];
 }
 
 /// 位置
@@ -218,9 +227,9 @@
         make.height.mas_equalTo(16);
     }];
     
-    [self createTartetView:leftView title:@"左侧位置" color:rgba(138, 205, 215, 1)];
+    [self createTartetView:leftView title:NSLocalizedString(@"左侧位置", nil) color:rgba(138, 205, 215, 1)];
     
-    [self createTartetView:rightView title:@"右侧位置" color:rgba(248, 107, 34, 1)];
+    [self createTartetView:rightView title:NSLocalizedString(@"右侧位置", nil) color:rgba(248, 107, 34, 1)];
     
     UIView *lineView = [[UIView alloc] init];
     [self.contentView addSubview:lineView];
@@ -250,7 +259,7 @@
     UIView *lineView = [[UIView alloc] init];
     [itemView addSubview:lineView];
     lineView.backgroundColor = color;
-    UILabel *titleL = [self.view createSimpleLabelWithTitle:@"右侧位置" font:12 bold:NO color:[ZCConfigColor subTxtColor]];
+    UILabel *titleL = [self.view createSimpleLabelWithTitle:title font:12 bold:NO color:[ZCConfigColor subTxtColor]];
     [itemView addSubview:titleL];
     if([title containsString:@"左"]) {
         [titleL mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -299,42 +308,35 @@
     }
 }
 
-- (void)didConnect:(PeriperalInfo *)info {
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        self.statusL.text = NSLocalizedString(@"连接成功", nil);
-        [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool sendGetTokenContent] forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
-    });
-   
-}
-
 - (void)routerWithEventName:(NSString *)eventName userInfo:(NSDictionary *)userInfo block:(nonnull void (^)(id _Nonnull))block {
     NSData *data;
-    if([eventName isEqualToString:@"start"]) {
-        [self touchesView];
-        data = [ZCBluthDataTool sendStartStationOperate];
-        if(self.defaultBLEServer.connectFlag) {
+    if(self.defaultBLEServer.connectFlag) {
+        if([eventName isEqualToString:@"start"]) {
+            data = [ZCBluthDataTool sendStartStationOperate];
+            
             [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
             block(@"");
             if(_timer == nil) {
                 _timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(mouseAutoOperate) userInfo:nil repeats:YES];
                 [[NSRunLoop mainRunLoop] addTimer:_timer forMode:NSRunLoopCommonModes];
             }
-            if(self.signTimerFlag) {
+            if(self.signTimerFlag == 1) {
                 [self continueTimer];
             }
-            self.signTimerFlag = NO;
-        }
-    } else if ([eventName isEqualToString:@"stop"]) {
-        self.signTimerFlag = YES;
-        data = [ZCBluthDataTool sendStopStationOperate];
-        if(self.defaultBLEServer.connectFlag) {
+            self.signTimerFlag = 2;
+            
+        } else if ([eventName isEqualToString:@"stop"]) {
+            data = [ZCBluthDataTool sendStopStationOperate];
+            self.signTimerFlag = 1;
             [self pauseTimer];
             [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
             block(@"");
-        }
-    } else if ([eventName isEqualToString:@"mode"]) {
-        if(self.defaultBLEServer.connectFlag) {
+            
+        } else if ([eventName isEqualToString:@"mode"]) {
+            if(self.signTimerFlag == 2) {
+                [self.view makeToast:NSLocalizedString(@"请先暂停运动", nil) duration:2.0 position:CSToastPositionCenter];
+                return;
+            }
             NSData *data;
             self.mode = [userInfo[@"index"] integerValue];
             switch ([userInfo[@"index"] integerValue]) {
@@ -356,30 +358,37 @@
                 case 5://划船模式
                     data = [ZCBluthDataTool sendSportModeStationOperate:@"06"];
                     break;
-                                        
+                    
                 default:
                     break;
             }
             [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
-                        
+            
             [self getCurrentForceOrder];
             
             self.topView.unitL.text = [ZCBluthDataTool convertUnitTitleWithMode:self.mode];
             
             block(@"");
+        } else if ([eventName isEqualToString:@"set"]) {
+            if(self.signTimerFlag == 2) {
+                [self.view makeToast:NSLocalizedString(@"请先暂停运动", nil) duration:2.0 position:CSToastPositionCenter];
+                return;
+            }
+            ZCPowerStationSetView *setView = [[ZCPowerStationSetView alloc] init];
+            [self.view addSubview:setView];
+            setView.titleL.text = NSLocalizedString(@"设置", nil);
+            setView.configureArr = [ZCBluthDataTool convertDataWithMode:self.mode];
+            [setView showAlertView];
+            kweakself(self);
+            setView.sureRepeatOperate = ^(NSString * _Nonnull content) {
+                NSLog(@"%@", content);
+                [weakself.topView.targetSetBtn setTitle:content forState:UIControlStateNormal];
+                [weakself setCurrentModeValue:content];
+            };
+        
         }
-    } else if ([eventName isEqualToString:@"set"]) {
-        ZCPowerStationSetView *setView = [[ZCPowerStationSetView alloc] init];
-        [self.view addSubview:setView];
-        setView.titleL.text = NSLocalizedString(@"设置", nil);
-        setView.configureArr = [ZCBluthDataTool convertDataWithMode:self.mode];
-        [setView showAlertView];
-        kweakself(self);
-        setView.sureRepeatOperate = ^(NSString * _Nonnull content) {
-            NSLog(@"%@", content);
-            [weakself.topView.targetSetBtn setTitle:content forState:UIControlStateNormal];
-            [weakself setCurrentModeValue:content];
-        };
+    } else {
+        [self.view makeToast:NSLocalizedString(@"请先连接设备", nil) duration:1.5 position:CSToastPositionCenter];
     }
 }
 #pragma mark - 定时查询
@@ -390,6 +399,11 @@
 /// 设置当前运动值
 /// - Parameter content: <#content description#>
 - (void)setCurrentModeValue:(NSString *)content {
+    if (self.mode < 3) {
+        NSInteger temCount = [content integerValue];
+        temCount = temCount/kUnitToKG;
+        content = [NSString stringWithFormat:@"%ld", temCount];
+    }
     content = [ZCBluthDataTool ToHex:[content integerValue]];
     NSMutableString *temStr = [NSMutableString string];
     if(content.length == 4) {
@@ -440,15 +454,26 @@
 - (void)didDisconnect {
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.statusL.text = NSLocalizedString(@"断开连接", nil);
+        self.bluView.type = 0;
     });
 }
 
 - (void)didStopScan {
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.statusL.text = NSLocalizedString(@"断开连接", nil);
-        
+        self.bluView.type = 0;
     });
+}
+
+- (void)didConnect:(PeriperalInfo *)info {
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.bluView.type = 2;
+        [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool sendGetTokenContent] forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool getDeviceVersionInfo] forCharacteristic:[ZCPowerServer defaultBLEServer].selectFileCharacteristic type:CBCharacteristicWriteWithResponse];
+        });
+    });
+   
 }
 
 - (void)didFoundPeripheral {
@@ -494,6 +519,14 @@
 #pragma -- mark 继续
 -(void)continueTimer {
     [self.timer setFireDate:[NSDate distantPast]];
+}
+
+- (CFFBluetoothStatusView *)bluView {
+    if (!_bluView) {
+        _bluView = [[CFFBluetoothStatusView alloc] init];
+        _bluView.deviceType = SmartDeviceTypeRuler;
+    }
+    return _bluView;
 }
 
 @end

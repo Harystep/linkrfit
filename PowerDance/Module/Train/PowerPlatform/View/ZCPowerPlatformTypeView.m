@@ -111,7 +111,7 @@
     NSArray *dataArr = @[NSLocalizedString(@"实际拉力(kg)", nil), NSLocalizedString(@"燃烧卡路里(千卡)", nil), NSLocalizedString(@"爆发力(kg)", nil)];
     CGFloat dataWidth = SCREEN_W/3.0;
     for (int i = 0; i < dataArr.count; i ++) {
-        UILabel *lb = [self createSimpleLabelWithTitle:dataArr[i] font:11 bold:NO color:[ZCConfigColor subTxtColor]];
+        UILabel *lb = [self createSimpleLabelWithTitle:dataArr[i] font:10 bold:NO color:[ZCConfigColor subTxtColor]];
         [dataView addSubview:lb];
         [lb mas_makeConstraints:^(MASConstraintMaker *make) {
             make.leading.mas_equalTo(dataView.mas_leading).offset(dataWidth*i);
@@ -187,11 +187,11 @@
 - (void)itemTypeClick:(UITapGestureRecognizer *)tap {
     if (self.selectView == tap.view)return;
     UILabel *lb = (UILabel *)tap.view;
-    [self setupAttributeStatus:self.selectView status:NO];
-    [self setupAttributeStatus:lb status:YES];
-    self.selectView = lb;
+    kweakself(self);
     [self routerWithEventName:@"mode" userInfo:@{@"index":[NSString stringWithFormat:@"%tu", lb.tag]} block:^(id  _Nonnull result) {
-        
+        [weakself setupAttributeStatus:weakself.selectView status:NO];
+        [weakself setupAttributeStatus:lb status:YES];
+        weakself.selectView = lb;
     }];
 }
 

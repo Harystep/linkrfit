@@ -6,6 +6,7 @@
 //
 
 #import "ZCBluthDataTool.h"
+#import "ZCPowerServer.h"
 
 @interface ZCBluthDataTool ()
 
@@ -1179,8 +1180,14 @@ unsigned short GetCRC16(unsigned char *puchMsg, unsigned short usDataLen, unsign
 /// 拉力设置 kg
 + (NSArray *)getPowerPullConfigureData {
     NSMutableArray *temArr = [NSMutableArray array];
-    for (int i = 5; i < 51; i ++) {
-        [temArr addObject:[NSString stringWithFormat:@"%d", i]];
+    if([[ZCPowerServer defaultBLEServer].unitStr isEqualToString:@"02"]) {
+        for (int i = 12; i < 112; i ++) {
+            [temArr addObject:[NSString stringWithFormat:@"%d", i]];
+        }
+    } else {
+        for (int i = 5; i < 51; i ++) {
+            [temArr addObject:[NSString stringWithFormat:@"%d", i]];
+        }
     }
     return temArr;
 }
@@ -1188,8 +1195,14 @@ unsigned short GetCRC16(unsigned char *puchMsg, unsigned short usDataLen, unsign
 /// 收力设置 kg
 + (NSArray *)getPowerPutConfigureData {
     NSMutableArray *temArr = [NSMutableArray array];
-    for (int i = 5; i < 51; i ++) {
-        [temArr addObject:[NSString stringWithFormat:@"%d", i]];
+    if([[ZCPowerServer defaultBLEServer].unitStr isEqualToString:@"02"]) {
+        for (int i = 12; i < 112; i ++) {
+            [temArr addObject:[NSString stringWithFormat:@"%d", i]];
+        }
+    } else {
+        for (int i = 5; i < 51; i ++) {
+            [temArr addObject:[NSString stringWithFormat:@"%d", i]];
+        }
     }
     return temArr;
 }

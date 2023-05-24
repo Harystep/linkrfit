@@ -49,6 +49,7 @@
     UIView *footerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_W, AUTO_MARGIN(60))];
     self.tableView.tableFooterView = footerView;
     footerView.backgroundColor = rgba(246, 246, 246, 1);
+    footerView.hidden = YES;
     [self setupFooterSubViews:footerView];
      
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updataBackSucNotice:) name:kUpdateFileBackNoticeKey object:nil];
@@ -62,20 +63,21 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceParamsBack:) name:kGetDeviceBaseInfoKey object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(startUpdateBack:) name:kStartFileBackNoticeKey object:nil];
-    //
+    
 }
 
 - (void)deviceParamsBack:(NSNotification *)noti {
     NSString *version = noti.object;
     self.currentDeviceVersion = [version substringWithRange:NSMakeRange(0, 2)];
+    [ZCPowerServer defaultBLEServer].unitStr = [version substringWithRange:NSMakeRange(6, 2)];
 }
 
 - (void)queryHardwareInfo {    
     [ZCTrainManage queryHardwareVersionInfoURL:@{} completeHandler:^(id  _Nonnull responseObj) {
         NSLog(@"hardwareInfo%@", responseObj);
         NSDictionary *fileDic = responseObj[@"data"];
-        self.f0Version = responseObj[@"f01"];
-        self.f1Version = responseObj[@"f02"];
+        self.f0Version = fileDic[@"f01"];
+        self.f1Version = fileDic[@"f02"];
     }];
 }
 
@@ -269,8 +271,10 @@
         NSData *data;
         if([type integerValue] == 1) {            
             data = [ZCBluthDataTool sendSetDeviceUnitOrder:@"02"];
+            [ZCPowerServer defaultBLEServer].unitStr = @"02";
         } else {
             data = [ZCBluthDataTool sendSetDeviceUnitOrder:@"01"];
+            [ZCPowerServer defaultBLEServer].unitStr = @"01";
         }
         [weakself setDeviceData:data];
     };

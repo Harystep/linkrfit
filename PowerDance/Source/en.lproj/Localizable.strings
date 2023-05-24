@@ -582,3 +582,10 @@
 "系统版本" = "System version";
 "驱动器版本" = "Drive version";
 "序列号" = "Serial number";
+
+"当前已是最新版本" = "The version is latest";
+"单位" = "Unit";
+"左侧位置" = "Left rope";
+"右侧位置" = "Right rope";
+"请先暂停运动" = "Please pause your exercise first";
+"请先连接设备" = "Please connect the device first";
