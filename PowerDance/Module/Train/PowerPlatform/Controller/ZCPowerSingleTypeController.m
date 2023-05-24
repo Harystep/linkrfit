@@ -44,7 +44,7 @@
     [super viewDidLoad];
     
     self.view.backgroundColor = [ZCConfigColor whiteColor];
-    
+    self.mode = -1;
     [self configureNavi];
     
     UIView *statusView = [[UIView alloc] init];
@@ -77,7 +77,7 @@
     [self.topView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.leading.trailing.mas_equalTo(self.contentView);
         make.top.mas_equalTo(statusView.mas_bottom).offset(5);
-        make.height.mas_equalTo(375);
+        make.height.mas_equalTo(430);
     }];
     
     UIView *line2View = [[UIView alloc] init];
@@ -214,6 +214,10 @@
     NSData *data;
     if(self.defaultBLEServer.selectCharacteristic) {
         if([eventName isEqualToString:@"start"]) {
+            if(self.mode == -1) {
+                [self.view makeToast:NSLocalizedString(@"请先选择运动模式", nil) duration:1.5 position:CSToastPositionCenter];
+                return;
+            }
             data = [ZCBluthDataTool startSportSingleMode];
             [[ZCPowerSingleServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerSingleServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
             block(@"");
@@ -229,6 +233,10 @@
             data = [ZCBluthDataTool stopSportSingleMode];
             self.signTimerFlag = 1;
             [self pauseTimer];
+            [[ZCPowerSingleServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerSingleServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
+            block(@"");
+        } else if ([eventName isEqualToString:@"back"]) {
+            data = [ZCBluthDataTool sendBackRopeStationOperate];
             [[ZCPowerSingleServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerSingleServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
             block(@"");
         } else if ([eventName isEqualToString:@"mode"]) {

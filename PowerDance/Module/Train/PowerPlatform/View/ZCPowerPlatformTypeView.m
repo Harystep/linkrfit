@@ -160,7 +160,27 @@
     [self.stopBtn setViewCornerRadiu:20];
     self.stopBtn.hidden = YES;
     [self.stopBtn addTarget:self action:@selector(stopBtnClick) forControlEvents:UIControlEventTouchUpInside];
+    
+    UIButton *backBtn = [self createSimpleButtonWithTitle:NSLocalizedString(@"收绳", nil) font:14 color:[ZCConfigColor whiteColor]];
+    [self addSubview:backBtn];
+    [backBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.mas_equalTo(self.mas_centerX);
+        make.top.mas_equalTo(self.startBtn.mas_bottom).offset(15);
+        make.width.mas_equalTo(185);
+        make.height.mas_equalTo(40);
+    }];
+    [backBtn layoutIfNeeded];
+    [self configureLeftToRightViewColorGradient:backBtn width:185 height:40 one:rgba(158, 168, 194, 1) two:rgba(138, 205, 215, 1) cornerRadius:20];
+    [backBtn addTarget:self action:@selector(backBtnClick) forControlEvents:UIControlEventTouchUpInside];
+    
 }
+#pragma mark - 收绳
+- (void)backBtnClick {
+    [self routerWithEventName:@"back" userInfo:@{} block:^(id  _Nonnull result) {
+        
+    }];
+}
+
 #pragma mark - 设置参数
 - (void)setPowerOperate {
     [self routerWithEventName:@"set" userInfo:@{} block:^(id  _Nonnull result) {

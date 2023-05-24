@@ -88,7 +88,7 @@
     [self.topView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.leading.trailing.mas_equalTo(self.contentView);
         make.top.mas_equalTo(statusView.mas_bottom).offset(5);
-        make.height.mas_equalTo(375);
+        make.height.mas_equalTo(430);
     }];
     
     UIView *line2View = [[UIView alloc] init];
@@ -154,6 +154,17 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceParamsBack:) name:kGetDeviceBaseInfoKey object:nil];
 
+    [RACObserve(self.defaultBLEServer, unitStr) subscribeNext:^(id  _Nullable x) {
+        NSInteger num = [self.topView.targetSetBtn.titleLabel.text integerValue];
+        if([x isEqualToString:@"02"]) {
+            NSInteger tem = num*kUnitToKG;
+            [self.topView.targetSetBtn setTitle:[NSString stringWithFormat:@"%ld", tem] forState:UIControlStateNormal];
+        } else {
+            NSInteger tem = num/kUnitToKG;
+            [self.topView.targetSetBtn setTitle:[NSString stringWithFormat:@"%ld", tem] forState:UIControlStateNormal];
+        }
+    }];
+    
 }
 
 - (void)deviceParamsBack:(NSNotification *)noti {
@@ -173,7 +184,11 @@
 - (void)powerChangeOperate:(NSNotification *)noti {
     NSString *content = noti.object;
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.topView.eruptL.text = content;
+        if([self.defaultBLEServer.unitStr isEqualToString:@"02"]) {
+            self.topView.eruptL.text = [NSString stringWithFormat:@"%.2f", [content doubleValue]*kUnitToKG];
+        } else {
+            self.topView.eruptL.text = content;
+        }
     });
 }
 
@@ -182,7 +197,11 @@
 - (void)pullChangeOperate:(NSNotification *)noti {
     NSString *content = noti.object;
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.topView.totalL.text = content;
+        if([self.defaultBLEServer.unitStr isEqualToString:@"02"]) {
+            self.topView.totalL.text = [NSString stringWithFormat:@"%.2f", [content doubleValue]*kUnitToKG];
+        } else {
+            self.topView.totalL.text = content;
+        }
     });
 }
 
@@ -203,7 +222,12 @@
     NSString *hex = [NSString stringWithFormat:@"%@%@", high, low];
     long content = [ZCBluthDataTool convertHexToDecimal:hex];
     NSLog(@"content:%ld", content);
-    [self.topView.targetSetBtn setTitle:[NSString stringWithFormat:@"%ld", content] forState:UIControlStateNormal];
+    if([self.defaultBLEServer.unitStr isEqualToString:@"02"]) {
+        NSInteger num = (NSInteger)(content * kUnitToKG);
+        [self.topView.targetSetBtn setTitle:[NSString stringWithFormat:@"%ld", num] forState:UIControlStateNormal];
+    } else {
+        [self.topView.targetSetBtn setTitle:[NSString stringWithFormat:@"%ld", content] forState:UIControlStateNormal];
+    }
 }
 
 /// 网格线
@@ -311,11 +335,11 @@
 - (void)routerWithEventName:(NSString *)eventName userInfo:(NSDictionary *)userInfo block:(nonnull void (^)(id _Nonnull))block {
     NSData *data;
     if(self.defaultBLEServer.connectFlag) {
-        if(self.mode == -1) {
-            [self.view makeToast:NSLocalizedString(@"请先选择运动模式", nil) duration:1.5 position:CSToastPositionCenter];
-            return;
-        }
         if([eventName isEqualToString:@"start"]) {
+            if(self.mode == -1) {
+                [self.view makeToast:NSLocalizedString(@"请先选择运动模式", nil) duration:1.5 position:CSToastPositionCenter];
+                return;
+            }
             data = [ZCBluthDataTool sendStartStationOperate];
             
             [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
@@ -336,6 +360,10 @@
             [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
             block(@"");
             
+        } else if ([eventName isEqualToString:@"back"]) {
+            data = [ZCBluthDataTool sendBackRopeStationOperate];
+            [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
+            block(@"");
         } else if ([eventName isEqualToString:@"mode"]) {
             if(self.signTimerFlag == 2) {
                 [self.view makeToast:NSLocalizedString(@"请先暂停运动", nil) duration:2.0 position:CSToastPositionCenter];
@@ -347,11 +375,11 @@
                 case 0://常规模式
                     data = [ZCBluthDataTool sendSportModeStationOperate:@"01"];
                     break;
-                case 1://离心模式
-                    data = [ZCBluthDataTool sendSportModeStationOperate:@"02"];
-                    break;
-                case 2://向心模式
+                case 1://向心模式
                     data = [ZCBluthDataTool sendSportModeStationOperate:@"03"];
+                    break;
+                case 2://离心模式
+                    data = [ZCBluthDataTool sendSportModeStationOperate:@"02"];
                     break;
                 case 3://等速模式
                     data = [ZCBluthDataTool sendSportModeStationOperate:@"04"];
@@ -422,7 +450,13 @@
     }
     [temStr appendString:[content substringWithRange:NSMakeRange(2, 2)]];
     [temStr appendString:[content substringWithRange:NSMakeRange(0, 2)]];
-    NSData *data = [ZCBluthDataTool setDeviceSportMode:[NSString stringWithFormat:@"%ld", self.mode+20] value:temStr];
+    NSInteger mode;
+    if(self.mode == 0 || self.mode == 1) {
+        mode = 20;
+    } else {
+        mode = self.mode + 20 - 1;
+    }
+    NSData *data = [ZCBluthDataTool setDeviceSportMode:[NSString stringWithFormat:@"%ld", mode] value:temStr];
     [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
 }
 

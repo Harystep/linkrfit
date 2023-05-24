@@ -226,7 +226,7 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    if([ZCPowerServer defaultBLEServer].connectFlag) {
+    if([ZCPowerServer defaultBLEServer].connectFlag == NO) {
         switch (indexPath.row) {
             case 0:
                 [self updateOperate];
@@ -253,7 +253,9 @@
 }
 
 - (void)updateOperate {
-    NSInteger f0Version = [checkSafeContent(self.f0Version[@"version"]) integerValue];
+    NSString *version = checkSafeContent(self.f0Version[@"version"]);
+    [version stringByReplacingOccurrencesOfString:@"." withString:@""];
+    NSInteger f0Version = [version integerValue];
     if(f0Version > [self.currentDeviceVersion integerValue]) {
         NSArray *files = self.f0Version[@"files"];
         NSDictionary *fileDic = files[0];
