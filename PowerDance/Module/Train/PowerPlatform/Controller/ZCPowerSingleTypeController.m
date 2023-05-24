@@ -237,9 +237,9 @@
     } else if ([eventName isEqualToString:@"stop"]) {
         data = [ZCBluthDataTool stopSportSingleMode];
         if(self.defaultBLEServer.selectCharacteristic) {
+            [self pauseTimer];
             [[ZCPowerSingleServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerSingleServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];           
             block(@"");
-            [self pauseTimer];
         }
     } else if ([eventName isEqualToString:@"mode"]) {
         if(self.defaultBLEServer.selectCharacteristic) {

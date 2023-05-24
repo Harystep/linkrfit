@@ -329,9 +329,9 @@
         self.signTimerFlag = YES;
         data = [ZCBluthDataTool sendStopStationOperate];
         if(self.defaultBLEServer.connectFlag) {
+            [self pauseTimer];
             [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
             block(@"");
-            [self pauseTimer];
         }
     } else if ([eventName isEqualToString:@"mode"]) {
         if(self.defaultBLEServer.connectFlag) {
