@@ -240,20 +240,13 @@
 #pragma mark - 当前设定值
 - (void)modeChangeOperate:(NSNotification *)noti {
     NSString *data = noti.object;
-    NSString *high = [data substringWithRange:NSMakeRange(2, 2)];
-    NSString *low = [data substringWithRange:NSMakeRange(4, 2)];
+    
+    NSString *high = [data substringWithRange:NSMakeRange(0, 2)];
+    NSString *low = [data substringWithRange:NSMakeRange(2, 2)];
+    
     NSString *hex = [NSString stringWithFormat:@"%@%@", high, low];
     long content = [ZCBluthDataTool convertHexToDecimal:hex];
-    //    NSString *mode = [data substringWithRange:NSMakeRange(0, 2)];
-//    long index = [ZCBluthDataTool convertHexToDecimal:mode];
-//    NSLog(@"content:%ld", content);
-//    if(index == 2) {
-//        self.mode = index;
-//    } else if (index == 3) {
-//        self.mode = 1;
-//    } else {
-//        self.mode = index-1;
-//    }
+
     if(self.mode < 3) {
         if([kPowerServerStore.unitStr isEqualToString:@"02"]) {
             NSInteger num = (NSInteger)(content * kUnitToKG);

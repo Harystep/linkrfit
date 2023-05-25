@@ -177,15 +177,15 @@
             self.bytes = bytes;
             self.filename = checkSafeContent(fileDic[@"name"]);
             dispatch_async(dispatch_get_main_queue(), ^{
-                ZCPowerStationAlertView *alertView = [[ZCPowerStationAlertView alloc] init];
-                self.updateView = alertView;
-                [alertView showAlertView];
-                alertView.nowVersion = self.currentDeviceVersion;
-                alertView.lastVersion = checkSafeContent(self.f0Version[@"version"]);
-                kweakself(self);
-                alertView.updateBlock = ^{
-                    [weakself sendSubpackageWithindex:0];
-                };
+//                ZCPowerStationAlertView *alertView = [[ZCPowerStationAlertView alloc] init];
+//                self.updateView = alertView;
+//                [alertView showAlertView];
+//                alertView.nowVersion = self.currentDeviceVersion;
+//                alertView.lastVersion = checkSafeContent(self.f0Version[@"version"]);
+//                kweakself(self);
+//                alertView.updateBlock = ^{
+//                };
+                [self sendSubpackageWithindex:0];
             });
         }
     }];
@@ -258,7 +258,15 @@
     if(f0Version > [self.currentDeviceVersion integerValue]) {
         NSArray *files = self.f0Version[@"files"];
         NSDictionary *fileDic = files[0];
-        [self downloadFileOperate:fileDic];
+        ZCPowerStationAlertView *alertView = [[ZCPowerStationAlertView alloc] init];
+        self.updateView = alertView;
+        [alertView showAlertView];
+        alertView.nowVersion = self.currentDeviceVersion;
+        alertView.lastVersion = checkSafeContent(self.f0Version[@"version"]);
+        kweakself(self);
+        alertView.updateBlock = ^{
+            [weakself downloadFileOperate:fileDic];
+        };
     } else {
         [self.view makeToast:NSLocalizedString(@"当前已是最新版本", nil) duration:2.0 position:CSToastPositionCenter];
     }
