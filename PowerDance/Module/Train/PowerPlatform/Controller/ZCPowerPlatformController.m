@@ -75,7 +75,7 @@
         make.height.mas_equalTo(5);
     }];
     
-    self.statusL = [self.view createSimpleLabelWithTitle:NSLocalizedString(@"连接中", nil) font:14 bold:NO color:[ZCConfigColor txtColor]];
+    self.statusL = [self.view createSimpleLabelWithTitle:NSLocalizedString(@"连接中···", nil) font:14 bold:NO color:[ZCConfigColor txtColor]];
     [statusView addSubview:self.statusL];
     [self.statusL mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerY.mas_equalTo(statusView.mas_centerY);
@@ -137,7 +137,6 @@
         [self.defaultBLEServer startScan];
     });
     
-    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(modeChangeOperate:) name:kUpdataCurrentModeValueKey object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(kcalChangeOperate:) name:kUpdataKcalValueKey object:nil];
@@ -154,28 +153,34 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceParamsBack:) name:kGetDeviceBaseInfoKey object:nil];
     kweakself(self);
     [RACObserve(kPowerServerStore, unitStr) subscribeNext:^(id  _Nullable x) {
-        NSInteger num = [self.topView.targetSetBtn.titleLabel.text integerValue];
+        NSInteger num = [weakself.topView.targetSetBtn.titleLabel.text integerValue];
         if(weakself.mode < 3) {
-            if([self.defaultBLEServer.unitStr isEqualToString:@"02"]) {
-                self.topView.unitL.text = @"lb";
+            if([weakself.defaultBLEServer.unitStr isEqualToString:@"02"]) {
+                weakself.topView.unitL.text = @"lb";
             } else {
-                self.topView.unitL.text = @"kg";
+                weakself.topView.unitL.text = @"kg";
+            }
+            if([x isEqualToString:@"02"]) {
+                NSInteger tem = num*kUnitToKG;
+                [weakself.topView.targetSetBtn setTitle:[NSString stringWithFormat:@"%ld", tem] forState:UIControlStateNormal];
+            } else {
+                NSInteger tem = num/kUnitToKG;
+                [weakself.topView.targetSetBtn setTitle:[NSString stringWithFormat:@"%ld", tem] forState:UIControlStateNormal];
             }
         }
-        if([x isEqualToString:@"02"]) {
-            NSInteger tem = num*kUnitToKG;
-            [self.topView.targetSetBtn setTitle:[NSString stringWithFormat:@"%ld", tem] forState:UIControlStateNormal];
-        } else {
-            NSInteger tem = num/kUnitToKG;
-            [self.topView.targetSetBtn setTitle:[NSString stringWithFormat:@"%ld", tem] forState:UIControlStateNormal];
-        }
-    }];
-    
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakself changeNormalDataUnit];
+        });
+    }];           
+        
 }
 
 - (void)deviceParamsBack:(NSNotification *)noti {
     NSString *version = noti.object;
     kPowerServerStore.unitStr = [version substringWithRange:NSMakeRange(6, 2)];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self changeNormalDataUnit];
+    });
 }
 
 /// 位置
@@ -190,13 +195,12 @@
 - (void)powerChangeOperate:(NSNotification *)noti {
     NSString *content = noti.object;
     dispatch_async(dispatch_get_main_queue(), ^{
-        if([self.defaultBLEServer.unitStr isEqualToString:@"02"]) {
+        if([kPowerServerStore.unitStr isEqualToString:@"02"]) {
             self.topView.eruptL.text = [NSString stringWithFormat:@"%.2f", [content doubleValue]*kUnitToKG];
-            self.topView.eruptTL.text = NSLocalizedString(@"爆发力(lb)", nil);
         } else {
             self.topView.eruptL.text = content;
-            self.topView.eruptTL.text = NSLocalizedString(@"爆发力(kg)", nil);
         }
+        [self changeNormalDataUnit];
     });
 }
 
@@ -205,14 +209,23 @@
 - (void)pullChangeOperate:(NSNotification *)noti {
     NSString *content = noti.object;
     dispatch_async(dispatch_get_main_queue(), ^{
-        if([self.defaultBLEServer.unitStr isEqualToString:@"02"]) {
+        if([kPowerServerStore.unitStr isEqualToString:@"02"]) {
             self.topView.totalL.text = [NSString stringWithFormat:@"%.2f", [content doubleValue]*kUnitToKG];
-            self.topView.totalL.text = NSLocalizedString(@"实际拉力(lb)", nil);
         } else {
             self.topView.totalL.text = content;
-            self.topView.totalL.text = NSLocalizedString(@"实际拉力(kg)", nil);
         }
+        [self changeNormalDataUnit];
     });
+}
+
+- (void)changeNormalDataUnit {
+    if([kPowerServerStore.unitStr isEqualToString:@"02"]) {
+        self.topView.totalTL.text = NSLocalizedString(@"实际拉力(lb)", nil);
+        self.topView.eruptTL.text = NSLocalizedString(@"爆发力(lb)", nil);
+    } else {
+        self.topView.totalTL.text = NSLocalizedString(@"实际拉力(kg)", nil);
+        self.topView.eruptTL.text = NSLocalizedString(@"爆发力(kg)", nil);
+    }
 }
 
 #pragma mark - 卡路里
@@ -228,13 +241,26 @@
 - (void)modeChangeOperate:(NSNotification *)noti {
     NSString *data = noti.object;
     NSString *high = [data substringWithRange:NSMakeRange(2, 2)];
-    NSString *low = [data substringWithRange:NSMakeRange(0, 2)];
+    NSString *low = [data substringWithRange:NSMakeRange(4, 2)];
     NSString *hex = [NSString stringWithFormat:@"%@%@", high, low];
     long content = [ZCBluthDataTool convertHexToDecimal:hex];
-    NSLog(@"content:%ld", content);
-    if([self.defaultBLEServer.unitStr isEqualToString:@"02"]) {
-        NSInteger num = (NSInteger)(content * kUnitToKG);
-        [self.topView.targetSetBtn setTitle:[NSString stringWithFormat:@"%ld", num] forState:UIControlStateNormal];
+    //    NSString *mode = [data substringWithRange:NSMakeRange(0, 2)];
+//    long index = [ZCBluthDataTool convertHexToDecimal:mode];
+//    NSLog(@"content:%ld", content);
+//    if(index == 2) {
+//        self.mode = index;
+//    } else if (index == 3) {
+//        self.mode = 1;
+//    } else {
+//        self.mode = index-1;
+//    }
+    if(self.mode < 3) {
+        if([kPowerServerStore.unitStr isEqualToString:@"02"]) {
+            NSInteger num = (NSInteger)(content * kUnitToKG);
+            [self.topView.targetSetBtn setTitle:[NSString stringWithFormat:@"%ld", num] forState:UIControlStateNormal];
+        } else {
+            [self.topView.targetSetBtn setTitle:[NSString stringWithFormat:@"%ld", content] forState:UIControlStateNormal];
+        }
     } else {
         [self.topView.targetSetBtn setTitle:[NSString stringWithFormat:@"%ld", content] forState:UIControlStateNormal];
     }
@@ -427,7 +453,6 @@
                 [weakself.topView.targetSetBtn setTitle:content forState:UIControlStateNormal];
                 [weakself setCurrentModeValue:content];
             };
-        
         }
     } else {
         [self.view makeToast:NSLocalizedString(@"请先连接设备", nil) duration:1.5 position:CSToastPositionCenter];
@@ -519,11 +544,10 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         self.statusL.text = NSLocalizedString(@"已连接", nil);
         [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool sendGetTokenContent] forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool getDeviceVersionInfo] forCharacteristic:[ZCPowerServer defaultBLEServer].selectFileCharacteristic type:CBCharacteristicWriteWithResponse];
         });
     });
-   
 }
 
 - (void)didFoundPeripheral {
@@ -558,7 +582,7 @@
     self.timer = nil;
     [[ZCPowerServer defaultBLEServer] stopScan];
     [[ZCPowerServer defaultBLEServer] disConnect];
-//    [BLESuitServer defaultBLEServer].selectPeripheral = nil;
+    
 }
 
 #pragma -- mark 暂停

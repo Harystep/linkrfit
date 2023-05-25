@@ -62,13 +62,13 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceParamsBack:) name:kGetDeviceBaseInfoKey object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(startUpdateBack:) name:kStartFileBackNoticeKey object:nil];
-    
+        
 }
 
 - (void)deviceParamsBack:(NSNotification *)noti {
     NSString *version = noti.object;
     self.currentDeviceVersion = [version substringWithRange:NSMakeRange(0, 2)];
-    [ZCPowerServer defaultBLEServer].unitStr = [version substringWithRange:NSMakeRange(6, 2)];
+    kPowerServerStore.unitStr = [version substringWithRange:NSMakeRange(6, 2)];
 }
 
 - (void)queryHardwareInfo {    

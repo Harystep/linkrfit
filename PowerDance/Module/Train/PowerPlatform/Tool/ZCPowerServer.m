@@ -177,6 +177,7 @@ static ZCPowerServer *_defaultBTServer = nil;
 
 -(void)stopScan:(BOOL)withOutEvent
 {
+    
     if (scanState != KING) {
         return;
     }
@@ -507,7 +508,7 @@ static ZCPowerServer *_defaultBTServer = nil;
         long power = [ZCBluthDataTool convertHexToDecimal:value];
         NSLog(@"获取实际拉力或收力 value:%@g", value);
         [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataCurrentPullValueKey object:[NSString stringWithFormat:@"%.2f", power/1000.0]];
-    } else if ([content hasPrefix:@"04020310"]) {//当前版本信息
+    } else if ([content hasPrefix:@"04020501"]) {//当前设备信息
         NSLog(@"当前版本信息:%@", content);
         NSString *value = [content substringWithRange:NSMakeRange(8, 8)];
         [[NSNotificationCenter defaultCenter] postNotificationName:kGetDeviceBaseInfoKey object:value];
@@ -560,7 +561,7 @@ static ZCPowerServer *_defaultBTServer = nil;
         [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataPowerValueKey object:value];
         NSLog(@"爆发力 value：%@", value);
     } else if ([content hasPrefix:@"04020612"]){//当前模式设置值
-        NSString *value = [content substringWithRange:NSMakeRange(10, 4)];
+        NSString *value = [content substringWithRange:NSMakeRange(8, 10)];
         [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataCurrentModeValueKey object:value];
     } else if ([content hasPrefix:@"04020b1a"]) {
         NSLog(@"位置：%@", content);
