@@ -18,7 +18,6 @@
 @interface ZCPowerPlatformSetController () <UITableViewDelegate, UITableViewDataSource>
 
 @property (nonatomic,strong) UITableView *tableView;
-
 @property (nonatomic,strong) NSMutableArray *dataArr;
 @property (nonatomic, copy) NSString *subpackage;//包内容
 @property (nonatomic, assign) NSInteger index;//分包索引
@@ -226,7 +225,7 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    if([ZCPowerServer defaultBLEServer].connectFlag == NO) {
+    if([ZCPowerServer defaultBLEServer].connectFlag) {
         switch (indexPath.row) {
             case 0:
                 [self updateOperate];
@@ -254,7 +253,7 @@
 
 - (void)updateOperate {
     NSString *version = checkSafeContent(self.f0Version[@"version"]);
-    [version stringByReplacingOccurrencesOfString:@"." withString:@""];
+    version = [version stringByReplacingOccurrencesOfString:@"." withString:@""];
     NSInteger f0Version = [version integerValue];
     if(f0Version > [self.currentDeviceVersion integerValue]) {
         NSArray *files = self.f0Version[@"files"];
@@ -273,10 +272,10 @@
         NSData *data;
         if([type integerValue] == 1) {    //lb
             data = [ZCBluthDataTool sendSetDeviceUnitOrder:@"02"];
-            [ZCPowerServer defaultBLEServer].unitStr = @"02";
+            kPowerServerStore.unitStr = @"02";
         } else {//kg
             data = [ZCBluthDataTool sendSetDeviceUnitOrder:@"01"];
-            [ZCPowerServer defaultBLEServer].unitStr = @"01";
+            kPowerServerStore.unitStr = @"01";
         }
 //        NSLog(@"%@", data);
         [weakself setDeviceData:data];

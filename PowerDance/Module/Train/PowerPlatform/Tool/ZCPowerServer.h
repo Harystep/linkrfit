@@ -48,6 +48,8 @@ typedef enum{
 
 @end
 
+#define kPowerServerStore  [ZCPowerServer defaultBLEServer]
+
 @interface ZCPowerServer : NSObject <CBCentralManagerDelegate,CBPeripheralDelegate>
 
 +(ZCPowerServer *)defaultBLEServer;

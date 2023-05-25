@@ -11,7 +11,6 @@
 #import "ZCPowerServer.h"
 #import "ZCPowerStationSetView.h"
 #import "ECGView.h"
-#import "CFFBluetoothStatusView.h"
 
 #define kChartTopMargin 30
 #define kUnitToKG 2.204
@@ -36,11 +35,11 @@
 
 @property (nonatomic,strong) NSTimer *timer;
 
+@property (nonatomic,strong) UILabel *statusL;
+
 @property (nonatomic,assign) NSInteger signTimerFlag;//1 暂停 2 运行
 
 @property (nonatomic,assign) int unitFlag;//标记当前单位
-
-@property (nonatomic,strong) CFFBluetoothStatusView *bluView;
 
 @end
 
@@ -76,12 +75,12 @@
         make.height.mas_equalTo(5);
     }];
     
-    [statusView addSubview:self.bluView];
-    [self.bluView mas_makeConstraints:^(MASConstraintMaker *make) {
+    self.statusL = [self.view createSimpleLabelWithTitle:NSLocalizedString(@"连接中", nil) font:14 bold:NO color:[ZCConfigColor txtColor]];
+    [statusView addSubview:self.statusL];
+    [self.statusL mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerY.mas_equalTo(statusView.mas_centerY);
         make.trailing.mas_equalTo(statusView.mas_trailing).inset(15);
-        make.top.mas_equalTo(statusView.mas_top).offset(6);
     }];
-    self.bluView.type = BluetoothConnectStatusIng;
     
     self.topView = [[ZCPowerPlatformTypeView alloc] init];
     [self.contentView addSubview:self.topView];
@@ -153,9 +152,16 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(localChangeOperate:) name:kUpdataLocalValueKey object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceParamsBack:) name:kGetDeviceBaseInfoKey object:nil];
-
-    [RACObserve(self.defaultBLEServer, unitStr) subscribeNext:^(id  _Nullable x) {
+    kweakself(self);
+    [RACObserve(kPowerServerStore, unitStr) subscribeNext:^(id  _Nullable x) {
         NSInteger num = [self.topView.targetSetBtn.titleLabel.text integerValue];
+        if(weakself.mode < 3) {
+            if([self.defaultBLEServer.unitStr isEqualToString:@"02"]) {
+                self.topView.unitL.text = @"lb";
+            } else {
+                self.topView.unitL.text = @"kg";
+            }
+        }
         if([x isEqualToString:@"02"]) {
             NSInteger tem = num*kUnitToKG;
             [self.topView.targetSetBtn setTitle:[NSString stringWithFormat:@"%ld", tem] forState:UIControlStateNormal];
@@ -169,7 +175,7 @@
 
 - (void)deviceParamsBack:(NSNotification *)noti {
     NSString *version = noti.object;
-    self.defaultBLEServer.unitStr = [version substringWithRange:NSMakeRange(6, 2)];
+    kPowerServerStore.unitStr = [version substringWithRange:NSMakeRange(6, 2)];
 }
 
 /// 位置
@@ -186,8 +192,10 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         if([self.defaultBLEServer.unitStr isEqualToString:@"02"]) {
             self.topView.eruptL.text = [NSString stringWithFormat:@"%.2f", [content doubleValue]*kUnitToKG];
+            self.topView.eruptTL.text = NSLocalizedString(@"爆发力(lb)", nil);
         } else {
             self.topView.eruptL.text = content;
+            self.topView.eruptTL.text = NSLocalizedString(@"爆发力(kg)", nil);
         }
     });
 }
@@ -199,8 +207,10 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         if([self.defaultBLEServer.unitStr isEqualToString:@"02"]) {
             self.topView.totalL.text = [NSString stringWithFormat:@"%.2f", [content doubleValue]*kUnitToKG];
+            self.topView.totalL.text = NSLocalizedString(@"实际拉力(lb)", nil);
         } else {
             self.topView.totalL.text = content;
+            self.topView.totalL.text = NSLocalizedString(@"实际拉力(kg)", nil);
         }
     });
 }
@@ -494,22 +504,22 @@
 - (void)didDisconnect {
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.bluView.type = 0;
+        self.statusL.text = NSLocalizedString(@"断开连接", nil);
     });
 }
 
 - (void)didStopScan {
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.bluView.type = 0;
+        self.statusL.text = NSLocalizedString(@"断开连接", nil);
     });
 }
 
 - (void)didConnect:(PeriperalInfo *)info {
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.bluView.type = 2;
+        self.statusL.text = NSLocalizedString(@"已连接", nil);
         [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool sendGetTokenContent] forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool getDeviceVersionInfo] forCharacteristic:[ZCPowerServer defaultBLEServer].selectFileCharacteristic type:CBCharacteristicWriteWithResponse];
         });
     });
@@ -559,14 +569,6 @@
 #pragma -- mark 继续
 -(void)continueTimer {
     [self.timer setFireDate:[NSDate distantPast]];
-}
-
-- (CFFBluetoothStatusView *)bluView {
-    if (!_bluView) {
-        _bluView = [[CFFBluetoothStatusView alloc] init];
-        _bluView.deviceType = SmartDeviceTypeRuler;
-    }
-    return _bluView;
 }
 
 @end

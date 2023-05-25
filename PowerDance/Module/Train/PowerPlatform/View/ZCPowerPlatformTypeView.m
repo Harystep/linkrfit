@@ -129,10 +129,12 @@
         contentL.textAlignment = NSTextAlignmentCenter;
         if (i == 0) {
             self.totalL = contentL;
+            self.totalTL = lb;
         } else if (i == 1) {
             self.consumeL = contentL;
         } else {
             self.eruptL = contentL;
+            self.eruptTL = lb;
         }
     }
     

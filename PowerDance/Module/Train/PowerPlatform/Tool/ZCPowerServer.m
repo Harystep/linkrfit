@@ -534,8 +534,7 @@ static ZCPowerServer *_defaultBTServer = nil;
         [[NSNotificationCenter defaultCenter] postNotificationName:kStartFileBackNoticeKey object:type];
     } else if ([content hasPrefix:@"0402071b"]) {
         //            NSLog(@"爆发力:%@", content);
-        NSString *value = [content substringWithRange:NSMakeRange(8, 12)];
-        NSLog(@"爆发力：%@", value);
+        NSString *value = [content substringWithRange:NSMakeRange(8, 12)];        
         NSString *left = [value substringWithRange:NSMakeRange(0, 6)];
         NSString *right = [value substringWithRange:NSMakeRange(6, 6)];
         NSString *leftStatus = [left substringWithRange:NSMakeRange(0, 2)];

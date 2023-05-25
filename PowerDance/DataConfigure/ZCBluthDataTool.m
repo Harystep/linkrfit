@@ -750,7 +750,7 @@
 }
 
 + (NSData *)getDeviceVersionInfo {
-    NSMutableString *temStr = [NSMutableString stringWithString:@"04010110"];
+    NSMutableString *temStr = [NSMutableString stringWithString:@"04010101"];
     return [self convertHexToByteData:temStr];
 }
 
@@ -1262,13 +1262,25 @@ unsigned short GetCRC16(unsigned char *puchMsg, unsigned short usDataLen, unsign
     NSString *title;
     switch (mode) {
         case 0:
-            title = @"kg";
+            if ([kPowerServerStore.unitStr isEqualToString:@"02"]) {
+                title = @"lb";
+            } else {
+                title = @"kg";
+            }
             break;
         case 1://离心
-            title = @"kg";
+            if ([kPowerServerStore.unitStr isEqualToString:@"02"]) {
+                title = @"lb";
+            } else {
+                title = @"kg";
+            }
             break;
         case 2://向心
-            title = @"kg";
+            if ([kPowerServerStore.unitStr isEqualToString:@"02"]) {
+                title = @"lb";
+            } else {
+                title = @"kg";
+            }
             break;
         case 3://等速
             title = @"cm/s";

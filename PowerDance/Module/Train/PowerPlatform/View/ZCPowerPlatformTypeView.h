@@ -21,6 +21,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic,strong) UILabel *eruptL;//爆发力
 
+@property (nonatomic,strong) UILabel *totalTL;//实际拉力
+
+@property (nonatomic,strong) UILabel *eruptTL;//爆发力
+
 @end
 
 NS_ASSUME_NONNULL_END

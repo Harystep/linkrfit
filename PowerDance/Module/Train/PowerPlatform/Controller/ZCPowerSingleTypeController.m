@@ -10,7 +10,6 @@
 #import "ZCPowerSingleServer.h"
 #import "ZCPowerStationSetView.h"
 #import "ECGView.h"
-#import "CFFBluetoothStatusView.h"
 
 #define kChartTopMargin 30
 
@@ -34,7 +33,7 @@
 
 @property (nonatomic,assign) NSInteger signTimerFlag;//暂停 1 yunxing 2
 
-@property (nonatomic,strong) CFFBluetoothStatusView *bluView;
+@property (nonatomic,strong) UILabel *statusL;
 
 @end
 
@@ -65,12 +64,12 @@
         make.height.mas_equalTo(5);
     }];
     
-    [statusView addSubview:self.bluView];
-    [self.bluView mas_makeConstraints:^(MASConstraintMaker *make) {
+    self.statusL = [self.view createSimpleLabelWithTitle:NSLocalizedString(@"连接中", nil) font:14 bold:NO color:[ZCConfigColor txtColor]];
+    [statusView addSubview:self.statusL];
+    [self.statusL mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerY.mas_equalTo(statusView.mas_centerY);
         make.trailing.mas_equalTo(statusView.mas_trailing).inset(15);
-        make.top.mas_equalTo(statusView.mas_top).offset(6);
     }];
-    self.bluView.type = BluetoothConnectStatusIng;
     
     self.topView = [[ZCPowerPlatformTypeView alloc] init];
     [self.contentView addSubview:self.topView];
@@ -342,26 +341,23 @@
     [[ZCPowerSingleServer defaultBLEServer].selectPeripheral writeValue:currentData forCharacteristic:[ZCPowerSingleServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
 }
 
-
-- (void)didConnect:(PeriperalInfo *)info {
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        self.bluView.type = BluetoothConnectStatusOk;
-    });
-   
-}
-
 - (void)didDisconnect {
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.bluView.type = BluetoothConnectStatusClosed;
+        self.statusL.text = NSLocalizedString(@"断开连接", nil);
     });
 }
 
 - (void)didStopScan {
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.bluView.type = BluetoothConnectStatusClosed;
-        
+        self.statusL.text = NSLocalizedString(@"断开连接", nil);
+    });
+}
+
+- (void)didConnect:(PeriperalInfo *)info {
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.statusL.text = NSLocalizedString(@"已连接", nil);
     });
 }
 
@@ -409,14 +405,6 @@
 #pragma -- mark 继续
 -(void)continueTimer {
     [self.timer setFireDate:[NSDate distantPast]];
-}
-
-- (CFFBluetoothStatusView *)bluView {
-    if (!_bluView) {
-        _bluView = [[CFFBluetoothStatusView alloc] init];
-        _bluView.deviceType = SmartDeviceTypeRuler;
-    }
-    return _bluView;
 }
 
 @end

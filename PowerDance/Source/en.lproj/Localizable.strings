@@ -559,6 +559,8 @@
 "实际拉力(kg)" = "Actual tensile force (kg)";
 "燃烧卡路里(千卡)" = "Calories burned (kcal)";
 "爆发力(kg)" = "Explosive force (kg)";
+"爆发力(lb)" = "Explosive force (lb)";
+"实际拉力(lb)" = "Actual tensile force (lb)";
 "常规模式" = "Normal Mode";
 "向心模式" = "Centripetal model";
 "离心模式" = "Centrifugal mode";
@@ -591,3 +593,4 @@
 "请先连接设备" = "Please connect the device first";
 "请先选择运动模式" = "Please select sports mode first";
 "收绳" = "Rope retraction";
+"档" = "gear";
