@@ -68,7 +68,6 @@
 - (void)deviceParamsBack:(NSNotification *)noti {
     NSString *version = noti.object;
     self.currentDeviceVersion = [version substringWithRange:NSMakeRange(0, 2)];
-    kPowerServerStore.unitStr = [version substringWithRange:NSMakeRange(6, 2)];
 }
 
 - (void)queryHardwareInfo {    

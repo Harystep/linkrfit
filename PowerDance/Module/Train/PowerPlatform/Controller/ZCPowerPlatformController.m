@@ -155,17 +155,22 @@
     [RACObserve(kPowerServerStore, unitStr) subscribeNext:^(id  _Nullable x) {
         NSInteger num = [weakself.topView.targetSetBtn.titleLabel.text integerValue];
         if(weakself.mode < 3) {
+            NSString *unit = weakself.topView.unitL.text;
+            if([x isEqualToString:@"02"]) {
+                if([unit isEqualToString:@"kg"]) {
+                    NSInteger tem = num*kUnitToKG;
+                    [weakself.topView.targetSetBtn setTitle:[NSString stringWithFormat:@"%ld", tem] forState:UIControlStateNormal];
+                }
+            } else {
+                if([unit isEqualToString:@"lb"]) {
+                    NSInteger tem = num/kUnitToKG;
+                    [weakself.topView.targetSetBtn setTitle:[NSString stringWithFormat:@"%ld", tem] forState:UIControlStateNormal];
+                }
+            }
             if([weakself.defaultBLEServer.unitStr isEqualToString:@"02"]) {
                 weakself.topView.unitL.text = @"lb";
             } else {
                 weakself.topView.unitL.text = @"kg";
-            }
-            if([x isEqualToString:@"02"]) {
-                NSInteger tem = num*kUnitToKG;
-                [weakself.topView.targetSetBtn setTitle:[NSString stringWithFormat:@"%ld", tem] forState:UIControlStateNormal];
-            } else {
-                NSInteger tem = num/kUnitToKG;
-                [weakself.topView.targetSetBtn setTitle:[NSString stringWithFormat:@"%ld", tem] forState:UIControlStateNormal];
             }
         }
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -240,9 +245,8 @@
 #pragma mark - 当前设定值
 - (void)modeChangeOperate:(NSNotification *)noti {
     NSString *data = noti.object;
-    
-    NSString *high = [data substringWithRange:NSMakeRange(0, 2)];
-    NSString *low = [data substringWithRange:NSMakeRange(2, 2)];
+    NSString *high = [data substringWithRange:NSMakeRange(2, 2)];
+    NSString *low = [data substringWithRange:NSMakeRange(0, 2)];
     
     NSString *hex = [NSString stringWithFormat:@"%@%@", high, low];
     long content = [ZCBluthDataTool convertHexToDecimal:hex];

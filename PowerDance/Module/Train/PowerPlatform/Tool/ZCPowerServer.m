@@ -561,7 +561,7 @@ static ZCPowerServer *_defaultBTServer = nil;
         [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataPowerValueKey object:value];
         NSLog(@"爆发力 value：%@", value);
     } else if ([content hasPrefix:@"04020612"]){//当前模式设置值
-        NSString *value = [content substringWithRange:NSMakeRange(10, 8)];
+        NSString *value = [content substringWithRange:NSMakeRange(10, 8)];//
         [[NSNotificationCenter defaultCenter] postNotificationName:kUpdataCurrentModeValueKey object:value];
     } else if ([content hasPrefix:@"04020b1a"]) {
         NSLog(@"位置：%@", content);
