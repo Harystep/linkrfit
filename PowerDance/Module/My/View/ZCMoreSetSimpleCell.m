@@ -12,6 +12,9 @@
 @property (nonatomic,strong) UILabel *titleL;
 @property (nonatomic,strong) UILabel *contentL;
 
+@property (nonatomic,strong) UIView *updateView;
+@property (nonatomic,strong) UILabel *versionL;
+
 @end
 
 @implementation ZCMoreSetSimpleCell
@@ -66,12 +69,54 @@
         make.centerY.mas_equalTo(arrowIv.mas_centerY);
         make.trailing.mas_equalTo(arrowIv.mas_leading).inset(AUTO_MARGIN(10));
     }];
+    
+    self.updateView = [[UIView alloc] init];
+    [bgView addSubview:self.updateView];
+    self.updateView.userInteractionEnabled = NO;
+    [self.updateView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.trailing.mas_equalTo(bgView.mas_trailing).inset(25);
+        make.centerY.mas_equalTo(bgView.mas_centerY);
+        make.width.mas_equalTo(220);
+        make.height.mas_equalTo(30);
+    }];
+    
+    [self setupAlertUpdateView];
+    self.updateView.hidden = YES;
+    
+}
+
+- (void)setupAlertUpdateView {
+    
+    self.versionL = [self createSimpleLabelWithTitle:@" " font:12 bold:YES color:[ZCConfigColor subTxtColor]];
+    [self.updateView addSubview:self.versionL];
+    [self.versionL mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerY.mas_equalTo(self.updateView.mas_centerY);
+        make.trailing.mas_equalTo(self.updateView.mas_trailing).inset(5);
+    }];
+    
+    UIView *alertView = [[UIView alloc] init];
+    [self.updateView addSubview:alertView];
+    [alertView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerY.mas_equalTo(self.updateView.mas_centerY);
+        make.trailing.mas_equalTo(self.versionL.mas_leading).inset(3);
+        make.height.width.mas_equalTo(4);
+    }];
+    alertView.backgroundColor = UIColor.redColor;
+    [alertView setViewCornerRadiu:2];
+    
 }
 
 - (void)setDataDic:(NSDictionary *)dataDic {
     _dataDic = dataDic;
     self.titleL.text = dataDic[@"title"];
     self.contentL.text = dataDic[@"content"];
+}
+
+- (void)setLastVersion:(NSString *)lastVersion {
+    _lastVersion = lastVersion;
+    self.updateView.hidden = NO;
+    
+    self.versionL.text = [NSString stringWithFormat:@"V%@ %@", lastVersion, NSLocalizedString(@"可更新", nil)];
 }
 
 @end

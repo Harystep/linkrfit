@@ -30,6 +30,7 @@
 @property (nonatomic,strong) NSDictionary *f0Version;
 @property (nonatomic,copy) NSDictionary *f1Version;
 @property (nonatomic,copy) NSString *fileCrc;
+@property (nonatomic,copy) NSString *lastVersion;
 
 @end
 
@@ -54,8 +55,6 @@
      
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updataBackSucNotice:) name:kUpdateFileBackNoticeKey object:nil];
     
-    [self queryHardwareInfo];
-    
     if([ZCPowerServer defaultBLEServer].selectFileCharacteristic != nil) {
         [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool getDeviceVersionInfo] forCharacteristic:[ZCPowerServer defaultBLEServer].selectFileCharacteristic type:CBCharacteristicWriteWithResponse];
     }
@@ -64,6 +63,7 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(startUpdateBack:) name:kStartFileBackNoticeKey object:nil];
         
+    [self queryHardwareInfo];
 }
 
 - (void)deviceParamsBack:(NSNotification *)noti {
@@ -77,6 +77,15 @@
         NSDictionary *fileDic = responseObj[@"data"];
         self.f0Version = fileDic[@"f01"];
         self.f1Version = fileDic[@"f02"];
+        NSString *version = checkSafeContent(self.f0Version[@"version"]);
+        version = [version stringByReplacingOccurrencesOfString:@"." withString:@""];
+        NSInteger f0Version = [version integerValue];
+        if(f0Version > [self.currentDeviceVersion integerValue]) {
+            self.lastVersion = checkSafeContent(self.f0Version[@"version"]);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.tableView reloadData];
+            });
+        }
     }];
 }
 
@@ -227,6 +236,9 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     ZCMoreSetSimpleCell *cell = [ZCMoreSetSimpleCell moreSetSimpleCellWithTableView:tableView idnexPath:indexPath];
     cell.dataDic = self.dataArr[indexPath.row];
+    if(indexPath.row == 0 && self.lastVersion.length > 0) {
+        cell.lastVersion = self.lastVersion;
+    }
     return cell;
 }
 

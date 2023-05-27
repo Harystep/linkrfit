@@ -13,6 +13,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic,strong) NSDictionary *dataDic;
 
+@property (nonatomic,copy) NSString *lastVersion;
+
 + (instancetype)moreSetSimpleCellWithTableView:(UITableView *)tableView idnexPath:(NSIndexPath *)indexPath;
 
 @end

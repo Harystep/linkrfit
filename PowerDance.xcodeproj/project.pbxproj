@@ -4635,7 +4635,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "PowerDance/练氪Debug.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 29;
+				CURRENT_PROJECT_VERSION = 30;
 				DEVELOPMENT_TEAM = GQ9J2GY85L;
 				ENABLE_BITCODE = NO;
 				EXCLUDED_ARCHS = "";
@@ -4655,7 +4655,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/PowerDance/Module/Train/SmartCloud/Tool/ScaleCount",
 				);
-				MARKETING_VERSION = 2.4.4;
+				MARKETING_VERSION = 2.4.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.procircle.PowerDance;
 				PRODUCT_NAME = "练氪";
 				TARGETED_DEVICE_FAMILY = 1;
@@ -4670,7 +4670,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "PowerDance/练氪Release.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 29;
+				CURRENT_PROJECT_VERSION = 30;
 				DEVELOPMENT_TEAM = GQ9J2GY85L;
 				ENABLE_BITCODE = NO;
 				EXCLUDED_ARCHS = "";
@@ -4690,7 +4690,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/PowerDance/Module/Train/SmartCloud/Tool/ScaleCount",
 				);
-				MARKETING_VERSION = 2.4.4;
+				MARKETING_VERSION = 2.4.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.procircle.PowerDance;
 				PRODUCT_NAME = "练氪";
 				TARGETED_DEVICE_FAMILY = 1;

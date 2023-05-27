@@ -10,6 +10,7 @@
 #import "ZCPowerSingleServer.h"
 #import "ZCPowerStationSetView.h"
 #import "ECGView.h"
+#import "CFFBluetoothStatusView.h"
 
 #define kChartTopMargin 30
 
@@ -33,7 +34,7 @@
 
 @property (nonatomic,assign) NSInteger signTimerFlag;//暂停 1 yunxing 2
 
-@property (nonatomic,strong) UILabel *statusL;
+@property (nonatomic,strong) CFFBluetoothStatusView *bluView;
 
 @end
 
@@ -77,12 +78,13 @@
         make.height.mas_equalTo(5);
     }];
     
-    self.statusL = [self.view createSimpleLabelWithTitle:NSLocalizedString(@"连接中", nil) font:14 bold:NO color:[ZCConfigColor txtColor]];
-    [statusView addSubview:self.statusL];
-    [self.statusL mas_makeConstraints:^(MASConstraintMaker *make) {
+    [statusView addSubview:self.bluView];
+    [self.bluView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerY.mas_equalTo(statusView.mas_centerY);
         make.trailing.mas_equalTo(statusView.mas_trailing).inset(15);
     }];
+    self.bluView.type = BluetoothConnectStatusIng;
+    self.bluView.userInteractionEnabled = NO;
     
     self.topView = [[ZCPowerPlatformTypeView alloc] init];
     [self.contentView addSubview:self.topView];
@@ -362,20 +364,20 @@
 - (void)didDisconnect {
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.statusL.text = NSLocalizedString(@"断开连接", nil);
+        self.bluView.type = BluetoothConnectStatusClosed;
     });
 }
 
 - (void)didStopScan {
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.statusL.text = NSLocalizedString(@"断开连接", nil);
+        self.bluView.type = BluetoothConnectStatusClosed;
     });
 }
 
 - (void)didConnect:(PeriperalInfo *)info {
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.statusL.text = NSLocalizedString(@"已连接", nil);
+        self.bluView.type = BluetoothConnectStatusOk;
     });
 }
 
@@ -423,6 +425,14 @@
 #pragma -- mark 继续
 -(void)continueTimer {
     [self.timer setFireDate:[NSDate distantPast]];
+}
+
+- (CFFBluetoothStatusView *)bluView {
+    if (!_bluView) {
+        _bluView = [[CFFBluetoothStatusView alloc] init];
+        _bluView.deviceType = SmartDeviceTypeRuler;
+    }
+    return _bluView;
 }
 
 @end
