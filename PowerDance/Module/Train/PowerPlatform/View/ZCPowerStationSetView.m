@@ -141,6 +141,15 @@
     _picker.defaultSelectedRow = @[@"0"];
 }
 
+- (void)setDefValue:(NSString *)defValue {
+    _defValue = defValue;
+    NSInteger num = [self.dataArr[0] integerValue];
+    NSInteger targetNum = [defValue integerValue];
+    NSString *targetStr = [NSString stringWithFormat:@"%tu", targetNum-num];
+    _picker.defaultSelectedRow = @[targetStr];
+    self.valueStr = targetStr;
+}
+
 - (ZGPickerView *)picker {
     if (!_picker) {
         _picker = [[ZGPickerView alloc] initWithFrame:CGRectMake(AUTO_MARGIN(231)/2.0, 0, AUTO_MARGIN(60), AUTO_MARGIN(100))];

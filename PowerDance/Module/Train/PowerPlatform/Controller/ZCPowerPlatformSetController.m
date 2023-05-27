@@ -29,6 +29,7 @@
 @property (nonatomic,copy) NSString *currentDeviceVersion;//当前设备版本号
 @property (nonatomic,strong) NSDictionary *f0Version;
 @property (nonatomic,copy) NSDictionary *f1Version;
+@property (nonatomic,copy) NSString *fileCrc;
 
 @end
 
@@ -55,7 +56,7 @@
     
     [self queryHardwareInfo];
     
-    if([ZCPowerServer defaultBLEServer].selectPeripheral != nil) {
+    if([ZCPowerServer defaultBLEServer].selectFileCharacteristic != nil) {
         [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool getDeviceVersionInfo] forCharacteristic:[ZCPowerServer defaultBLEServer].selectFileCharacteristic type:CBCharacteristicWriteWithResponse];
     }
     
@@ -81,10 +82,12 @@
 
 - (void)updataBackSucNotice:(NSNotification *)noti {
     NSString *content = noti.object;
+    self.index = 0;
     dispatch_async(dispatch_get_main_queue(), ^{
         if([content isEqualToString:@"00"]) {
-            [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool setStartUpdateWithType:@"01" fileName:[ZCBluthDataTool convertStringToHexStr:self.filename]] forCharacteristic:[ZCPowerServer defaultBLEServer].selectFileCharacteristic type:CBCharacteristicWriteWithResponse];
+            [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool setStartUpdateWithType:@"01" fileName:[ZCBluthDataTool convertStringToHexStr:self.filename]] forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
         } else {
+            self.updateView.failFlag = YES;
         }
     });
 }
@@ -149,7 +152,9 @@
 }
 
 - (void)downloadFileOperate:(NSDictionary *)fileDic {
-    NSURL *url = [NSURL URLWithString:checkSafeContent(fileDic[@"url"])];
+//    NSString *fileUrl = @"https://zc-tk.oss-cn-beijing.aliyuncs.com/bootloader.bin";
+    NSString *fileUrl = checkSafeContent(fileDic[@"url"]);
+    NSURL *url = [NSURL URLWithString:fileUrl];
     // 创建request对象
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
     
@@ -162,28 +167,28 @@
     NSURLSessionTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (data) {
             // 将下载的数据传出去，进行UI更新
-            NSLog(@"%@", data);
+            NSLog(@"%tu", data.length);
             Byte *bytes = (Byte *)[data bytes];
             NSMutableString *str = [NSMutableString stringWithCapacity:data.length];
             for (int i = 0; i < data.length; i ++) {
                 [str appendFormat:@"%02x", bytes[i]];
             }
-            NSLog(@"str:%@", str);
             self.subpackage = str;
             self.remainLength = data.length % 128;
             self.totalIndex = ceil(data.length/128.0);
             NSLog(@"%tu-%tu", self.remainLength, self.totalIndex);
             self.bytes = bytes;
             self.filename = checkSafeContent(fileDic[@"name"]);
-            dispatch_async(dispatch_get_main_queue(), ^{
-//                ZCPowerStationAlertView *alertView = [[ZCPowerStationAlertView alloc] init];
-//                self.updateView = alertView;
-//                [alertView showAlertView];
-//                alertView.nowVersion = self.currentDeviceVersion;
-//                alertView.lastVersion = checkSafeContent(self.f0Version[@"version"]);
-//                kweakself(self);
-//                alertView.updateBlock = ^{
-//                };
+            if(data.length > kMaxLenght) {                
+                NSInteger remainLength = data.length % (kMaxLenght);
+                NSInteger totalFileIndex = ceil(data.length/kMaxLenght);
+                unsigned int rc = [ZCBluthDataTool getMaxFileCRC16WithContent:str index:0 maxIndex:totalFileIndex remainLen:remainLength crc:0xFFFF];
+                self.fileCrc = [ZCBluthDataTool ToHex:rc];
+            } else {
+                unsigned int rc = [ZCBluthDataTool GetSmallCRC16:bytes len:data.length first:0xFFFF];
+                self.fileCrc = [ZCBluthDataTool ToHex:rc];
+            }
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 [self sendSubpackageWithindex:0];
             });
         }
@@ -202,8 +207,10 @@
         package = [self.subpackage substringWithRange:NSMakeRange(256*index, length)];
         NSString *filename = [ZCBluthDataTool convertStringToHexStr:self.filename];
         if([ZCPowerServer defaultBLEServer].selectPeripheral != nil) {
-            NSData *data = [ZCBluthDataTool sendFilePackage:self.subpackage content:package filename:filename total:self.totalIndex currentIndex:self.index bytes:self.bytes];
-            [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerServer defaultBLEServer].selectFileCharacteristic type:CBCharacteristicWriteWithResponse];
+            dispatch_async(dispatch_get_global_queue(0, 0), ^{
+                NSData *data = [ZCBluthDataTool sendFilePackage:self.subpackage fileCrc:self.fileCrc content:package filename:filename total:self.totalIndex currentIndex:self.index bytes:self.bytes];
+                [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerServer defaultBLEServer].selectFileCharacteristic type:CBCharacteristicWriteWithResponse];
+            });
             NSLog(@">>>%tu", self.index);
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.03 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 [self updataBackNotice];

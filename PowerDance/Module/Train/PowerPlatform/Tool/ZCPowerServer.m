@@ -528,7 +528,7 @@ static ZCPowerServer *_defaultBTServer = nil;
         NSLog(@"语言设置:%@", content);
     } else if ([content hasPrefix:@"05021301"]) {//上传文件返回结果
         NSString *type = [content substringWithRange:NSMakeRange(42, 2)];
-        NSLog(@"file:%@", content);
+        NSLog(@"file:%@", type);
         [[NSNotificationCenter defaultCenter] postNotificationName:kUpdateFileBackNoticeKey object:type];
     } else if ([content hasPrefix:@"05020202"]) {//执行更新返回
         NSString *type = [content substringWithRange:NSMakeRange(8, 2)];

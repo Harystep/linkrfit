@@ -7,6 +7,8 @@
 
 #import <Foundation/Foundation.h>
 
+#define kMaxLenght (1024*20)
+
 typedef enum : NSUInteger {
     TrainModeMIIT = 0,
     TrainModeHIIT,
@@ -186,7 +188,7 @@ NS_ASSUME_NONNULL_BEGIN
 ///   - package: <#package description#>
 ///   - content: <#content description#>
 ///   - filename: <#filename description#>
-+ (NSData *)sendFilePackage:(NSString *)package content:(NSString *)content filename:(NSString *)filename total:(NSInteger)totalIndex currentIndex:(NSInteger)currentIndex bytes:(Byte *)bytes ;
++ (NSData *)sendFilePackage:(NSString *)package fileCrc:(NSString *)fileCrc content:(NSString *)content filename:(NSString *)filename total:(NSInteger)totalIndex currentIndex:(NSInteger)currentIndex bytes:(Byte *)bytes ;
 
 /// 开始更新
 /// - Parameters:
@@ -246,6 +248,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 获取当前拉力
 + (NSData *)getCurrentModePullSport;
 
+/// 收绳
++ (NSData *)startSportBackRopeSingleMode;
+
 /// 设置运动模式
 /// - Parameter data: <#data description#>
 + (NSData *)setCurrentSportMode:(NSString *)data;
@@ -261,6 +266,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSData *)startSportSingleMode;
 + (NSData *)stopSportSingleMode;
+
++(unsigned int)getMaxFileCRC16WithContent:(NSString *)dataStr index:(NSInteger)index maxIndex:(NSInteger)maxIndex remainLen:(NSInteger)remainLen  crc:(unsigned int)crc;
+
++ (unsigned int)GetSmallCRC16:(unsigned char *)puchMsg len:(unsigned int)usDataLen first:(unsigned int)first;
 
 @end
 

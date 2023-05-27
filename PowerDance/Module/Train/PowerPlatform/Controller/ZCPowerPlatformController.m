@@ -45,9 +45,17 @@
 
 @implementation ZCPowerPlatformController
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    self.navigationController.interactivePopGestureRecognizer.enabled = YES;
+}
+
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
- 
+    //禁用右滑返回
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        self.navigationController.interactivePopGestureRecognizer.enabled = NO;
+    });
 }
 
 - (void)viewDidLoad {
@@ -394,6 +402,10 @@
             block(@"");
             
         } else if ([eventName isEqualToString:@"back"]) {
+            if(self.signTimerFlag == 2) {
+                [self.view makeToast:NSLocalizedString(@"请先暂停运动", nil) duration:2.0 position:CSToastPositionCenter];
+                return;
+            }
             data = [ZCBluthDataTool sendBackRopeStationOperate];
             [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
             block(@"");
@@ -444,6 +456,7 @@
             setView.titleL.text = NSLocalizedString(@"设置", nil);
             setView.configureArr = [ZCBluthDataTool convertDataWithMode:self.mode];
             [setView showAlertView];
+            setView.defValue = self.topView.targetSetBtn.titleLabel.text;
             kweakself(self);
             setView.sureRepeatOperate = ^(NSString * _Nonnull content) {
                 NSLog(@"%@", content);
@@ -510,6 +523,10 @@
 
     //实际位置
     [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool getDeviceSportLocalData] forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool sendGetDevicePullForceOrder] forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
+    });
 }
 
 //获取当前设置值
@@ -517,10 +534,7 @@
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(.75 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool sendGetCurrentModeSetValueOrder] forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
     });
-    
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [[ZCPowerServer defaultBLEServer].selectPeripheral writeValue:[ZCBluthDataTool getDeviceSportLocalData] forCharacteristic:[ZCPowerServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
-    });
+        
 }
 
 - (void)didDisconnect {

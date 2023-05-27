@@ -39,6 +39,19 @@
 
 @implementation ZCPowerSingleTypeController
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    self.navigationController.interactivePopGestureRecognizer.enabled = YES;
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    //禁用右滑返回
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        self.navigationController.interactivePopGestureRecognizer.enabled = NO;
+    });
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     
@@ -235,7 +248,11 @@
             [[ZCPowerSingleServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerSingleServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
             block(@"");
         } else if ([eventName isEqualToString:@"back"]) {
-            data = [ZCBluthDataTool sendBackRopeStationOperate];
+            if(self.signTimerFlag == 2) {
+                [self.view makeToast:NSLocalizedString(@"请先暂停运动", nil) duration:2.0 position:CSToastPositionCenter];
+                return;
+            }
+            data = [ZCBluthDataTool startSportBackRopeSingleMode];
             [[ZCPowerSingleServer defaultBLEServer].selectPeripheral writeValue:data forCharacteristic:[ZCPowerSingleServer defaultBLEServer].selectCharacteristic type:CBCharacteristicWriteWithResponse];
             block(@"");
         } else if ([eventName isEqualToString:@"mode"]) {
@@ -300,6 +317,7 @@
             setView.titleL.text = NSLocalizedString(@"设置", nil);
             setView.configureArr = [ZCBluthDataTool convertDataWithMode:self.mode];
             [setView showAlertView];
+            setView.defValue = self.topView.targetSetBtn.titleLabel.text;
             kweakself(self);
             setView.sureRepeatOperate = ^(NSString * _Nonnull content) {
                 NSLog(@"%@", content);

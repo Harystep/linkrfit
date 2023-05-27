@@ -783,7 +783,7 @@
     return [self convertHexToByteData:temStr];
 }
 
-+ (NSData *)sendFilePackage:(NSString *)package content:(NSString *)content filename:(NSString *)filename total:(NSInteger)totalIndex currentIndex:(NSInteger)currentIndex bytes:(Byte *)bytes {
++ (NSData *)sendFilePackage:(NSString *)package fileCrc:(NSString *)fileCrc content:(NSString *)content filename:(NSString *)filename total:(NSInteger)totalIndex currentIndex:(NSInteger)currentIndex bytes:(Byte *)bytes {
     NSInteger size = package.length / 2048;
     NSInteger length = content.length / 2;
     length = length + 26;
@@ -798,33 +798,45 @@
     }
     [self appendWitContent:[self ToHex:size] contain:str];
     //总包crc16
-    unsigned short rc = 0;
-    rc = GetCRC16(bytes, package.length/2, 0xFFFF);
-    NSString *crcStr = [self ToHex:rc];
-    [self appendWitContent:crcStr contain:str];
-//    if(crcStr.length == 4) {
-//        [str appendString:[crcStr substringWithRange:NSMakeRange(2, 2)]];
-//        [str appendString:[crcStr substringWithRange:NSMakeRange(0, 2)]];
+    NSInteger packageLen = package.length/2;
+    unsigned int rc = 0;
+//    if(packageLen > kMaxLenght) {
+//        NSInteger remainLength = packageLen % (kMaxLenght);
+//        NSInteger totalFileIndex = ceil(packageLen/kMaxLenght);
+//        rc = [self getMaxFileCRC16WithContent:package index:0 maxIndex:totalFileIndex remainLen:remainLength crc:0xFFFF];
+//        NSString *crcStr = [self ToHex:rc];
+//        NSLog(@"hexCrc:%@", crcStr);
+//        [self appendWitContent:crcStr contain:str];
+//    } else {
+//        rc = GetCRC16(bytes, packageLen, 0xFFFF);
+//        NSString *crcStr = [self ToHex:rc];
+//        [self appendWitContent:crcStr contain:str];
 //    }
+    [self appendWitContent:fileCrc contain:str];
     
     [self appendWitContent:[self ToHex:totalIndex] contain:str];
     [self appendWitContent:[self ToHex:currentIndex] contain:str];
     
     //当前包crc16
     NSData *temData = [ZCBluthDataTool convertHexStrToData:content];
-    Byte *temBytes = (Byte *)[temData bytes];
+    Byte *temBytes = (Byte *)[temData bytes];    
     unsigned short rc1 = 0;
     rc1 = GetCRC16(temBytes, temData.length, 0xFFFF);
     NSString *crcCcurrentStr = [self ToHex:rc1];
     [self appendWitContent:crcCcurrentStr contain:str];
-//    if(crcCcurrentStr.length == 4) {
-//        [str appendString:[crcCcurrentStr substringWithRange:NSMakeRange(2, 2)]];
-//        [str appendString:[crcCcurrentStr substringWithRange:NSMakeRange(0, 2)]];
-//    }
+
     [self appendWitContent:[self ToHex:content.length / 2] contain:str];
     [str appendString:content];
-    NSLog(@"content:%@", str);
     return [self convertHexToByteData:str];
+}
+
++ (NSString *)convertFourHexWitContent:(NSString *)content {
+    NSMutableString *sizeTem = [NSMutableString string];
+    for (int i = 0; i < 4-content.length; i ++) {
+        [sizeTem appendString:@"0"];
+    }
+    [sizeTem appendString:content];
+    return sizeTem;
 }
 
 + (void)appendWitContent:(NSString *)content contain:(NSMutableString *)str {
@@ -838,8 +850,13 @@
 }
 
 + (NSData *)setStartUpdateWithType:(NSString *)type fileName:(NSString *)name {
-    NSData *data;
-    NSMutableString *str = [NSMutableString stringWithFormat:@"%@%@%@", @"05010E02", type, name];    
+    NSMutableString *temStr = [NSMutableString stringWithString:name];
+    if(temStr.length < 24) {
+        for (NSInteger i = temStr.length; i < 24; i ++) {
+            [temStr appendString:@"0"];
+        }
+    }
+    NSMutableString *str = [NSMutableString stringWithFormat:@"%@%@%@", @"05010E02", type, temStr];
     return [self convertHexToByteData:str];
 }
 
@@ -916,21 +933,56 @@ unsigned char auchCRCLo[256] = {
         完成；
 */
 /*********************************************************************************/
-  
-unsigned short GetCRC16(unsigned char *puchMsg, unsigned short usDataLen, unsigned short first)
+
++(unsigned int)getMaxFileCRC16WithContent:(NSString *)dataStr index:(NSInteger)index maxIndex:(NSInteger)maxIndex remainLen:(NSInteger)remainLen crc:(unsigned int)crc {
+    NSInteger incIndex = maxIndex+1;
+    while (incIndex --) {
+        NSInteger length = kMaxLenght*2;
+        if (index == maxIndex) {
+            length = remainLen*2;
+        }
+        NSString *package = [dataStr substringWithRange:NSMakeRange(kMaxLenght*2*index, length)];
+        NSData *temData = [ZCBluthDataTool convertHexStrToData:package];
+        Byte *temBytes = (Byte *)[temData bytes];
+        if(index == 0) {
+            crc = 0xFFFF;
+        }
+        crc = GetCRC16(temBytes, temData.length, crc);
+        index ++;
+    }
+    NSLog(@"indexcrc:%d", crc);
+    return crc;
+}
+
++ (unsigned int)GetSmallCRC16:(unsigned char *)puchMsg len:(unsigned int)usDataLen first:(unsigned int)first {
+    unsigned char uchCRCHi = first ; /* 高CRC字节初始化 */
+    unsigned char uchCRCLo = first >> 8 ; /* 低CRC 字节初始化 */
+    unsigned uIndex = 0; /* CRC循环中的索引 */
+        
+    while (usDataLen--) /* 传输消息缓冲区 */
+    {
+      uIndex = uchCRCHi ^ *puchMsg++ ; /* 计算CRC */
+      uchCRCHi = uchCRCLo ^ auchCRCHi[uIndex] ;
+      uchCRCLo = auchCRCLo[uIndex] ;
+    }
+  //    return (unsigned short)((unsigned short)uchCRCHi << 8 | uchCRCLo) ;
+    return (unsigned int)((unsigned int)uchCRCLo << 8 | uchCRCHi) ;
+}
+
+unsigned int GetCRC16(unsigned char *puchMsg, unsigned int usDataLen, unsigned int first)
 {
-  unsigned char uchCRCHi = first ; /* 高CRC字节初始化 */
-  unsigned char uchCRCLo = first >> 8 ; /* 低CRC 字节初始化 */
-  unsigned uIndex = 0; /* CRC循环中的索引 */
-      
-  while (usDataLen--) /* 传输消息缓冲区 */
-  {
-    uIndex = uchCRCHi ^ *puchMsg++ ; /* 计算CRC */
-    uchCRCHi = uchCRCLo ^ auchCRCHi[uIndex] ;
-    uchCRCLo = auchCRCLo[uIndex] ;
-  }
-//    return (unsigned short)((unsigned short)uchCRCHi << 8 | uchCRCLo) ;
-  return (unsigned short)((unsigned short)uchCRCLo << 8 | uchCRCHi) ;
+    unsigned char uchCRCHi = first ; /* 高CRC字节初始化 */
+    unsigned char uchCRCLo = first >> 8 ; /* 低CRC 字节初始化 */
+    unsigned uIndex = 0; /* CRC循环中的索引 */
+    
+    while (usDataLen--) /* 传输消息缓冲区 */
+    {
+        uIndex = uchCRCHi ^ *puchMsg++ ; /* 计算CRC */
+        uchCRCHi = uchCRCLo ^ auchCRCHi[uIndex] ;
+        uchCRCLo = auchCRCLo[uIndex] ;
+    }
+    //    return (unsigned short)((unsigned short)uchCRCHi << 8 | uchCRCLo) ;
+    return (unsigned int)((unsigned int)uchCRCLo << 8 | uchCRCHi) ;
 }
 
 /**
@@ -1147,6 +1199,21 @@ unsigned short GetCRC16(unsigned char *puchMsg, unsigned short usDataLen, unsign
     NSString *dataStr = [NSString stringWithFormat:@"%@%@", hexStr, lowHex];
     return [self convertHexStrToData:dataStr];
 }
+
++ (NSData *)startSportBackRopeSingleMode {
+    NSString *hexStr = @"015171160000000001";
+    int num = 0;
+    for (int i = 0; i < hexStr.length / 2; i ++) {
+        NSString *hex = [hexStr substringWithRange:NSMakeRange(i*2, 2)];
+//        NSLog(@"%@", hex);
+        num += (int)strtoul([hex UTF8String], 0, 16);
+    }
+    NSString *transHex = [self ToHex:num];
+    NSString *lowHex = [transHex substringFromIndex:transHex.length-2];
+    NSString *dataStr = [NSString stringWithFormat:@"%@%@", hexStr, lowHex];
+    return [self convertHexStrToData:dataStr];
+}
+
 + (NSData *)stopSportSingleMode {
     NSString *hexStr = @"015171160000000004";
     int num = 0;

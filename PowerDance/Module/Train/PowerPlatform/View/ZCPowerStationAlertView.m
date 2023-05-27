@@ -38,6 +38,8 @@
 
 @property (nonatomic,strong) UILabel *lastVersionL;
 
+@property (nonatomic,strong) UILabel *sucL;
+
 @end
 
 @implementation ZCPowerStationAlertView
@@ -216,6 +218,14 @@
         make.top.mas_equalTo(contentView.mas_top).offset(52);
     }];
     
+    self.sucL = [self createSimpleLabelWithTitle:@"" font:12 bold:NO color:[ZCConfigColor txtColor]];
+    [contentView addSubview:self.sucL];
+    [self.sucL mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.mas_equalTo(statusIv.mas_bottom).offset(10);
+        make.centerX.mas_equalTo(statusIv.mas_centerX);
+    }];
+    self.sucL.text = [NSString stringWithFormat:@"V%@%@", self.lastVersion, NSLocalizedString(@"更新完成", nil)];
+    
     UIButton *sure = [self createSimpleButtonWithTitle:NSLocalizedString(@"返回设置", nil) font:14 color:[ZCConfigColor whiteColor]];
     [contentView  addSubview:sure];
     [sure mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -224,7 +234,7 @@
         make.width.mas_equalTo(182);
         make.height.mas_equalTo(42);
     }];
-    [sure addTarget:self action:@selector(sureOperate) forControlEvents:UIControlEventTouchUpInside];
+    [sure addTarget:self action:@selector(backOperate) forControlEvents:UIControlEventTouchUpInside];
     [sure layoutIfNeeded];
     
     [sure configureLeftToRightViewColorGradient:sure width:182 height:42 one:rgba(158, 168, 194, 1) two:rgba(138, 205, 215, 1) cornerRadius:21];
@@ -279,6 +289,13 @@
     }
 }
 
+- (void)backOperate {
+    self.updateIv.hidden = NO;
+    self.baseView.hidden = YES;
+    self.faiView.hidden = YES;
+    self.operateBtn.hidden = YES;
+}
+
 - (void)deleteOperate {
     [self hideAlertView];
 }
@@ -293,7 +310,7 @@
     if(nowVersion.length > 1) {
         NSString *pre = [nowVersion substringWithRange:NSMakeRange(0, 1)];
         NSString *end = [nowVersion substringWithRange:NSMakeRange(1, nowVersion.length-1)];
-        self.nowVersionL.text = [NSString stringWithFormat:@"%@,%@", pre, end];
+        self.nowVersionL.text = [NSString stringWithFormat:@"%@.%@", pre, end];
     }
 }
 

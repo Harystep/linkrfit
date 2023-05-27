@@ -17,6 +17,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic,strong) NSArray *configureArr;
 
+@property (nonatomic,copy) NSString *defValue;;
+
 - (void)showAlertView;
 
 @end
